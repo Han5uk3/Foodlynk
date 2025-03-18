@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:saver_bbk_main/common_widget/button.dart';
+import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
+import 'package:saver_bbk_main/styles/colors.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -20,15 +23,15 @@ class _ProfilePageState extends State<ProfilePage> {
             _buildProfileTile(
               label: "My Profile",
               icon: Icons.person_2_outlined,
-              color: Colors.blue.shade50,
-              iconColor: Colors.blue.shade900,
+              color: AppColor.lightblue,
+              iconColor: AppColor.blue,
             ),
 
             _buildProfileTile(
               label: "Password",
               icon: Icons.key_outlined,
-              color: Colors.purple.shade50,
-              iconColor: Colors.purple.shade600,
+              color: AppColor.lightPurple,
+              iconColor: AppColor.purple,
             ),
 
             _buildProfileTile(
@@ -44,15 +47,18 @@ class _ProfilePageState extends State<ProfilePage> {
               color: Colors.red.shade50,
               iconColor: Colors.red.shade600,
               onTap: () {
-                _showDeleteBottomSheet(context);
+                _showDeleteBottomSheet(context, true);
               },
             ),
 
             _buildProfileTile(
               label: "Logout",
               icon: Icons.person_2_outlined,
-              color: const Color.fromARGB(91, 255, 157, 190),
-              iconColor: Colors.pink.shade600,
+              color: AppColor.lightPink,
+              iconColor: AppColor.pink,
+              onTap: () {
+                _showDeleteBottomSheet(context, false);
+              },
             ),
           ],
         ),
@@ -77,7 +83,7 @@ class _ProfilePageState extends State<ProfilePage> {
             width: 40,
             decoration: BoxDecoration(
               color: color,
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: iconColor),
           ),
@@ -90,24 +96,66 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  _showDeleteBottomSheet(BuildContext context) {
+  _showDeleteBottomSheet(BuildContext context, bool toggler) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            spacing: 15,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 10),
-              Text(
-                "Delete Profile",
+        return Column(
+          spacing: 15,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                toggler ? "Delete Profile" : "Logout",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              Divider(height: 0.5, thickness: 0.5, color: Colors.grey.shade500),
-            ],
-          ),
+            ),
+            Divider(height: 0.5, thickness: 0.5, color: Colors.grey.shade500),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SizedBox(
+                height: toggler ? 40 : 40,
+                child: Text(
+                  toggler
+                      ? "Are you sure you want to delete your profile with Saver?"
+                      : "Are you sure you want to logout?",
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+            SizedBox(height: 5),
+            Divider(height: 0.5, thickness: 0.5, color: Colors.grey.shade500),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 3),
+              child: Row(
+                spacing: 10,
+                children: [
+                  Expanded(
+                    child: SaverOutlineButton(
+                      text: "Cancel",
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      borderColor: AppColor.red,
+                      textColor: AppColor.red,
+                    ),
+                  ),
+                  Expanded(
+                    child: SaverButton(
+                      text: toggler ? "Delete Profile" : "Logout",
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      color: AppColor.red,
+                      textColor: AppColor.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         );
       },
       shape: RoundedRectangleBorder(
@@ -116,18 +164,16 @@ class _ProfilePageState extends State<ProfilePage> {
           topRight: Radius.circular(20),
         ),
       ),
-      backgroundColor: Colors.white,
-      isScrollControlled: true,
+      backgroundColor: AppColor.white,
+      // isScrollControlled: true,
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.35,
+        maxHeight: MediaQuery.of(context).size.height * 0.25,
       ),
       clipBehavior: Clip.antiAliasWithSaveLayer,
       barrierColor: Colors.black26,
       barrierLabel: '',
-      enableDrag: false,
-      isDismissible: true,
+      isDismissible: false,
       useRootNavigator: true,
-      useSafeArea: true,
     );
   }
 }

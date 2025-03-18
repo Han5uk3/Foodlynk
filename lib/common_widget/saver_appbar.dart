@@ -10,12 +10,12 @@ PreferredSizeWidget saverAppBar(
 }) {
   return AppBar(
     scrolledUnderElevation: 0,
+    centerTitle: false,
     toolbarHeight: 75,
     title: Text(
       title,
       style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
     ),
-    centerTitle: false,
     shape: BorderDirectional(
       bottom: BorderSide(color: Colors.grey.shade100, width: 3),
     ),
