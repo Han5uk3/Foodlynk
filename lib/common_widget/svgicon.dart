@@ -4,3 +4,4 @@ import 'package:flutter/widgets.dart';
 Widget loadsvg(String path) {
   return SvgPicture.asset(path, fit: BoxFit.contain);
 }
+

@@ -28,7 +28,7 @@ class SaverDropdown extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
       ),
       child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
+        child: DropdownButton<String>(dropdownColor: AppColor.white,borderRadius: BorderRadius.all(Radius.circular(12)),
           value: selectedItem.isNotEmpty ? selectedItem : null,
           hint: Text(hint, style: TextStyle(color: AppColor.lightGrey200)),
           isExpanded: true,
