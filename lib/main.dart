@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
-import 'package:saver_bbk_main/profile/profile_page.dart';
+import 'package:saver_bbk_main/modules/profile/profile_page.dart';
 import 'package:saver_bbk_main/modules/splash_screen/splash_screen.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
