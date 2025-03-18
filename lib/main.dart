@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:saver_bbk_main/modules/account/edit_profile.dart';
-import 'package:saver_bbk_main/modules/login/otp/verify_otp.dart';
+
 import 'package:saver_bbk_main/profile/profile_page.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
@@ -17,7 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'Saver App',
       theme: ThemeData(scaffoldBackgroundColor: AppColor.white),
       debugShowCheckedModeBanner: false,
-      home: EditProfilePage(),
+      home: ProfilePage(),
     );
   }
 }

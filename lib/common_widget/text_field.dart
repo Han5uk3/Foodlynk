@@ -10,7 +10,12 @@ class SaverTextField extends StatelessWidget {
   final IconData? suffixIcon;
   final VoidCallback? onSuffixTap;
   final Color borderColor;
+  final Color prefixIconColor;
+  final Color suffixIconColor;
   final double borderRadius;
+  final FocusNode? focus;
+  final VoidCallback? onEditingComplete;
+  final String? Function(String?)? validator;
 
   const SaverTextField({
     super.key,
@@ -19,7 +24,12 @@ class SaverTextField extends StatelessWidget {
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
     this.prefixIcon,
+    this.focus,
+    this.onEditingComplete,
+    this.prefixIconColor = AppColor.lightGrey,
     this.suffixIcon,
+    this.suffixIconColor=AppColor.lightGrey,
+    this.validator,
     this.onSuffixTap,
     this.borderColor = AppColor.lightGrey,
     this.borderRadius = 7.0,
@@ -27,20 +37,23 @@ class SaverTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
+      focusNode: focus,
+      onEditingComplete: onEditingComplete,
       controller: controller,
       obscureText: isPassword,
       keyboardType: keyboardType,
+      validator: validator,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(color: AppColor.lightGrey200),
         prefixIcon:
-            prefixIcon != null ? Icon(prefixIcon, color: borderColor) : null,
+            prefixIcon != null ? Icon(prefixIcon, color: prefixIconColor) : null,
         suffixIcon:
             suffixIcon != null
                 ? GestureDetector(
                   onTap: onSuffixTap,
-                  child: Icon(suffixIcon, color: borderColor),
+                  child: Icon(suffixIcon, color: suffixIconColor),
                 )
                 : null,
         enabledBorder: OutlineInputBorder(

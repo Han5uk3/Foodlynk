@@ -4,6 +4,8 @@ import 'package:saver_bbk_main/styles/colors.dart';
 PreferredSizeWidget saverAppBar(
   String title,
   BuildContext context, {
+  Color textColor = AppColor.black,
+  Color iconColor = AppColor.black,
   bool isneedtopop = false,
   bool iswhite = true,
   List<Widget>? actions,
@@ -12,9 +14,12 @@ PreferredSizeWidget saverAppBar(
     scrolledUnderElevation: 0,
     centerTitle: false,
     toolbarHeight: 75,
-    title: Text(
-      title,
-      style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+    title: Padding(
+      padding: isneedtopop ? EdgeInsets.all(0) : EdgeInsets.only(left: 4),
+      child: Text(
+        title,
+        style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+      ),
     ),
     shape: BorderDirectional(
       bottom: BorderSide(color: Colors.grey.shade100, width: 3),
@@ -22,11 +27,11 @@ PreferredSizeWidget saverAppBar(
     leading:
         isneedtopop
             ? IconButton(
-              icon: Icon(Icons.arrow_back),
+              icon: Icon(Icons.arrow_back, color: iconColor),
               onPressed: () => Navigator.pop(context),
             )
-            : SizedBox.shrink(),
-    backgroundColor: iswhite ? AppColor.white : Colors.red,
+            : null,
+    backgroundColor: iswhite ? AppColor.white : AppColor.appbarColor,
     actions: actions,
   );
 }
