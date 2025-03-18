@@ -16,6 +16,10 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final safePadding = MediaQuery.of(context).padding;
+
     return Scaffold(
       backgroundColor: const Color(0xFFEEF2E2),
       body: Column(
