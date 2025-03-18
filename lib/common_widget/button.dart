@@ -21,16 +21,19 @@ class SaverButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        padding: EdgeInsets.symmetric(horizontal: padding, vertical: 12.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          padding: EdgeInsets.symmetric(horizontal: padding, vertical: 12.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
         ),
+        onPressed: onPressed,
+        child: Text(text, style: TextStyle(color: textColor, fontSize: 14.0)),
       ),
-      onPressed: onPressed,
-      child: Text(text, style: TextStyle(color: textColor, fontSize: 14.0)),
     );
   }
 }
