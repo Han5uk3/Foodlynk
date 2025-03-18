@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saver_bbk_main/styles/colors.dart';
 
 PreferredSizeWidget saverAppBar(
   String title,
@@ -8,9 +9,13 @@ PreferredSizeWidget saverAppBar(
   List<Widget>? actions,
 }) {
   return AppBar(
+    scrolledUnderElevation: 0,
     toolbarHeight: 75,
-    title: Text(title,style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),),
-    leadingWidth: isneedtopop ? 40 : 0,
+    title: Text(
+      title,
+      style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+    ),
+    centerTitle: false,
     shape: BorderDirectional(
       bottom: BorderSide(color: Colors.grey.shade100, width: 3),
     ),
@@ -21,7 +26,7 @@ PreferredSizeWidget saverAppBar(
               onPressed: () => Navigator.pop(context),
             )
             : SizedBox.shrink(),
-    backgroundColor: iswhite ? Colors.white : Colors.red,
+    backgroundColor: iswhite ? AppColor.white : Colors.red,
     actions: actions,
   );
 }
