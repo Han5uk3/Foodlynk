@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
+import 'package:saver_bbk_main/common_widget/svgicon.dart';
+import 'package:saver_bbk_main/modules/profile/edit_profile.dart';
+import 'package:saver_bbk_main/modules/profile/password_page.dart';
+import 'package:saver_bbk_main/modules/zero_waste_challenges/zero_waste_challenges.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -17,35 +21,62 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: saverAppBar('Profile', context),
       body: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(14),
         child: Column(
           children: [
             _buildProfileTile(
               label: "My Profile",
-              icon: Icons.person_2_outlined,
+              path: "assets/icons/Icon.svg",
+
               color: AppColor.lightblue,
-              iconColor: AppColor.blue,
+
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => EditProfilePage(isEdit: true),
+                  ),
+                );
+              },
             ),
 
             _buildProfileTile(
               label: "Password",
-              icon: Icons.key_outlined,
+              path: "assets/icons/password.svg",
+
               color: AppColor.lightPurple,
-              iconColor: AppColor.purple,
+
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PasswordPage(isEdit: true),
+                  ),
+                );
+              },
             ),
 
             _buildProfileTile(
               label: "Terms & Conditions",
-              icon: Icons.insert_drive_file_outlined,
+              path: "assets/icons/terms.svg",
+
               color: Colors.green.shade50,
-              iconColor: Colors.green.shade600,
+
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ZeroWasteChallenges(),
+                  ),
+                );
+              },
             ),
 
             _buildProfileTile(
               label: "Delete Profile",
-              icon: Icons.person_2_outlined,
+              path: "assets/icons/deleteaccount.svg",
+
               color: Colors.red.shade50,
-              iconColor: Colors.red.shade600,
+
               onTap: () {
                 _showDeleteBottomSheet(context, true);
               },
@@ -53,9 +84,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
             _buildProfileTile(
               label: "Logout",
-              icon: Icons.person_2_outlined,
+              path: "assets/icons/logout.svg",
+
               color: AppColor.lightPink,
-              iconColor: AppColor.pink,
+
               onTap: () {
                 _showDeleteBottomSheet(context, false);
               },
@@ -68,9 +100,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   _buildProfileTile({
     VoidCallback? onTap,
-    required Color iconColor,
+    required String path,
     required Color color,
-    required IconData icon,
+
     required String label,
   }) {
     return Column(
@@ -85,7 +117,9 @@ class _ProfilePageState extends State<ProfilePage> {
               color: color,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: iconColor),
+            child: Center(
+              child: SizedBox(height: 20, width: 20, child: loadsvg(path)),
+            ),
           ),
           title: Text(label, style: TextStyle(fontSize: 16)),
           trailing: Icon(Icons.chevron_right, size: 35),
@@ -167,7 +201,7 @@ class _ProfilePageState extends State<ProfilePage> {
       backgroundColor: AppColor.white,
       // isScrollControlled: true,
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.25,
+        maxHeight: MediaQuery.of(context).size.height * 0.27,
       ),
       clipBehavior: Clip.antiAliasWithSaveLayer,
       barrierColor: Colors.black26,

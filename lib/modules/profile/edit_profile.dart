@@ -7,8 +7,8 @@ import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/text_field.dart';
 
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({super.key});
-
+  const EditProfilePage({super.key, required this.isEdit});
+  final bool isEdit;
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
 }
@@ -30,10 +30,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: saverAppBar("Create Profile", context, isneedtopop: true),
+      appBar: saverAppBar(
+        widget.isEdit ? "My Profile" : "Create Profile",
+        context,
+        isneedtopop: true,
+      ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(14.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -289,7 +293,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               const SizedBox(height: 24),
 
-              SaverButton(text: 'Create Profile', onPressed: () {}),
+              SaverButton(
+                text: widget.isEdit ? "Save Changes" : 'Create Profile',
+                onPressed: () {},
+              ),
               const SizedBox(height: 24),
             ],
           ),
