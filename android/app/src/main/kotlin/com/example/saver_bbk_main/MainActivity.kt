@@ -1,4 +1,4 @@
-package com.example.saver_bbk_main
+package com.brandbik.saver
 
 import io.flutter.embedding.android.FlutterActivity
 
