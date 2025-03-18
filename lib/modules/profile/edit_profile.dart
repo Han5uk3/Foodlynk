@@ -275,6 +275,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 8),
               SaverDropdown(
                 items: ['Emirati', 'American', 'British', 'Indian', 'Canadian'],
+                hint: "Choose",
                 selectedItem: selectedNationality ?? "",
                 onChanged: (value) {
                   setState(() {
@@ -297,7 +298,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 text: widget.isEdit ? "Save Changes" : 'Create Profile',
                 onPressed: () {},
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
             ],
           ),
         ),

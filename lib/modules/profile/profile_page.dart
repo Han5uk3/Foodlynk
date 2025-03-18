@@ -125,7 +125,7 @@ class _ProfilePageState extends State<ProfilePage> {
           trailing: Icon(Icons.chevron_right, size: 35),
         ),
 
-        Divider(height: 0.5, thickness: 0.5, color: Colors.grey.shade500),
+        Divider(height: 1, thickness: 0.5, color: Colors.grey.shade500),
       ],
     );
   }
@@ -146,7 +146,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
-            Divider(height: 0.5, thickness: 0.5, color: Colors.grey.shade500),
+            Divider(height: 1, thickness: 0.5, color: Colors.grey.shade500),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SizedBox(
@@ -194,8 +194,8 @@ class _ProfilePageState extends State<ProfilePage> {
       },
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
         ),
       ),
       backgroundColor: AppColor.white,
@@ -205,8 +205,8 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       clipBehavior: Clip.antiAliasWithSaveLayer,
       barrierColor: Colors.black26,
-      barrierLabel: '',
       isDismissible: false,
+      enableDrag: false,
       useRootNavigator: true,
     );
   }

@@ -83,11 +83,11 @@ class _PasswordPageState extends State<PasswordPage> {
               SizedBox(height: 20),
               Label(
                 text: "Create New Password",
-                style: TextStyle(fontWeight: FontWeight.w800),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
               SizedBox(height: 7),
               SaverTextField(
-                suffixIconColor: AppColor.black,
+                suffixIconColor: Colors.black54,
                 suffixIcon:
                     active
                         ? Icons.visibility_off_outlined
@@ -111,7 +111,7 @@ class _PasswordPageState extends State<PasswordPage> {
               SizedBox(height: 20),
               Label(
                 text: "Confirm Password",
-                style: TextStyle(fontWeight: FontWeight.w800),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
               SizedBox(height: 7),
               SaverTextField(
