@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
+import 'package:saver_bbk_main/modules/kitchen_management/add_item.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class KitchenManager extends StatefulWidget {
@@ -63,7 +64,11 @@ class _KitchenManagerState extends State<KitchenManager> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColor.primaryColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (context) => AddItem()));
+        },
         child: Icon(Icons.add, color: AppColor.white, size: 35),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
@@ -512,8 +517,8 @@ class DiagonalBackgroundPainter extends CustomPainter {
     Path topLeftPath =
         Path()
           ..moveTo(0, 0)
-          ..lineTo(size.width * 0.5, 0)
-          ..lineTo(size.width * 0.8, size.height)
+          ..lineTo(size.width * 0.53, 0)
+          ..lineTo(size.width * 0.76, size.height)
           ..lineTo(0, size.height)
           ..close();
 
@@ -528,8 +533,8 @@ class DiagonalBackgroundPainter extends CustomPainter {
     Path bottomRightPath =
         Path()
           ..moveTo(size.width, 0)
-          ..lineTo(size.width * 0.5, 0)
-          ..lineTo(size.width * 0.8, size.height)
+          ..lineTo(size.width * 0.53, 0)
+          ..lineTo(size.width * 0.76, size.height)
           ..lineTo(size.width, size.height)
           ..close();
 

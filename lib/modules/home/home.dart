@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/modules/home/home_page.dart';
+import 'package:saver_bbk_main/modules/profile/profile_page.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class MainScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class _MainScreenState extends State<MainScreen> {
     HomePage(),
     const CommunityScreen(),
     const NotificationScreen(),
-    const ProfileScreen(),
+    ProfilePage(),
   ];
 
   void _onItemTapped(int index) {

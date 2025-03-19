@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -39,65 +38,51 @@ class _ZeroWasteChallengesState extends State<ZeroWasteChallenges> {
                 borderRadius: BorderRadius.circular(6),
               ),
               elevation: 2,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      Colors.amber.shade800,
-                      Colors.amber.shade700,
-                      Colors.amber.shade400,
-                      Colors.yellow.shade300,
-                      Colors.yellow.shade200,
-                      Colors.yellow.shade100,
-                      Colors.yellow.shade200,
-                      Colors.amber.shade300,
-                      Colors.amber.shade400,
-                      Colors.amber.shade700,
-                      Colors.amber.shade800,
-                    ],
+              child: CustomPaint(
+                painter: DiagonalBackgroundPainter(),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
                   ),
-                ),
-                height: 80,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 14),
-                        child: Text(
-                          "Total points",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                  height: 100,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 14),
+                          child: Text(
+                            "Total points",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 14),
-                        child: Row(
-                          children: [
-                            loadsvg("assets/icons/coin.svg"),
-                            Text(
-                              " 10",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                        Padding(
+                          padding: const EdgeInsets.only(top: 14),
+                          child: Row(
+                            children: [
+                              loadsvg("assets/icons/coin.svg"),
+                              Text(
+                                " 10",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-            SizedBox(height: 45),
+            SizedBox(height: 35),
             Text(
               "Take a challenge, save food, and earn rewards",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
@@ -119,19 +104,23 @@ class _ZeroWasteChallengesState extends State<ZeroWasteChallenges> {
                 elevation: 2,
                 color: AppColor.white,
                 child: SizedBox(
-                  height: 90,
+                  height: 110,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: loadsvg("assets/icons/cleanplate.svg"),
+                        child: SizedBox(
+                          height: 90,
+                          width: 90,
+                          child: loadsvg("assets/icons/cleanplate.svg"),
+                        ),
                       ),
                       Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          spacing: 3,
+                          spacing: 6,
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -165,9 +154,12 @@ class _ZeroWasteChallengesState extends State<ZeroWasteChallenges> {
                               ],
                             ),
 
-                            Text(
-                              "Finish your entire meal without leftovers and upload a before & after photo.",
-                              style: TextStyle(fontSize: 12),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: Text(
+                                "Finish your entire meal without leftovers and upload a before & after photo.",
+                                style: TextStyle(fontSize: 12),
+                              ),
                             ),
                           ],
                         ),
@@ -182,4 +174,41 @@ class _ZeroWasteChallengesState extends State<ZeroWasteChallenges> {
       ),
     );
   }
+}
+
+class DiagonalBackgroundPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint();
+
+    Path topLeftPath =
+        Path()
+          ..moveTo(0, 0)
+          ..lineTo(size.width * 0.53, 0)
+          ..lineTo(size.width * 0.76, size.height)
+          ..lineTo(0, size.height)
+          ..close();
+
+    paint.color = Color.fromARGB(
+      100,
+      246,
+      231,
+      178,
+    ); //rgba(246, 231, 178, 0.29)
+    canvas.drawPath(topLeftPath, paint);
+
+    Path bottomRightPath =
+        Path()
+          ..moveTo(size.width, 0)
+          ..lineTo(size.width * 0.53, 0)
+          ..lineTo(size.width * 0.76, size.height)
+          ..lineTo(size.width, size.height)
+          ..close();
+
+    paint.color = Color.fromARGB(200, 246, 231, 178);
+    canvas.drawPath(bottomRightPath, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
