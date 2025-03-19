@@ -17,7 +17,20 @@ class AddItem extends StatefulWidget {
 class _AddItemState extends State<AddItem> {
   TextEditingController itemNameController = TextEditingController();
   String selectedItem = "";
+  String selectedCategory = "";
+
   List<String> items = ["Kg", "Pcs", "ml", "Ltr", "gm"];
+  List<String> category = [
+    "Dairy",
+    "Meat",
+    "Oils",
+    "Poultry",
+    "Fruits",
+    "Vegetables",
+    "Seafood",
+  ];
+
+  int value = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,13 +47,18 @@ class _AddItemState extends State<AddItem> {
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: 20),
               Label(text: "Item Name", style: TextStyle(fontSize: 16)),
+              SizedBox(height: 5),
               SaverTextField(
                 hintText: "Enter Item Name",
                 controller: itemNameController,
               ),
+              SizedBox(height: 20),
               Label(text: "Quantity", style: TextStyle(fontSize: 16)),
+              SizedBox(height: 5),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 spacing: 30,
                 children: [
                   IntrinsicWidth(
@@ -58,12 +76,36 @@ class _AddItemState extends State<AddItem> {
                   Expanded(
                     child: NumberSelector.plain(
                       hasBorder: true,
+                      showMinMax: false,
+                      min: 0,
+                      decrementIcon: Icons.remove,
+                      iconColor: Colors.black,
                       borderRadius: 6,
                       borderColor: Colors.grey.shade300,
                       backgroundColor: AppColor.white,
+                      current: value,
+                      onUpdate: (newValue) {
+                        // Invert the logic: treat increase as decrease and vice versa
+                        setState(() {
+                          value = newValue;
+                        });
+                      },
                     ),
                   ),
                 ],
+              ),
+              SizedBox(height: 20),
+              Label(text: "Category", style: TextStyle(fontSize: 16)),
+              SizedBox(height: 5),
+              SaverDropdown(
+                items: category,
+                selectedItem: selectedCategory,
+                hint: "Choose",
+                onChanged: (value) {
+                  setState(() {
+                    selectedCategory = value!;
+                  });
+                },
               ),
             ],
           ),
