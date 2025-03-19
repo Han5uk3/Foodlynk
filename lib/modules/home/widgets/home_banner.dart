@@ -5,6 +5,7 @@ class HomeBanner extends StatelessWidget {
   const HomeBanner({super.key});
 
   @override
+
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,

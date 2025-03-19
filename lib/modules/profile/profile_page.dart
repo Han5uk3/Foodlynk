@@ -62,15 +62,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
               color: Colors.green.shade50,
 
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => KitchenManager(),
-                    // ZeroWasteChallenges(),
-                  ),
-                );
-              },
+              onTap: () {},
             ),
 
             _buildProfileTile(
