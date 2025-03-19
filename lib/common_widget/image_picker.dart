@@ -10,23 +10,23 @@ class ImagePickerButton extends StatelessWidget {
   ImagePickerButton({super.key, required this.onImageSelected});
 
   Future<void> _pickImage(BuildContext context) async {
-  try {
-    final XFile? pickedFile = await _picker.pickImage(
-      source: ImageSource.gallery,  // Try ImageSource.camera if needed
-      maxWidth: 800, // Reduce size if necessary
-      maxHeight: 800,
-      imageQuality: 85,
-    );
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery, // Try ImageSource.camera if needed
+        maxWidth: 800, // Reduce size if necessary
+        maxHeight: 800,
+        imageQuality: 85,
+      );
 
-    if (pickedFile != null) {
-      onImageSelected(File(pickedFile.path));
-    } else {
-      print("No image selected");
+      if (pickedFile != null) {
+        onImageSelected(File(pickedFile.path));
+      } else {
+        print("No image selected");
+      }
+    } catch (e) {
+      print("Error picking image: $e");
     }
-  } catch (e) {
-    print("Error picking image: $e");
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +45,7 @@ class ImagePickerButton extends StatelessWidget {
           width: 80,
           child: Center(
             child: Icon(
+              size: 40,
               Icons.add_photo_alternate_outlined,
               color: Colors.grey.shade400,
             ),
