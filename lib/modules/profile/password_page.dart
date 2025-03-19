@@ -3,7 +3,6 @@ import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/label.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/text_field.dart';
-import 'package:saver_bbk_main/styles/colors.dart';
 
 class PasswordPage extends StatefulWidget {
   const PasswordPage({super.key, required this.isEdit});

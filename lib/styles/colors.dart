@@ -21,4 +21,6 @@ class AppColor {
   static const Color greenshade = Color.fromARGB(30, 17, 190, 121);
   static const Color appbarColor = Color(0xFF771F6D);
   static const Color pointColor = Color(0xFFFFC600);
+  static const Color yellow150 = Color(0xFFFFEFB7);
+  static const Color yellow600 = Color(0xFFFFAC34);
 }

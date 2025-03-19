@@ -3,19 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
+import 'package:saver_bbk_main/common_widget/snakbar.dart';
+import 'package:saver_bbk_main/services/auth_services.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String phoneNumber;
 
-  const OtpVerificationScreen({Key? key, required this.phoneNumber})
-    : super(key: key);
+  const OtpVerificationScreen({super.key, required this.phoneNumber});
 
   @override
   _OtpVerificationScreenState createState() => _OtpVerificationScreenState();
 }
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
-  TextEditingController textEditingController = TextEditingController();
+  TextEditingController otpController = TextEditingController();
   StreamController<ErrorAnimationType>? errorController;
   String currentText = "";
   bool hasError = false;
@@ -97,14 +98,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 child: PinCodeTextField(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   appContext: context,
-                  length: 4,
+                  length: 6,
                   obscureText: false,
                   animationType: AnimationType.fade,
                   pinTheme: PinTheme(
                     shape: PinCodeFieldShape.box,
                     borderRadius: BorderRadius.circular(10),
-                    fieldHeight: 60,
-                    fieldWidth: 60,
+                    fieldHeight: 50,
+                    fieldWidth: 50,
                     activeFillColor: Colors.white,
                     inactiveFillColor: Colors.white,
                     selectedFillColor: Colors.white,
@@ -116,11 +117,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   animationDuration: Duration(milliseconds: 300),
                   enableActiveFill: true,
                   errorAnimationController: errorController,
-                  controller: textEditingController,
+                  controller: otpController,
                   keyboardType: TextInputType.number,
                   onCompleted: (v) {
-                    // Handle OTP completion
-                    print("Completed: $v");
+                    AuthServices.submitOtp(context, otpController.text);
                   },
                   onChanged: (value) {
                     setState(() {
@@ -150,7 +150,20 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               SizedBox(height: 30),
               SizedBox(
                 width: double.infinity,
-                child: SaverButton(text: "Verify", onPressed: () {}),
+                child: SaverButton(
+                  text: "Verify",
+                  onPressed: () {
+                    if (otpController.text.length != 6) {
+                      SaverSnackBar.show(
+                        context: context,
+                        message: "Please enter valid OTP",
+                        isTrue: false,
+                      );
+                    } else {
+                      AuthServices.submitOtp(context, otpController.text);
+                    }
+                  },
+                ),
               ),
             ],
           ),
