@@ -3,10 +3,10 @@ import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
-import 'package:saver_bbk_main/modules/kitchen_management/kitchen_manager.dart';
+
 import 'package:saver_bbk_main/modules/profile/edit_profile.dart';
 import 'package:saver_bbk_main/modules/profile/password_page.dart';
-import 'package:saver_bbk_main/modules/zero_waste_challenges/zero_waste_challenges.dart';
+
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class ProfilePage extends StatefulWidget {

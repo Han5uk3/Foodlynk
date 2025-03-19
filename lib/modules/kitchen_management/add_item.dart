@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:number_selector/number_selector.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
@@ -35,11 +34,11 @@ class _AddItemState extends State<AddItem> {
     "Vegetables",
     "Seafood",
   ];
-  File? _ImageFile;
+  File? _imageFile;
 
   void _setImage(File image) {
     setState(() {
-      _ImageFile = image;
+      _imageFile = image;
     });
   }
 
@@ -201,7 +200,7 @@ class _AddItemState extends State<AddItem> {
                         padding: const EdgeInsets.only(top: 12, bottom: 12),
                         child: Row(
                           children: [
-                            if (_ImageFile != null)
+                            if (_imageFile != null)
                               Padding(
                                 padding: const EdgeInsets.only(right: 12),
                                 child: IntrinsicWidth(
@@ -219,7 +218,7 @@ class _AddItemState extends State<AddItem> {
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                                 image: DecorationImage(
-                                                  image: FileImage(_ImageFile!),
+                                                  image: FileImage(_imageFile!),
                                                   fit: BoxFit.cover,
                                                 ),
                                               ),
@@ -232,7 +231,7 @@ class _AddItemState extends State<AddItem> {
                                             child: GestureDetector(
                                               onTap: () {
                                                 setState(() {
-                                                  _ImageFile = null;
+                                                  _imageFile = null;
                                                 });
                                               },
                                               child: CircleAvatar(
