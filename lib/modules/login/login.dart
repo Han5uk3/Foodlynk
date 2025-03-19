@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/outline_button.dart';
+import 'package:saver_bbk_main/common_widget/snakbar.dart';
+import 'package:saver_bbk_main/services/auth_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -16,25 +18,13 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final safePadding = MediaQuery.of(context).padding;
-
     return Scaffold(
       backgroundColor: const Color(0xFFEEF2E2),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const SizedBox(height: 40),
-
-          Image.asset(
-            'assets/images/login.png',
-            height: 200,
-            fit: BoxFit.contain,
-          ),
-
-          _loginForm(),
-        ],
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [_imageView(), _loginForm()],
+        ),
       ),
     );
   }
@@ -43,6 +33,17 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     _phoneController.dispose();
     super.dispose();
+  }
+
+  Widget _imageView() {
+    return Container(
+      margin: EdgeInsets.only(top: 150, bottom: 120),
+      child: Image.asset(
+        'assets/images/login.png',
+        height: 200,
+        fit: BoxFit.contain,
+      ),
+    );
   }
 
   Widget _loginForm() {
@@ -136,11 +137,31 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(width: 16),
-              Expanded(child: SaverButton(onPressed: () {}, text: "OTP")),
+              Expanded(
+                child: SaverButton(
+                  onPressed: () {
+                    if (_phoneController.text.length == 10 &&
+                        RegExp(
+                          r'^[0-9]{10}$',
+                        ).hasMatch(_phoneController.text)) {
+                      AuthServices.verifyPhoneNumber(
+                        context,
+                        _phoneController.text,
+                      );
+                    } else {
+                      SaverSnackBar.show(
+                        context: context,
+                        message: "Enter valid mobile number",
+                        isTrue: false,
+                      );
+                    }
+                  },
+                  text: "OTP",
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 25),
-
           const Row(
             children: [
               Expanded(child: Divider()),
