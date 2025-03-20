@@ -7,6 +7,7 @@ PreferredSizeWidget saverAppBar(
   Color textColor = AppColor.black,
   Color iconColor = AppColor.black,
   bool isneedtopop = false,
+  void Function()? onpop,
   bool iswhite = true,
   List<Widget>? actions,
 }) {
@@ -28,7 +29,7 @@ PreferredSizeWidget saverAppBar(
         isneedtopop
             ? IconButton(
               icon: Icon(Icons.arrow_back, color: iconColor),
-              onPressed: () => Navigator.pop(context),
+              onPressed: onpop ?? () => Navigator.pop(context),
             )
             : null,
     backgroundColor: iswhite ? AppColor.white : AppColor.appbarColor,

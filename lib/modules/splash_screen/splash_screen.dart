@@ -23,7 +23,9 @@ class _SplashScreenState extends State<SplashScreen> {
   void _checkLogin() {
     if (uid != null) {
       Navigator.of(context).pushAndRemoveUntil(
-        CupertinoModalPopupRoute(builder: (context) => MainScreen()),
+        CupertinoModalPopupRoute(
+          builder: (context) => MainScreen(currentIndex: 0),
+        ),
         (route) => false,
       );
     } else {

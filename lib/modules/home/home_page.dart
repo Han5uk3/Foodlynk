@@ -3,12 +3,11 @@ import 'package:saver_bbk_main/common_widget/label.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/modules/home/widgets/coins.dart';
 import 'package:saver_bbk_main/modules/home/widgets/home_banner.dart';
-import 'package:saver_bbk_main/modules/kitchen_management/kitchen_manager.dart';
-import 'package:saver_bbk_main/modules/zero_waste_challenges/zero_waste_challenges.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final Function(int) onGridTap;
+  const HomePage({super.key, required this.onGridTap});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -21,49 +20,42 @@ class _HomePageState extends State<HomePage> {
       "name": "Zero Waste Challenges",
       "image": "zero waste.svg",
       "color": 0xFFF8FFE1,
-      "path": ZeroWasteChallenges(),
     },
     {
       "id": 2,
       "name": "Kitchen Manager",
       "image": "kichten manager.svg",
       "color": 0xFFFFFBEE,
-      "path": KitchenManager(),
     },
     {
       "id": 3,
       "name": "Smart Shopping List",
       "image": "list.svg",
       "color": 0xFFFFEEEF,
-      "path": Placeholder(),
     },
     {
       "id": 4,
       "name": "Food Share",
       "image": "food share.svg",
       "color": 0xFFE9FBFF,
-      "path": () {},
     },
     {
       "id": 5,
       "name": "Food Swap",
       "image": "food swap.svg",
       "color": 0xFFDFFFF3,
-      "path": () {},
     },
     {
       "id": 6,
       "name": "Smart Recipes",
       "image": "smart recepies.svg",
       "color": 0xFFFFF7F6,
-      "path": () {},
     },
     {
       "id": 7,
       "name": "Waste-Free Cooking",
       "image": "waste free cooking.svg",
       "color": 0xFFFAF0FA,
-      "path": () {},
     },
   ];
 
@@ -74,7 +66,6 @@ class _HomePageState extends State<HomePage> {
         children: [
           _homeBar(),
           Positioned(top: 140, left: 0, right: 0, child: HomeBanner()),
-
           Positioned(
             top: 280,
             left: 20,
@@ -94,10 +85,9 @@ class _HomePageState extends State<HomePage> {
 
   Widget gridItem(int index) {
     return GestureDetector(
+      // FIXED: Wrap the callback in a function instead of calling it directly
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => categories[index]["path"]),
-        );
+        widget.onGridTap(index);
       },
       child: Container(
         padding: EdgeInsets.all(12),

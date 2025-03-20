@@ -7,7 +7,8 @@ import 'package:saver_bbk_main/modules/kitchen_management/add_item.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class KitchenManager extends StatefulWidget {
-  const KitchenManager({super.key});
+  final VoidCallback onBack;
+  const KitchenManager({super.key, required this.onBack});
 
   @override
   State<KitchenManager> createState() => _KitchenManagerState();
@@ -78,6 +79,7 @@ class _KitchenManagerState extends State<KitchenManager> {
         iconColor: AppColor.white,
         context,
         isneedtopop: true,
+        onpop: widget.onBack,
         iswhite: false,
       ),
       body: SingleChildScrollView(
