@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
+import 'package:saver_bbk_main/common_widget/date_compare.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/add_item.dart';
@@ -21,25 +22,29 @@ class _KitchenManagerState extends State<KitchenManager> {
       "title": "Eggs",
       "expiry": "09/03/2025",
       "category": "Poultry",
-      "quantity": "5",
+      "quantity": "5 Nos",
+      "status": "E",
     },
     {
       "title": "Milk",
       "expiry": "12/03/2025",
       "category": "Dairy",
-      "quantity": "1",
+      "quantity": "1 Ltr",
+      "status": "E",
     },
     {
-      "title": "Eggs",
+      "title": "Apple",
       "expiry": "09/03/2025",
-      "category": "Poultry",
-      "quantity": "5",
+      "category": "Fruits",
+      "quantity": "3 Nos",
+      "status": "F",
     },
     {
       "title": "Chicken",
       "expiry": "23/03/2025",
       "category": "Meat",
       "quantity": "1 Kg",
+      "status": "Expiring Soon",
     },
   ];
   List<Map<String, String>> shoppingList = [];
@@ -63,16 +68,17 @@ class _KitchenManagerState extends State<KitchenManager> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        elevation: 3,
         backgroundColor: AppColor.primaryColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         onPressed: () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (context) => AddItem(isEdit: false,)));
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => AddItem(isEdit: false)),
+          );
         },
         child: Icon(Icons.add, color: AppColor.white, size: 35),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: saverAppBar(
         'Kitchen Manager',
         textColor: AppColor.white,
@@ -242,7 +248,10 @@ class _KitchenManagerState extends State<KitchenManager> {
                     itemCount: items.length,
                     itemBuilder: (context, index) {
                       final item = items[index];
-
+                      int days = getDateDifferenceNumber(
+                        items[index]["expiry"]!,
+                      );
+                      int daysLeft = days.abs();
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 5),
                         child: Dismissible(
@@ -311,11 +320,16 @@ class _KitchenManagerState extends State<KitchenManager> {
                             }
                           },
                           child: GestureDetector(
-                            onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => AddItem(isEdit: true,),
-                              ),
-                            ),
+                            onTap:
+                                () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => AddItem(
+                                          isEdit: true,
+                                          dateString: items[index]["expiry"]!,
+                                        ),
+                                  ),
+                                ),
                             child: Container(
                               decoration: BoxDecoration(
                                 color: AppColor.white,
@@ -353,10 +367,10 @@ class _KitchenManagerState extends State<KitchenManager> {
                                     child: Column(
                                       spacing: 2,
                                       mainAxisSize: MainAxisSize.min,
-                            
+
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
-                            
+
                                       children: [
                                         Row(
                                           mainAxisSize: MainAxisSize.max,
@@ -371,11 +385,18 @@ class _KitchenManagerState extends State<KitchenManager> {
                                               ),
                                             ),
                                             Container(
-                                              margin: EdgeInsets.only(right: 12),
+                                              margin: EdgeInsets.only(
+                                                right: 12,
+                                              ),
                                               decoration: BoxDecoration(
                                                 borderRadius:
                                                     BorderRadius.circular(16),
-                                                color: AppColor.lightRed,
+                                                color:
+                                                    days < 0
+                                                        ? AppColor.lightRed
+                                                        : days == 0 && days < 3
+                                                        ? AppColor.lightYellow
+                                                        : AppColor.greenshade,
                                               ),
                                               height: 27,
                                               child: Padding(
@@ -391,16 +412,37 @@ class _KitchenManagerState extends State<KitchenManager> {
                                                       CrossAxisAlignment.center,
                                                   children: [
                                                     Icon(
-                                                      Icons
-                                                          .sentiment_neutral_outlined,
+                                                      days < 0
+                                                          ? Icons
+                                                              .sentiment_neutral_outlined
+                                                          : days == 0 &&
+                                                              days < 3
+                                                          ? Icons
+                                                              .sentiment_satisfied_alt_outlined
+                                                          : Icons
+                                                              .sentiment_very_satisfied_outlined,
                                                       size: 14,
-                                                      color: AppColor.red,
+                                                      color:
+                                                          days < 0
+                                                              ? AppColor.red
+                                                              : days == 0 &&
+                                                                  days < 3
+                                                              ? AppColor.yellow
+                                                              : AppColor.green,
                                                     ),
                                                     Text(
-                                                      " 1 d",
+                                                      "$daysLeft d",
                                                       style: TextStyle(
                                                         fontSize: 12,
-                                                        color: AppColor.red,
+                                                        color:
+                                                            days < 0
+                                                                ? AppColor.red
+                                                                : days == 0 &&
+                                                                    days < 3
+                                                                ? AppColor
+                                                                    .yellow
+                                                                : AppColor
+                                                                    .green,
                                                       ),
                                                     ),
                                                   ],

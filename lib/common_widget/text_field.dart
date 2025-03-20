@@ -5,7 +5,7 @@ class SaverTextField extends StatelessWidget {
   final String hintText;
   final TextEditingController controller;
   final bool isPassword;
-  final bool toggle;
+
   final TextInputType keyboardType;
   final IconData? prefixIcon;
   final IconData? suffixIcon;
@@ -21,7 +21,7 @@ class SaverTextField extends StatelessWidget {
   const SaverTextField({
     super.key,
     required this.hintText,
-    this.toggle = true,
+
     required this.controller,
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
@@ -40,7 +40,6 @@ class SaverTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      enabled: toggle,
       focusNode: focus,
       onEditingComplete: onEditingComplete,
       controller: controller,

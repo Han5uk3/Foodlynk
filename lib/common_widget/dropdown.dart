@@ -8,12 +8,14 @@ class SaverDropdown extends StatelessWidget {
   final Color borderColor;
   final double borderRadius;
   final String hint;
+  final bool isView;
 
   const SaverDropdown({
     super.key,
     required this.items,
     required this.selectedItem,
     required this.onChanged,
+    this.isView = false,
     this.borderColor = AppColor.lightGrey,
     this.borderRadius = 7.0,
     this.hint = 'Select an option',
@@ -28,12 +30,14 @@ class SaverDropdown extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
       ),
       child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(dropdownColor: AppColor.white,borderRadius: BorderRadius.all(Radius.circular(12)),
+        child: DropdownButton<String>(
+          dropdownColor: AppColor.white,
+          borderRadius: BorderRadius.all(Radius.circular(12)),
           value: selectedItem.isNotEmpty ? selectedItem : null,
           hint: Text(hint, style: TextStyle(color: AppColor.lightGrey200)),
           isExpanded: true,
           icon: const Icon(Icons.arrow_drop_down),
-          onChanged: onChanged,
+          onChanged: isView ? null : onChanged,
           items:
               items.map((String item) {
                 return DropdownMenuItem<String>(value: item, child: Text(item));
