@@ -1,0 +1,254 @@
+import 'package:flutter/material.dart';
+import 'package:saver_bbk_main/modules/home/home_page.dart';
+import 'package:saver_bbk_main/modules/kitchen_management/kitchen_manager.dart';
+import 'package:saver_bbk_main/modules/profile/profile_page.dart';
+import 'package:saver_bbk_main/modules/zero_waste_challenges/zero_waste_challenges.dart';
+import 'package:saver_bbk_main/styles/colors.dart';
+
+class MainScreen extends StatefulWidget {
+  final int currentIndex;
+
+  const MainScreen({super.key, required this.currentIndex});
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _currentIndex = 0;
+  int? _activeGridPage;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.currentIndex;
+    _activeGridPage = null;
+  }
+
+  void onGridTap(int index) {
+    setState(() {
+      _activeGridPage = index;
+    });
+  }
+
+  void goBack() {
+    setState(() {
+      _activeGridPage = null;
+
+      _currentIndex = 0;
+    });
+  }
+
+  Widget _getCurrentPage() {
+    if (_activeGridPage != null) {
+      switch (_activeGridPage) {
+        case 0:
+          return ZeroWasteChallenges(onBack: goBack);
+        case 1:
+          return KitchenManager(onBack: goBack);
+        case 2:
+          return Page3(onBack: goBack);
+        case 3:
+          return Page4(onBack: goBack);
+        case 4:
+          return Page5(onBack: goBack);
+        case 5:
+          return Page6(onBack: goBack);
+        case 6:
+          return Page7(onBack: goBack);
+        default:
+          return HomePage(onGridTap: onGridTap);
+      }
+    }
+
+    switch (_currentIndex) {
+      case 0:
+        return HomePage(onGridTap: onGridTap);
+      case 1:
+        return const CommunityScreen();
+      case 2:
+        return const NotificationScreen();
+      case 3:
+        return const ProfilePage();
+      default:
+        return HomePage(onGridTap: onGridTap);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        if (_activeGridPage != null) {
+          goBack();
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        body: _getCurrentPage(),
+        bottomNavigationBar: Theme(
+          data: Theme.of(context).copyWith(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+          ),
+          child: BottomNavigationBar(
+            backgroundColor: AppColor.white,
+            elevation: 0,
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              setState(() {
+                _activeGridPage = null;
+                _currentIndex = index;
+              });
+            },
+            selectedItemColor: AppColor.appbarColor,
+            unselectedItemColor: Colors.grey,
+            iconSize: 28,
+            showUnselectedLabels: true,
+            type: BottomNavigationBarType.fixed,
+            items: [
+              _bottomNavBarItem(
+                0,
+                Icons.home_filled,
+                Icons.home_outlined,
+                'Home',
+              ),
+              _bottomNavBarItem(
+                1,
+                Icons.group,
+                Icons.group_outlined,
+                'Community',
+              ),
+              _bottomNavBarItem(
+                2,
+                Icons.notifications,
+                Icons.notifications_none,
+                'Notification',
+              ),
+              _bottomNavBarItem(
+                3,
+                Icons.person,
+                Icons.person_outline,
+                'Profile',
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  BottomNavigationBarItem _bottomNavBarItem(
+    int index,
+    IconData selectedIcon,
+    IconData unselectedIcon,
+    String title,
+  ) {
+    return BottomNavigationBarItem(
+      icon: Icon(_currentIndex == index ? selectedIcon : unselectedIcon),
+      label: title,
+    );
+  }
+}
+
+class CommunityScreen extends StatelessWidget {
+  const CommunityScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(child: Text('Welcome to Community'));
+  }
+}
+
+class NotificationScreen extends StatelessWidget {
+  const NotificationScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(child: Text('Welcome to Notification'));
+  }
+}
+
+class Page1 extends StatelessWidget {
+  final VoidCallback onBack;
+  const Page1({Key? key, required this.onBack}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildPage(context, 'Page 1', onBack);
+  }
+}
+
+class Page2 extends StatelessWidget {
+  final VoidCallback onBack;
+  const Page2({Key? key, required this.onBack}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildPage(context, 'Page 2', onBack);
+  }
+}
+
+class Page3 extends StatelessWidget {
+  final VoidCallback onBack;
+  const Page3({Key? key, required this.onBack}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildPage(context, 'Page 3', onBack);
+  }
+}
+
+class Page4 extends StatelessWidget {
+  final VoidCallback onBack;
+  const Page4({Key? key, required this.onBack}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildPage(context, 'Page 4', onBack);
+  }
+}
+
+class Page5 extends StatelessWidget {
+  final VoidCallback onBack;
+  const Page5({Key? key, required this.onBack}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildPage(context, 'Page 5', onBack);
+  }
+}
+
+class Page6 extends StatelessWidget {
+  final VoidCallback onBack;
+  const Page6({Key? key, required this.onBack}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildPage(context, 'Page 6', onBack);
+  }
+}
+
+class Page7 extends StatelessWidget {
+  final VoidCallback onBack;
+  const Page7({Key? key, required this.onBack}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildPage(context, 'Page 7', onBack);
+  }
+}
+
+Widget _buildPage(BuildContext context, String title, VoidCallback onBack) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text(title),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: onBack,
+      ),
+    ),
+    body: Center(child: Text(title, style: TextStyle(fontSize: 24))),
+  );
+}

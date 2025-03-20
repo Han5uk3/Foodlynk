@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "97691650237",
+    "project_id": "saver-app-2ae53",
+    "storage_bucket": "saver-app-2ae53.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:97691650237:android:571d515a709ea8082a4fd4",
+        "android_client_info": {
+          "package_name": "com.brandbik.saver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "97691650237-r85ak9e6spu74vgffck6in5totnpjqdh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.brandbik.saver",
+            "certificate_hash": "997956c0f5ca06b51e21d95e84725582f96f00c3"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIrkMHzjZwwa83Ga3ndn65IaJcEz_55Pk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "97691650237-3l2ttprgcok7faig3210fmvhrh6md386.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.brandbik.saver"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
