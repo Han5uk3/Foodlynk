@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
@@ -26,7 +26,7 @@ class _KitchenManagerState extends State<KitchenManager> {
       "title": "Milk",
       "expiry": "12/03/2025",
       "category": "Dairy",
-      "quantity": "1 Ltr",
+      "quantity": "1",
     },
     {
       "title": "Eggs",
@@ -80,155 +80,169 @@ class _KitchenManagerState extends State<KitchenManager> {
         isneedtopop: true,
         iswhite: false,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              child: CustomPaint(
-                painter: DiagonalBackgroundPainter(),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                  child: Row(
-                    children: [
-                      Stack(
-                        alignment: Alignment.center,
+      body: SingleChildScrollView(
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  child: CustomPaint(
+                    painter: DiagonalBackgroundPainter(),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 20,
+                      ),
+                      child: Row(
                         children: [
-                          Transform.rotate(
-                            angle: -1.57,
-                            child: SizedBox(
-                              height: 60,
-                              width: 60,
-                              child: CircularProgressIndicator(
-                                value: 0.85,
-                                strokeWidth: 8,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  AppColor.pointColor,
-                                ),
-                                backgroundColor: Color.fromARGB(
-                                  130,
-                                  249,
-                                  219,
-                                  116,
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Transform.rotate(
+                                angle: -1.57,
+                                child: SizedBox(
+                                  height: 60,
+                                  width: 60,
+                                  child: CircularProgressIndicator(
+                                    value: 0.85,
+                                    strokeWidth: 8,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppColor.pointColor,
+                                    ),
+                                    backgroundColor: Color.fromARGB(
+                                      130,
+                                      249,
+                                      219,
+                                      116,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
+                              Text(
+                                "85%",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColor.pointColor,
+                                ),
+                              ),
+                            ],
                           ),
-                          Text(
-                            "85%",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColor.pointColor,
+
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              "You've consumed 85% of your food before expiry this month!",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
                         ],
                       ),
-
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          "You've consumed 85% of your food before expiry this month!",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: AppColor.lightGrey200),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: AppColor.lightGrey200),
-                      ),
-                      disabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: AppColor.lightGrey200),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: AppColor.lightGrey200),
-                      ),
-                      suffixIcon: Icon(
-                        Icons.search,
-                        color: Colors.grey.shade600,
-                      ),
-                      hintStyle: TextStyle(color: AppColor.lightGrey200),
-                      hintText: "search items",
                     ),
                   ),
                 ),
-              ],
-            ),
-            SizedBox(height: 15),
-            Row(
-              spacing: 8,
-              children: [
-                Expanded(
-                  child: _buildFilterButtons(
-                    AppColor.red,
-                    "Expired",
-                    Icons.sentiment_neutral_outlined,
+                SizedBox(height: 10),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(
+                              color: AppColor.lightGrey200,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(
+                              color: AppColor.lightGrey200,
+                            ),
+                          ),
+                          disabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(
+                              color: AppColor.lightGrey200,
+                            ),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(
+                              color: AppColor.lightGrey200,
+                            ),
+                          ),
+                          suffixIcon: Icon(
+                            Icons.search,
+                            color: Colors.grey.shade600,
+                          ),
+                          hintStyle: TextStyle(color: AppColor.lightGrey200),
+                          hintText: "search items",
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 15),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  spacing: 5,
+                  children: [
+                    Expanded(
+                      child: _buildFilterButtons(
+                        AppColor.red,
+                        "Expired",
+                        Icons.sentiment_neutral_outlined,
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildFilterButtons(
+                        AppColor.pointColor,
+                        "Expiring Soon",
+                        Icons.sentiment_satisfied_alt_outlined,
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildFilterButtons(
+                        AppColor.green,
+                        "Fresh",
+                        Icons.sentiment_very_satisfied_outlined,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+                Text(
+                  selectedFilter.isEmpty
+                      ? "All Items"
+                      : selectedFilter == "Expiring Soon"
+                      ? "Items $selectedFilter"
+                      : "$selectedFilter Items",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColor.black, // Change this color as needed
                   ),
                 ),
                 Expanded(
-                  child: _buildFilterButtons(
-                    AppColor.pointColor,
-                    "Expiring Soon",
-                    Icons.sentiment_satisfied_alt_outlined,
-                  ),
-                ),
-                Expanded(
-                  child: _buildFilterButtons(
-                    AppColor.green,
-                    "Fresh",
-                    Icons.sentiment_very_satisfied_outlined,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Text(
-              selectedFilter.isEmpty
-                  ? "All Items"
-                  : selectedFilter == "Expiring Soon"
-                  ? "Items $selectedFilter"
-                  : "$selectedFilter Items",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColor.black, // Change this color as needed
-              ),
-            ),
-            Expanded(
-              child: SizedBox(
-                child: ListView.builder(
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    final item = items[index];
+                  child: ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      final item = items[index];
 
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
                         child: Dismissible(
                           key: Key(item["title"]! + item["expiry"]!),
                           direction: DismissDirection.horizontal,
@@ -261,33 +275,30 @@ class _KitchenManagerState extends State<KitchenManager> {
                               ),
                             ),
                           ),
-                          secondaryBackground: ClipRRect(
-                            borderRadius: BorderRadius.all(Radius.circular(16)),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                border: Border.all(color: Colors.red),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              alignment: Alignment.centerRight,
-                              padding: EdgeInsets.only(right: 12),
+                          secondaryBackground: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              border: Border.all(color: Colors.red),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            alignment: Alignment.centerRight,
+                            padding: EdgeInsets.only(right: 12),
 
-                              child: Row(
-                                spacing: 3,
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    CupertinoIcons.trash,
-                                    color: Colors.white,
-                                    size: 25,
-                                  ),
-                                  Text(
-                                    "Remove from list",
-                                    style: TextStyle(color: AppColor.white),
-                                  ),
-                                ],
-                              ),
+                            child: Row(
+                              spacing: 3,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  CupertinoIcons.trash,
+                                  color: Colors.white,
+                                  size: 25,
+                                ),
+                                Text(
+                                  "Remove from list",
+                                  style: TextStyle(color: AppColor.white),
+                                ),
+                              ],
                             ),
                           ),
                           onDismissed: (direction) {
@@ -391,6 +402,8 @@ class _KitchenManagerState extends State<KitchenManager> {
                                         ],
                                       ),
                                       Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
                                           CircleAvatar(
                                             radius: 12,
@@ -410,38 +423,58 @@ class _KitchenManagerState extends State<KitchenManager> {
                                         ],
                                       ),
                                       Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
-                                          CircleAvatar(
-                                            radius: 12,
-                                            backgroundColor: AppColor.lightblue,
-                                            child: Icon(
-                                              size: 14,
-                                              Icons.task_alt_outlined,
-                                              color: AppColor.blue,
-                                            ),
-                                          ),
-                                          Text(
-                                            " Category: ${items[index]["category"]!}",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: AppColor.lightGrey200,
+                                          Expanded(
+                                            child: Row(
+                                              children: [
+                                                CircleAvatar(
+                                                  radius: 12,
+                                                  backgroundColor:
+                                                      AppColor.lightblue,
+                                                  child: Icon(
+                                                    size: 14,
+                                                    Icons.task_alt_outlined,
+                                                    color: AppColor.blue,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  " Category: ${items[index]["category"]!}",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color:
+                                                        AppColor.lightGrey200,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                           SizedBox(width: 5),
-                                          CircleAvatar(
-                                            radius: 12,
-                                            backgroundColor: AppColor.lightRed,
-                                            child: Icon(
-                                              size: 14,
-                                              Icons.list_outlined,
-                                              color: AppColor.red,
-                                            ),
-                                          ),
-                                          Text(
-                                            " Quantity: ${items[index]["quantity"]!}",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: AppColor.lightGrey200,
+                                          Expanded(
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                CircleAvatar(
+                                                  radius: 12,
+                                                  backgroundColor:
+                                                      AppColor.lightRed,
+                                                  child: Icon(
+                                                    size: 14,
+                                                    Icons.list_outlined,
+                                                    color: AppColor.red,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  " Quantity: ${items[index]["quantity"]!}",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color:
+                                                        AppColor.lightGrey200,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ],
@@ -453,13 +486,13 @@ class _KitchenManagerState extends State<KitchenManager> {
                             ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -480,10 +513,10 @@ class _KitchenManagerState extends State<KitchenManager> {
           border: Border.all(
             color: isSelected ? textcolor : AppColor.lightGrey200,
           ),
-          borderRadius: BorderRadius.all(Radius.circular(16)),
+          borderRadius: BorderRadius.all(Radius.circular(12)),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 10),
           child: Row(
             spacing: 2,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -491,9 +524,9 @@ class _KitchenManagerState extends State<KitchenManager> {
             children: [
               Icon(
                 icondata,
+                size: 18,
                 color: isSelected ? textcolor : AppColor.lightGrey200,
               ),
-              // loadsvg(path),
               Text(
                 text,
                 style: TextStyle(
