@@ -67,7 +67,7 @@ class AuthServices {
         context,
         MaterialPageRoute(
           builder: (context) {
-            return const MainScreen();
+            return const MainScreen(currentIndex: 0);
           },
         ),
       );

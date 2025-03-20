@@ -8,7 +8,8 @@ import 'package:saver_bbk_main/modules/zero_waste_challenges/clean_plate_challen
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class ZeroWasteChallenges extends StatefulWidget {
-  const ZeroWasteChallenges({super.key});
+  final VoidCallback onBack;
+  const ZeroWasteChallenges({super.key, required this.onBack});
 
   @override
   State<ZeroWasteChallenges> createState() => _ZeroWasteChallengesState();
@@ -25,6 +26,7 @@ class _ZeroWasteChallengesState extends State<ZeroWasteChallenges> {
         textColor: AppColor.white,
         isneedtopop: true,
         iswhite: false,
+        onpop: widget.onBack,
       ),
       body: Padding(
         padding: const EdgeInsets.all(14),
