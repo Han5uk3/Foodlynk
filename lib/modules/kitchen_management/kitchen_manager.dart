@@ -68,7 +68,7 @@ class _KitchenManagerState extends State<KitchenManager> {
         onPressed: () {
           Navigator.of(
             context,
-          ).push(MaterialPageRoute(builder: (context) => AddItem()));
+          ).push(MaterialPageRoute(builder: (context) => AddItem(isEdit: false,)));
         },
         child: Icon(Icons.add, color: AppColor.white, size: 35),
       ),
@@ -310,181 +310,188 @@ class _KitchenManagerState extends State<KitchenManager> {
                               removeItem(index);
                             }
                           },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: AppColor.white,
-                              border: Border.all(color: Colors.grey.shade300),
-                              borderRadius: BorderRadius.circular(16),
+                          child: GestureDetector(
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => AddItem(isEdit: true,),
+                              ),
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 12,
-                                  ),
-                                  child: Container(
-                                    height: 80,
-                                    width: 80,
-                                    decoration: BoxDecoration(
-                                      color: AppColor.white,
-                                      border: Border.all(
-                                        color: AppColor.lightGrey200,
-                                      ),
-                                      borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: AppColor.white,
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 12,
                                     ),
-                                    child: Center(
-                                      child: Icon(
-                                        Icons.image,
-                                        color: AppColor.lightGrey200,
+                                    child: Container(
+                                      height: 80,
+                                      width: 80,
+                                      decoration: BoxDecoration(
+                                        color: AppColor.white,
+                                        border: Border.all(
+                                          color: AppColor.lightGrey200,
+                                        ),
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.image,
+                                          color: AppColor.lightGrey200,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                Expanded(
-                                  child: Column(
-                                    spacing: 2,
-                                    mainAxisSize: MainAxisSize.min,
-
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-
-                                    children: [
-                                      Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            items[index]["title"]!,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
+                                  Expanded(
+                                    child: Column(
+                                      spacing: 2,
+                                      mainAxisSize: MainAxisSize.min,
+                            
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                            
+                                      children: [
+                                        Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              items[index]["title"]!,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16,
+                                              ),
                                             ),
-                                          ),
-                                          Container(
-                                            margin: EdgeInsets.only(right: 12),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                              color: AppColor.lightRed,
+                                            Container(
+                                              margin: EdgeInsets.only(right: 12),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                color: AppColor.lightRed,
+                                              ),
+                                              height: 27,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 9,
+                                                      vertical: 3,
+                                                    ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      Icons
+                                                          .sentiment_neutral_outlined,
+                                                      size: 14,
+                                                      color: AppColor.red,
+                                                    ),
+                                                    Text(
+                                                      " 1 d",
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: AppColor.red,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                             ),
-                                            height: 27,
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 9,
-                                                    vertical: 3,
-                                                  ),
+                                          ],
+                                        ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            CircleAvatar(
+                                              radius: 12,
+                                              backgroundColor:
+                                                  AppColor.greenshade,
+                                              child: loadsvg(
+                                                "assets/icons/expiry.svg",
+                                              ),
+                                            ),
+                                            Text(
+                                              " Expiry Date: ${items[index]["expiry"]!}",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: AppColor.lightGrey200,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Expanded(
                                               child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
                                                 children: [
-                                                  Icon(
-                                                    Icons
-                                                        .sentiment_neutral_outlined,
-                                                    size: 14,
-                                                    color: AppColor.red,
+                                                  CircleAvatar(
+                                                    radius: 12,
+                                                    backgroundColor:
+                                                        AppColor.lightblue,
+                                                    child: Icon(
+                                                      size: 14,
+                                                      Icons.task_alt_outlined,
+                                                      color: AppColor.blue,
+                                                    ),
                                                   ),
                                                   Text(
-                                                    " 1 d",
+                                                    " Category: ${items[index]["category"]!}",
                                                     style: TextStyle(
                                                       fontSize: 12,
-                                                      color: AppColor.red,
+                                                      color:
+                                                          AppColor.lightGrey200,
                                                     ),
                                                   ),
                                                 ],
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 12,
-                                            backgroundColor:
-                                                AppColor.greenshade,
-                                            child: loadsvg(
-                                              "assets/icons/expiry.svg",
-                                            ),
-                                          ),
-                                          Text(
-                                            " Expiry Date: ${items[index]["expiry"]!}",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: AppColor.lightGrey200,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Expanded(
-                                            child: Row(
-                                              children: [
-                                                CircleAvatar(
-                                                  radius: 12,
-                                                  backgroundColor:
-                                                      AppColor.lightblue,
-                                                  child: Icon(
-                                                    size: 14,
-                                                    Icons.task_alt_outlined,
-                                                    color: AppColor.blue,
+                                            SizedBox(width: 5),
+                                            Expanded(
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  CircleAvatar(
+                                                    radius: 12,
+                                                    backgroundColor:
+                                                        AppColor.lightRed,
+                                                    child: Icon(
+                                                      size: 14,
+                                                      Icons.list_outlined,
+                                                      color: AppColor.red,
+                                                    ),
                                                   ),
-                                                ),
-                                                Text(
-                                                  " Category: ${items[index]["category"]!}",
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color:
-                                                        AppColor.lightGrey200,
+                                                  Text(
+                                                    " Quantity: ${items[index]["quantity"]!}",
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color:
+                                                          AppColor.lightGrey200,
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                          SizedBox(width: 5),
-                                          Expanded(
-                                            child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                CircleAvatar(
-                                                  radius: 12,
-                                                  backgroundColor:
-                                                      AppColor.lightRed,
-                                                  child: Icon(
-                                                    size: 14,
-                                                    Icons.list_outlined,
-                                                    color: AppColor.red,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  " Quantity: ${items[index]["quantity"]!}",
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color:
-                                                        AppColor.lightGrey200,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),

@@ -11,8 +11,9 @@ import 'package:saver_bbk_main/common_widget/text_field.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class AddItem extends StatefulWidget {
-  const AddItem({super.key});
+  const AddItem({super.key, required this.isEdit});
 
+  final bool isEdit;
   @override
   State<AddItem> createState() => _AddItemState();
 }
@@ -48,10 +49,25 @@ class _AddItemState extends State<AddItem> {
     return Scaffold(
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
-        child: SaverButton(text: "Add Item", onPressed: () {}),
+        child:
+            widget.isEdit
+                ? Row(
+                  children: [
+                    SaverButton(
+                      text: "Move to Shopping List",
+                      onPressed: () {},
+                    ),
+                    SaverButton(
+                      text: "Remove from list",
+                      onPressed: () {},
+                      color: AppColor.red,
+                    ),
+                  ],
+                )
+                : SaverButton(text: "Add Item", onPressed: () {}),
       ),
       appBar: saverAppBar(
-        "Add Item",
+        widget.isEdit ? "Edit Item" : "Add Item",
         context,
         isneedtopop: true,
         iswhite: true,
@@ -72,6 +88,7 @@ class _AddItemState extends State<AddItem> {
                       Label(text: "Item Name", style: TextStyle(fontSize: 16)),
                       SizedBox(height: 5),
                       SaverTextField(
+                        toggle: !widget.isEdit,
                         hintText: "Enter Item Name",
                         controller: itemNameController,
                       ),
@@ -87,15 +104,21 @@ class _AddItemState extends State<AddItem> {
                               items: items,
                               selectedItem: selectedItem,
                               hint: "Choose",
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedItem = value!;
-                                });
-                              },
+                              onChanged:
+                                  widget.isEdit
+                                      ? (value) {
+                                        null;
+                                      }
+                                      : (value) {
+                                        setState(() {
+                                          selectedItem = value!;
+                                        });
+                                      },
                             ),
                           ),
                           Expanded(
                             child: NumberSelector.plain(
+                              enabled: !widget.isEdit,
                               hasBorder: true,
                               showMinMax: false,
                               min: 0,
@@ -153,34 +176,41 @@ class _AddItemState extends State<AddItem> {
                                 ),
                               ),
                               IconButton(
-                                onPressed: () async {
-                                  DateTime? pickedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: initialDate,
-                                    firstDate: DateTime(2000),
-                                    barrierDismissible: false,
-                                    lastDate: DateTime(2100),
-                                    builder: (context, child) {
-                                      return Theme(
-                                        data: Theme.of(context).copyWith(
-                                          colorScheme: ColorScheme.light(
-                                            primary: AppColor.green,
-                                            surface: AppColor.white,
-                                          ),
-                                        ),
-                                        child: child!,
-                                      );
-                                    },
-                                  );
+                                onPressed:
+                                    widget.isEdit
+                                        ? null
+                                        : () async {
+                                          DateTime?
+                                          pickedDate = await showDatePicker(
+                                            context: context,
+                                            initialDate: initialDate,
+                                            firstDate: DateTime(2000),
+                                            barrierDismissible: false,
+                                            lastDate: DateTime(2100),
+                                            builder: (context, child) {
+                                              return Theme(
+                                                data: Theme.of(
+                                                  context,
+                                                ).copyWith(
+                                                  colorScheme:
+                                                      ColorScheme.light(
+                                                        primary: AppColor.green,
+                                                        surface: AppColor.white,
+                                                      ),
+                                                ),
+                                                child: child!,
+                                              );
+                                            },
+                                          );
 
-                                  if (pickedDate != null) {
-                                    setState(() {
-                                      date =
-                                          "${pickedDate.day.toString()}/${pickedDate.month.toString()}/${pickedDate.year.toString()}";
-                                      initialDate = pickedDate;
-                                    });
-                                  }
-                                },
+                                          if (pickedDate != null) {
+                                            setState(() {
+                                              date =
+                                                  "${pickedDate.day.toString()}/${pickedDate.month.toString()}/${pickedDate.year.toString()}";
+                                              initialDate = pickedDate;
+                                            });
+                                          }
+                                        },
                                 icon: Icon(
                                   Icons.calendar_month_outlined,
                                   color: AppColor.black,
@@ -229,11 +259,14 @@ class _AddItemState extends State<AddItem> {
                                           alignment: Alignment.topRight,
                                           child: Positioned(
                                             child: GestureDetector(
-                                              onTap: () {
-                                                setState(() {
-                                                  _imageFile = null;
-                                                });
-                                              },
+                                              onTap:
+                                                  widget.isEdit
+                                                      ? null
+                                                      : () {
+                                                        setState(() {
+                                                          _imageFile = null;
+                                                        });
+                                                      },
                                               child: CircleAvatar(
                                                 radius: 10,
                                                 backgroundColor: Colors.white,
@@ -253,7 +286,13 @@ class _AddItemState extends State<AddItem> {
                                   ),
                                 ),
                               ),
-                            ImagePickerButton(onImageSelected: _setImage),
+                            _imageFile == null
+                                ? widget.isEdit
+                                    ? SizedBox()
+                                    : ImagePickerButton(
+                                      onImageSelected: _setImage,
+                                    )
+                                : SizedBox(),
                           ],
                         ),
                       ),
