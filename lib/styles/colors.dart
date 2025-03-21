@@ -12,7 +12,7 @@ class AppColor {
   static const Color blue = Color(0xFF0739A8);
   static Color lightblue = Color.fromARGB(30, 7, 57, 168);
   static const Color yellow = Color(0xFFF2D45C);
-  static const Color lightYellow = Color.fromARGB(120, 255, 204, 102);
+  static const Color lightYellow = Color.fromARGB(30, 255, 200, 0);
   static const Color purple = Color(0xFFB463E7);
   static const Color lightPurple = Color.fromARGB(30, 180, 99, 231);
   static const Color red = Color(0xFFFF3B30);
@@ -23,4 +23,5 @@ class AppColor {
   static const Color pointColor = Color(0xFFFFC600);
   static const Color yellow150 = Color(0xFFFFEFB7);
   static const Color yellow600 = Color(0xFFFFAC34);
+  static const Color lightAppbarColor = Color.fromARGB(30, 119, 31, 109);
 }
