@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:saver_bbk_main/modules/community/community_page.dart';
+import 'package:saver_bbk_main/modules/food_swap/food_swap_page.dart';
 import 'package:saver_bbk_main/modules/home/home_page.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/kitchen_manager.dart';
+import 'package:saver_bbk_main/modules/notifications/notifications_page.dart';
 import 'package:saver_bbk_main/modules/profile/profile_page.dart';
 import 'package:saver_bbk_main/modules/zero_waste_challenges/zero_waste_challenges.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
@@ -51,7 +54,7 @@ class _MainScreenState extends State<MainScreen> {
         case 3:
           return Page4(onBack: goBack);
         case 4:
-          return Page5(onBack: goBack);
+          return FoodSwapPage(onBack: goBack);
         case 5:
           return Page6(onBack: goBack);
         case 6:
@@ -65,9 +68,9 @@ class _MainScreenState extends State<MainScreen> {
       case 0:
         return HomePage(onGridTap: onGridTap);
       case 1:
-        return const CommunityScreen();
+        return CommunityPage();
       case 2:
-        return const NotificationScreen();
+        return NotificationsPage();
       case 3:
         return const ProfilePage();
       default:
@@ -108,16 +111,11 @@ class _MainScreenState extends State<MainScreen> {
             showUnselectedLabels: true,
             type: BottomNavigationBarType.fixed,
             items: [
-              _bottomNavBarItem(
-                0,
-                Icons.home_filled,
-                Icons.home_outlined,
-                'Home',
-              ),
+              _bottomNavBarItem(0, Icons.home, Icons.home_outlined, 'Home'),
               _bottomNavBarItem(
                 1,
-                Icons.group,
-                Icons.group_outlined,
+                Icons.forum,
+                Icons.forum_outlined,
                 'Community',
               ),
               _bottomNavBarItem(
@@ -128,8 +126,8 @@ class _MainScreenState extends State<MainScreen> {
               ),
               _bottomNavBarItem(
                 3,
-                Icons.person,
-                Icons.person_outline,
+                Icons.account_circle,
+                Icons.account_circle_outlined,
                 'Profile',
               ),
             ],

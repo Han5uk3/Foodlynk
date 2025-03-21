@@ -48,7 +48,10 @@ class _AddItemState extends State<AddItem> {
   int value = 0;
   @override
   Widget build(BuildContext context) {
-    int days = getDateDifferenceNumber(widget.dateString!);
+    int days = 0;
+    widget.isEdit
+        ? days = getDateDifferenceNumber(widget.dateString!)
+        : days = 0;
 
     return Scaffold(
       bottomNavigationBar: Padding(

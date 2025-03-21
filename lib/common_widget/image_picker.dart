@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:saver_bbk_main/api/compare_plates.dart';
 
 class ImagePickerButton extends StatelessWidget {
   final Function(File) onImageSelected;
@@ -19,7 +20,9 @@ class ImagePickerButton extends StatelessWidget {
       );
 
       if (pickedFile != null) {
-        onImageSelected(File(pickedFile.path));
+        bool hasFood = await detectFood(File(pickedFile.path));
+
+        hasFood ? onImageSelected(File(pickedFile.path)) : null;
       } else {
         print("No image selected");
       }
