@@ -5,6 +5,7 @@ class SaverTextField extends StatelessWidget {
   final String hintText;
   final TextEditingController controller;
   final bool isPassword;
+
   final TextInputType keyboardType;
   final IconData? prefixIcon;
   final IconData? suffixIcon;
@@ -20,6 +21,7 @@ class SaverTextField extends StatelessWidget {
   const SaverTextField({
     super.key,
     required this.hintText,
+
     required this.controller,
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
@@ -28,7 +30,7 @@ class SaverTextField extends StatelessWidget {
     this.onEditingComplete,
     this.prefixIconColor = AppColor.lightGrey,
     this.suffixIcon,
-    this.suffixIconColor=AppColor.lightGrey,
+    this.suffixIconColor = AppColor.lightGrey,
     this.validator,
     this.onSuffixTap,
     this.borderColor = AppColor.lightGrey,
@@ -48,7 +50,9 @@ class SaverTextField extends StatelessWidget {
         hintText: hintText,
         hintStyle: TextStyle(color: AppColor.lightGrey200),
         prefixIcon:
-            prefixIcon != null ? Icon(prefixIcon, color: prefixIconColor) : null,
+            prefixIcon != null
+                ? Icon(prefixIcon, color: prefixIconColor)
+                : null,
         suffixIcon:
             suffixIcon != null
                 ? GestureDetector(
