@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
@@ -34,7 +35,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String formattedDate = '';
   bool _isLoading = false;
   bool _isDataLoaded = false;
-
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
@@ -163,280 +164,323 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(14.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Stack(
-                children: [
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.person_outline,
-                      size: 60,
-                      color: Colors.grey[400],
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
+        child: Form(
+          key: formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Stack(
+                  children: [
+                    Container(
+                      width: 120,
+                      height: 120,
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey[300]!),
+                        color: Colors.grey[200],
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.camera_alt, size: 24),
+                      child: Icon(
+                        Icons.person_outline,
+                        size: 60,
+                        color: Colors.grey[400],
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.grey[300]!),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.camera_alt, size: 24),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              Label(text: 'First Name'),
+
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  SizedBox(
+                    width: 100,
+                    child: SaverDropdown(
+                      hint: "Mr.",
+                      items: titles,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedTitle = value;
+                        });
+                      },
+                      selectedItem: selectedTitle ?? "",
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: SaverTextField(
+                      controller: _nameController,
+                      hintText: 'Enter First Name',
                     ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 24),
-
-            Label(text: 'First Name'),
-
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                SizedBox(
-                  width: 100,
-                  child: SaverDropdown(
-                    hint: "Mr.",
-                    items: titles,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedTitle = value;
-                      });
-                    },
-                    selectedItem: selectedTitle ?? "",
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: SaverTextField(
-                    controller: _nameController,
-                    hintText: 'Enter First Name',
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Label(text: 'Last Name'),
-            const SizedBox(height: 8),
-            SaverTextField(
-              controller: _lastNameController,
-              hintText: 'Enter Last Name',
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Label(text: 'Gender'),
-                      const SizedBox(height: 8),
-                      SaverDropdown(
-                        hint: "Male",
-                        items: genders,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedGender = value;
-                          });
-                        },
-                        selectedItem: selectedGender ?? "",
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'D.O.B',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          hintText:
-                              formattedDate.isEmpty
-                                  ? 'DD/MM/YYYY'
-                                  : formattedDate,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 16,
-                          ),
-                          suffixIcon: const Icon(Icons.calendar_today),
-                        ),
-                        onTap: () async {
-                          final DateTime? picked = await showDatePicker(
-                            context: context,
-                            initialDate: selectedDate ?? DateTime.now(),
-                            firstDate: DateTime(1900),
-                            lastDate: DateTime.now(),
-                          );
-
-                          if (picked != null) {
+              const SizedBox(height: 16),
+              Label(text: 'Last Name'),
+              const SizedBox(height: 8),
+              SaverTextField(
+                controller: _lastNameController,
+                hintText: 'Enter Last Name',
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Label(text: 'Gender'),
+                        const SizedBox(height: 8),
+                        SaverDropdown(
+                          hint: "Male",
+                          items: genders,
+                          onChanged: (value) {
                             setState(() {
-                              selectedDate = picked;
-                              formattedDate =
-                                  '${picked.day.toString().padLeft(2, '0')}/'
-                                  '${picked.month.toString().padLeft(2, '0')}/'
-                                  '${picked.year}';
+                              selectedGender = value;
                             });
+                          },
+                          selectedItem: selectedGender ?? "",
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'D.O.B',
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          readOnly: true,
+                          decoration: InputDecoration(
+                            hintText:
+                                formattedDate.isEmpty
+                                    ? 'DD/MM/YYYY'
+                                    : formattedDate,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 16,
+                            ),
+                            suffixIcon: const Icon(Icons.calendar_today),
+                          ),
+                          onTap: () async {
+                            final DateTime? picked = await showDatePicker(
+                              context: context,
+                              initialDate: selectedDate ?? DateTime.now(),
+                              firstDate: DateTime(1900),
+                              lastDate: DateTime.now(),
+                            );
+
+                            if (picked != null) {
+                              setState(() {
+                                selectedDate = picked;
+                                formattedDate =
+                                    '${picked.day.toString().padLeft(2, '0')}/'
+                                    '${picked.month.toString().padLeft(2, '0')}/'
+                                    '${picked.year}';
+                              });
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              Label(text: 'Address'),
+              const SizedBox(height: 8),
+              SaverTextField(
+                hintText: 'Enter Address',
+                controller: _addressController,
+              ),
+              const SizedBox(height: 16),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Label(text: 'Country'),
+                        const SizedBox(height: 8),
+                        SaverDropdown(
+                          hint: "Choose",
+                          items: countries,
+                          selectedItem: selectedCountry ?? "",
+                          onChanged: (value) {
+                            setState(() {
+                              selectedCountry = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Label(text: 'State'),
+                        const SizedBox(height: 8),
+                        SaverDropdown(
+                          hint: "Choose",
+                          items: states,
+                          selectedItem: selectedState ?? "",
+                          onChanged: (value) {
+                            setState(() {
+                              selectedState = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Label(text: 'City'),
+                        const SizedBox(height: 8),
+                        SaverDropdown(
+                          hint: "Choose",
+                          items: cities,
+                          selectedItem: selectedCity ?? "",
+                          onChanged: (value) {
+                            setState(() {
+                              selectedCity = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Label(text: 'Pin Code'),
+                        const SizedBox(height: 8),
+                        SaverTextField(
+                          hintText: 'Enter Pincode',
+                          controller: _zipCodeController,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              Label(text: 'Nationality'),
+              const SizedBox(height: 8),
+              SaverDropdown(
+                items: nationalities,
+                hint: "Choose",
+                selectedItem: selectedNationality ?? "",
+                onChanged: (value) {
+                  setState(() {
+                    selectedNationality = value;
+                  });
+                },
+              ),
+
+              const SizedBox(height: 16),
+
+              Label(text: 'Email ID'),
+              const SizedBox(height: 8),
+              SaverTextField(
+                hintText: 'Enter Email ID',
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(
+                    RegExp(r"[a-zA-Z0-9._%+-@]"),
+                  ),
+                ],
+                validator: _validateEmail,
+              ),
+              const SizedBox(height: 24),
+              SaverButton(
+                text: widget.isEdit ? "Save Changes" : 'Create Profile',
+                isLoading: _isLoading,
+                onPressed:
+                    widget.isEdit
+                        ? () {
+                          if (!formKey.currentState!.validate()) {
+                            return;
                           }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
+                          context.read<ProfileBloc>().add(
+                            EditProfileEvent(
+                              userModel: UserModel(
+                                uid: HiveHelper.getUID(),
+                                gender: selectedGender,
+                                title: selectedTitle ?? "",
+                                firstName: _nameController.text,
+                                lastName: _lastNameController.text,
+                                phoneNumber: widget.phoneNumber ?? "",
+                                address: _addressController.text,
+                                country: selectedCountry ?? "",
+                                state: selectedState ?? "",
+                                city: selectedCity ?? "",
+                                zipCode: _zipCodeController.text,
+                                nationality: selectedNationality ?? "",
+                                email: _emailController.text,
+                                dob: Timestamp.fromDate(selectedDate!),
+                              ),
+                            ),
+                          );
+                        }
+                        : () {
+                          if (selectedDate == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please select a date of birth'),
+                              ),
+                            );
+                            return;
+                          }
+                          if (!formKey.currentState!.validate()) {}
 
-            Label(text: 'Address'),
-            const SizedBox(height: 8),
-            SaverTextField(
-              hintText: 'Enter Address',
-              controller: _addressController,
-            ),
-            const SizedBox(height: 16),
-
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Label(text: 'Country'),
-                      const SizedBox(height: 8),
-                      SaverDropdown(
-                        hint: "Choose",
-                        items: countries,
-                        selectedItem: selectedCountry ?? "",
-                        onChanged: (value) {
-                          setState(() {
-                            selectedCountry = value;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Label(text: 'State'),
-                      const SizedBox(height: 8),
-                      SaverDropdown(
-                        hint: "Choose",
-                        items: states,
-                        selectedItem: selectedState ?? "",
-                        onChanged: (value) {
-                          setState(() {
-                            selectedState = value;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Label(text: 'City'),
-                      const SizedBox(height: 8),
-                      SaverDropdown(
-                        hint: "Choose",
-                        items: cities,
-                        selectedItem: selectedCity ?? "",
-                        onChanged: (value) {
-                          setState(() {
-                            selectedCity = value;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Label(text: 'Pin Code'),
-                      const SizedBox(height: 8),
-                      SaverTextField(
-                        hintText: 'Enter Pincode',
-                        controller: _zipCodeController,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            Label(text: 'Nationality'),
-            const SizedBox(height: 8),
-            SaverDropdown(
-              items: nationalities,
-              hint: "Choose",
-              selectedItem: selectedNationality ?? "",
-              onChanged: (value) {
-                setState(() {
-                  selectedNationality = value;
-                });
-              },
-            ),
-
-            const SizedBox(height: 16),
-
-            Label(text: 'Email ID'),
-            const SizedBox(height: 8),
-            SaverTextField(
-              hintText: 'Enter Email ID',
-              controller: _emailController,
-            ),
-            const SizedBox(height: 24),
-            SaverButton(
-              text: widget.isEdit ? "Save Changes" : 'Create Profile',
-              isLoading: _isLoading,
-              onPressed:
-                  widget.isEdit
-                      ? () {
-                        context.read<ProfileBloc>().add(
-                          EditProfileEvent(
-                            userModel: UserModel(
-                              uid: HiveHelper.getUID(),
-                              gender: selectedGender,
+                          context.read<ProfileBloc>().add(
+                            CreateProfileEvent(
                               title: selectedTitle ?? "",
                               firstName: _nameController.text,
-                              lastName: _lastNameController.text,
                               phoneNumber: widget.phoneNumber ?? "",
+                              lastName: _lastNameController.text,
+                              gender: selectedGender ?? "",
+                              dob: Timestamp.fromDate(selectedDate!),
                               address: _addressController.text,
                               country: selectedCountry ?? "",
                               state: selectedState ?? "",
@@ -444,44 +488,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               zipCode: _zipCodeController.text,
                               nationality: selectedNationality ?? "",
                               email: _emailController.text,
-                              dob: Timestamp.fromDate(selectedDate!),
-                            ),
-                          ),
-                        );
-                      }
-                      : () {
-                        if (selectedDate == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please select a date of birth'),
                             ),
                           );
-                          return;
-                        }
-
-                        context.read<ProfileBloc>().add(
-                          CreateProfileEvent(
-                            title: selectedTitle ?? "",
-                            firstName: _nameController.text,
-                            phoneNumber: widget.phoneNumber ?? "",
-                            lastName: _lastNameController.text,
-                            gender: selectedGender ?? "",
-                            dob: Timestamp.fromDate(selectedDate!),
-                            address: _addressController.text,
-                            country: selectedCountry ?? "",
-                            state: selectedState ?? "",
-                            city: selectedCity ?? "",
-                            zipCode: _zipCodeController.text,
-                            nationality: selectedNationality ?? "",
-                            email: _emailController.text,
-                          ),
-                        );
-                      },
-            ),
-            const SizedBox(height: 12),
-          ],
+                        },
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Email can't be empty";
+    }
+    final RegExp emailRegExp = RegExp(
+      r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+    );
+    if (!emailRegExp.hasMatch(value)) {
+      return "Enter a valid email";
+    }
+    return null;
   }
 }

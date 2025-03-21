@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -29,13 +30,13 @@ class ImagePickerButton extends StatelessWidget {
         isFood
             ? hasFood
                 ? onImageSelected(File(pickedFile.path))
-                : null
+                : onImageSelected(File(pickedFile.path))
             : onImageSelected(File(pickedFile.path));
       } else {
-        print("No image selected");
+        log("No image selected");
       }
     } catch (e) {
-      print("Error picking image: $e");
+      log("Error picking image: $e");
     }
   }
 
