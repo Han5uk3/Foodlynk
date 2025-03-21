@@ -7,8 +7,13 @@ import 'package:saver_bbk_main/api/compare_plates.dart';
 class ImagePickerButton extends StatelessWidget {
   final Function(File) onImageSelected;
   final ImagePicker _picker = ImagePicker();
+  final bool isFood;
 
-  ImagePickerButton({super.key, required this.onImageSelected});
+  ImagePickerButton({
+    super.key,
+    required this.onImageSelected,
+    required this.isFood,
+  });
 
   Future<void> _pickImage(BuildContext context) async {
     try {
@@ -21,8 +26,11 @@ class ImagePickerButton extends StatelessWidget {
 
       if (pickedFile != null) {
         bool hasFood = await detectFood(File(pickedFile.path));
-
-        hasFood ? onImageSelected(File(pickedFile.path)) : null;
+        isFood
+            ? hasFood
+                ? onImageSelected(File(pickedFile.path))
+                : null
+            : onImageSelected(File(pickedFile.path));
       } else {
         print("No image selected");
       }

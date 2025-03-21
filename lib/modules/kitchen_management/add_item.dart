@@ -394,6 +394,7 @@ class _AddItemState extends State<AddItem> {
                                         ? widget.isEdit
                                             ? SizedBox()
                                             : ImagePickerButton(
+                                              isFood: false,
                                               onImageSelected: _setImage,
                                             )
                                         : SizedBox(),
