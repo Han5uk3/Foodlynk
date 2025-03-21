@@ -13,15 +13,24 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   String? uid;
+  bool? isGuest = false;
   @override
   void initState() {
-    uid = HiveHelper.getUID();
-    Future.delayed(const Duration(seconds: 3), () => _checkLogin());
+    Future.delayed(Duration(milliseconds: 500)).then((value) => _checkUserStatus());
     super.initState();
   }
 
-  void _checkLogin() {
-    if (uid != null) {
+  Future<void> _checkUserStatus() async {
+    uid = HiveHelper.getUID();
+    isGuest = HiveHelper.getIsGuest();
+    if (isGuest ?? false) {
+      Navigator.of(context).pushAndRemoveUntil(
+        CupertinoModalPopupRoute(
+          builder: (context) => MainScreen(currentIndex: 0),
+        ),
+        (route) => false,
+      );
+    } else if (uid != null) {
       Navigator.of(context).pushAndRemoveUntil(
         CupertinoModalPopupRoute(
           builder: (context) => MainScreen(currentIndex: 0),
@@ -29,20 +38,11 @@ class _SplashScreenState extends State<SplashScreen> {
         (route) => false,
       );
     } else {
-      _checkUser();
+      Navigator.of(context).pushAndRemoveUntil(
+        CupertinoModalPopupRoute(builder: (context) => LoginPage()),
+        (route) => false,
+      );
     }
-  }
-
-  void _checkUser() async {
-    // final bool isUserExist = await HiveHelper.isUserExist();
-    // if (isUserExist) {
-    //   _checkLogin();
-    // } else {
-    Navigator.of(context).pushAndRemoveUntil(
-      CupertinoModalPopupRoute(builder: (context) => LoginPage()),
-      (route) => false,
-    );
-    // }
   }
 
   @override

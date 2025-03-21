@@ -9,7 +9,7 @@ class Coins extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 55,
+      width: coins > 0 ? 60 + (coins.toString().length * 7.0) : 60,
       height: 30,
       padding: EdgeInsets.only(left: 5, right: 10),
       decoration: BoxDecoration(

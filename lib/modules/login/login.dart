@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
+import 'package:saver_bbk_main/helpers/hive_helper.dart';
+import 'package:saver_bbk_main/modules/home/home.dart';
 import 'package:saver_bbk_main/services/auth_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
@@ -15,6 +17,15 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _phoneController = TextEditingController();
   bool _isChecked = false;
+  bool isVerifying = false;
+
+  void _continueAsGuest() {
+    HiveHelper.putisGuest(true);
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => MainScreen(currentIndex: 0)),
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -176,7 +187,7 @@ class _LoginPageState extends State<LoginPage> {
 
           Center(
             child: GestureDetector(
-              onTap: () {},
+              onTap: _continueAsGuest,
               child: const Text(
                 'Continue as Guest',
                 style: TextStyle(color: AppColor.primaryColor),

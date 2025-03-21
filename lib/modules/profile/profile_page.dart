@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
+import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
+import 'package:saver_bbk_main/helpers/hive_helper.dart';
+import 'package:saver_bbk_main/modules/login/login.dart';
+import 'package:saver_bbk_main/modules/profile/bloc/profile_bloc.dart';
 
 import 'package:saver_bbk_main/modules/profile/edit_profile.dart';
 import 'package:saver_bbk_main/modules/profile/password_page.dart';
@@ -17,77 +22,100 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  bool _isLoading = false;
+  bool isGuestUser = false;
+  @override
+  void initState() {
+    isGuestUser = HiveHelper.getIsGuest();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: saverAppBar('Profile', context),
-      body: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          children: [
-            _buildProfileTile(
-              label: "My Profile",
-              path: "assets/icons/Icon.svg",
+      body: BlocConsumer<ProfileBloc, ProfileState>(
+        listener: (context, state) {
+          if (state is LogoutStateSuccess) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => LoginPage()),
+                (route) => false,
+              );
+            });
+          }
+        },
+        builder: (context, state) {
+          if (state is LogoutStateLoading) {
+            _isLoading = state.isLoading;
+          }
+          return Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              children: [
+                _buildProfileTile(
+                  label: "My Profile",
+                  path: "assets/icons/Icon.svg",
 
-              color: AppColor.lightblue,
+                  color: AppColor.lightblue,
 
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => EditProfilePage(isEdit: true),
-                  ),
-                );
-              },
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => EditProfilePage(isEdit: true),
+                      ),
+                    );
+                  },
+                ),
+
+                _buildProfileTile(
+                  label: "Password",
+                  path: "assets/icons/password.svg",
+
+                  color: AppColor.lightPurple,
+
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PasswordPage(isEdit: true),
+                      ),
+                    );
+                  },
+                ),
+
+                _buildProfileTile(
+                  label: "Terms & Conditions",
+                  path: "assets/icons/terms.svg",
+
+                  color: Colors.green.shade50,
+
+                  onTap: () {},
+                ),
+
+                isGuestUser
+                    ? SizedBox()
+                    : _buildProfileTile(
+                      label: "Delete Profile",
+                      path: "assets/icons/deleteaccount.svg",
+                      color: Colors.red.shade50,
+                      onTap: () {
+                        _showDeleteBottomSheet(context, true);
+                      },
+                    ),
+
+                _buildProfileTile(
+                  label: isGuestUser ? "Login" : "Logout",
+                  path: "assets/icons/logout.svg",
+                  color: AppColor.lightPink,
+                  onTap: () {
+                    _showDeleteBottomSheet(context, false);
+                  },
+                ),
+              ],
             ),
-
-            _buildProfileTile(
-              label: "Password",
-              path: "assets/icons/password.svg",
-
-              color: AppColor.lightPurple,
-
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PasswordPage(isEdit: true),
-                  ),
-                );
-              },
-            ),
-
-            _buildProfileTile(
-              label: "Terms & Conditions",
-              path: "assets/icons/terms.svg",
-
-              color: Colors.green.shade50,
-
-              onTap: () {},
-            ),
-
-            _buildProfileTile(
-              label: "Delete Profile",
-              path: "assets/icons/deleteaccount.svg",
-
-              color: Colors.red.shade50,
-
-              onTap: () {
-                _showDeleteBottomSheet(context, true);
-              },
-            ),
-
-            _buildProfileTile(
-              label: "Logout",
-              path: "assets/icons/logout.svg",
-
-              color: AppColor.lightPink,
-
-              onTap: () {
-                _showDeleteBottomSheet(context, false);
-              },
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -103,7 +131,25 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         ListTile(
           minTileHeight: 85,
-          onTap: onTap,
+          onTap:
+              label == "Login"
+                  ? () async {
+                    await HiveHelper.putisGuest(false);
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                      (_) => false,
+                    );
+                  }
+                  : isGuestUser
+                  ? () {
+                    SaverSnackBar.show(
+                      context: context,
+                      message: "Create an account first",
+                      isTrue: false,
+                    );
+                  }
+                  : onTap,
           leading: Container(
             height: 40,
             width: 40,
@@ -173,11 +219,15 @@ class _ProfilePageState extends State<ProfilePage> {
                   Expanded(
                     child: SaverButton(
                       text: toggler ? "Delete Profile" : "Logout",
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+                      onPressed:
+                          toggler
+                              ? () {}
+                              : () => context.read<ProfileBloc>().add(
+                                LogoutEvent(),
+                              ),
                       color: AppColor.red,
                       textColor: AppColor.white,
+                      isLoading: _isLoading,
                     ),
                   ),
                 ],
