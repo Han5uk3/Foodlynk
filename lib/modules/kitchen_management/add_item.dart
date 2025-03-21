@@ -138,7 +138,7 @@ class _AddItemState extends State<AddItem> {
                                         color:
                                             days < 0
                                                 ? AppColor.red
-                                                : days == 0 && days < 3
+                                                : days >= 0 && days < 3
                                                 ? AppColor.yellow
                                                 : AppColor.green,
                                       ),
@@ -150,7 +150,7 @@ class _AddItemState extends State<AddItem> {
                                           color:
                                               days < 0
                                                   ? AppColor.red
-                                                  : days == 0 && days < 3
+                                                  : days >= 0 && days < 3
                                                   ? AppColor.yellow
                                                   : AppColor.green,
                                           fontSize: 12,
