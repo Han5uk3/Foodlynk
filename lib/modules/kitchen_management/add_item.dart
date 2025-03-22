@@ -346,21 +346,21 @@ class _AddItemState extends State<AddItem> {
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    _imageFile == null
-                                        ? widget.isEdit
-                                            ? SizedBox()
-                                            : ImagePickerButton(
-                                              isFood: false,
-                                              onImageSelected: _setImage,
-                                            )
-                                        : SizedBox(),
-                                  ],
-                                ),
-                      ),
-                    ],
+                                          ],
+                                        ),
+                                      _imageFile == null
+                                          ? widget.isEdit
+                                              ? SizedBox()
+                                              : ImagePickerButton(
+                                                isFood: false,
+                                                onImageSelected: _setImage,
+                                              )
+                                          : SizedBox(),
+                                    ],
+                                  ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

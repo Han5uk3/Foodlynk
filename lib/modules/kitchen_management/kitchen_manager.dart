@@ -210,7 +210,7 @@ class _KitchenManagerState extends State<KitchenManager> {
                     itemBuilder: (context, index) {
                       Items items = kitchenItems[index];
                       int days = getDateDifferenceNumber(
-                        items.expiredDate.toIso8601String(),
+                        "${items.expiredDate.day}/${items.expiredDate.month}/${items.expiredDate.year}",
                       );
                       int daysLeft = days.abs();
 
@@ -430,7 +430,7 @@ class _KitchenManagerState extends State<KitchenManager> {
                                               ),
                                             ),
                                             Text(
-                                              " Expiry Date: ${items.expiredDate}",
+                                              " Expiry Date: ${items.expiredDate.day}/${items.expiredDate.month}/${items.expiredDate.year}",
                                               style: TextStyle(
                                                 fontSize: 12,
                                                 color: AppColor.lightGrey200,
@@ -442,7 +442,7 @@ class _KitchenManagerState extends State<KitchenManager> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.center,
                                           children: [
-                                            Expanded(
+                                            IntrinsicWidth(
                                               child: Row(
                                                 children: [
                                                   CircleAvatar(
@@ -456,7 +456,7 @@ class _KitchenManagerState extends State<KitchenManager> {
                                                     ),
                                                   ),
                                                   Text(
-                                                    " Category: ${items.category}",
+                                                    " Category: ${items.category != "" ? items.category : "N/A"}",
                                                     style: TextStyle(
                                                       fontSize: 12,
                                                       color:
@@ -467,31 +467,30 @@ class _KitchenManagerState extends State<KitchenManager> {
                                               ),
                                             ),
                                             SizedBox(width: 5),
-                                            Expanded(
-                                              child: Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  CircleAvatar(
-                                                    radius: 12,
-                                                    backgroundColor:
-                                                        AppColor.lightRed,
-                                                    child: Icon(
-                                                      size: 14,
-                                                      Icons.list_outlined,
-                                                      color: AppColor.red,
-                                                    ),
+
+                                            Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                CircleAvatar(
+                                                  radius: 12,
+                                                  backgroundColor:
+                                                      AppColor.lightRed,
+                                                  child: Icon(
+                                                    size: 14,
+                                                    Icons.list_outlined,
+                                                    color: AppColor.red,
                                                   ),
-                                                  Text(
-                                                    " Quantity: ${items.quantity}",
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color:
-                                                          AppColor.lightGrey200,
-                                                    ),
+                                                ),
+                                                Text(
+                                                  " Quantity: ${items.quantity}",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color:
+                                                        AppColor.lightGrey200,
                                                   ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),

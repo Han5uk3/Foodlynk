@@ -27,7 +27,9 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<ProfileBloc>(create: (context) => ProfileBloc()),
-        BlocProvider<KitchenManagerBloc>(create: (context) => KitchenManagerBloc()),
+        BlocProvider<KitchenManagerBloc>(
+          create: (context) => KitchenManagerBloc(),
+        ),
       ],
       child: MaterialApp(
         title: 'Saver App',
