@@ -4,8 +4,8 @@ import 'dart:developer';
 import 'package:http/http.dart' as http;
 
 class AppApis {
-  static final String apiUrl =
-      'https://8598-2405-201-f00a-7082-5030-d53c-cb34-a655.ngrok-free.app';
+  static final String apiUrl = 'https://api-ab2ifjorfa-uc.a.run.app';
+      
 
   Future<bool> createNewItem(Map<String, dynamic> newItem, String uid) async {
     String url = '$apiUrl/addKitchenItem';
@@ -14,6 +14,7 @@ class AppApis {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({"uid": uid, "item": newItem}),
     );
+    log(url);
     log(response.body);
     log({"uid": uid, "item": newItem}.toString());
     if (response.statusCode == 200) {
