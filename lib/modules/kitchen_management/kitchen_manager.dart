@@ -145,7 +145,7 @@ class _KitchenManagerState extends State<KitchenManager> {
             SizedBox(height: 15),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              spacing: 5,
+              spacing: 15,
               children: [
                 Expanded(
                   child: _buildFilterButtons(
@@ -531,7 +531,7 @@ class _KitchenManagerState extends State<KitchenManager> {
           borderRadius: BorderRadius.all(Radius.circular(12)),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: 10),
           child: Row(
             spacing: 2,
             mainAxisAlignment: MainAxisAlignment.center,
