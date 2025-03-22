@@ -52,6 +52,8 @@ class KitchenManagerBloc
       bool isRemoved = await AppApis().removeItem(
         HiveHelper.getUID(),
         event.itemId,
+        event.beforeExpiry,
+        event.itemCount,
       );
       if (isRemoved) {
         emit(RemoveItemStateSuccess());
