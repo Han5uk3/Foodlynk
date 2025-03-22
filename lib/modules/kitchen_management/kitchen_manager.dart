@@ -291,8 +291,7 @@ class _KitchenManagerState extends State<KitchenManager> {
                                         (context) => AddItem(
                                           isEdit: true,
                                           dateString:
-                                              items.expiredDate
-                                                  .toIso8601String(),
+                                              "${items.expiredDate.day}/${items.expiredDate.month}/${items.expiredDate.year}",
                                         ),
                                   ),
                                 ),
@@ -360,7 +359,7 @@ class _KitchenManagerState extends State<KitchenManager> {
                                                 color:
                                                     days < 0
                                                         ? AppColor.lightRed
-                                                        : days == 0 && days < 3
+                                                        : days >= 0 && days < 3
                                                         ? AppColor.lightYellow
                                                         : AppColor.greenshade,
                                               ),
@@ -381,7 +380,7 @@ class _KitchenManagerState extends State<KitchenManager> {
                                                       days < 0
                                                           ? Icons
                                                               .sentiment_neutral_outlined
-                                                          : days == 0 &&
+                                                          : days >= 0 &&
                                                               days < 3
                                                           ? Icons
                                                               .sentiment_satisfied_alt_outlined
@@ -391,7 +390,7 @@ class _KitchenManagerState extends State<KitchenManager> {
                                                       color:
                                                           days < 0
                                                               ? AppColor.red
-                                                              : days == 0 &&
+                                                              : days >= 0 &&
                                                                   days < 3
                                                               ? AppColor.yellow
                                                               : AppColor.green,
@@ -403,7 +402,7 @@ class _KitchenManagerState extends State<KitchenManager> {
                                                         color:
                                                             days < 0
                                                                 ? AppColor.red
-                                                                : days == 0 &&
+                                                                : days >= 0 &&
                                                                     days < 3
                                                                 ? AppColor
                                                                     .yellow
