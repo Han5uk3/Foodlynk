@@ -76,17 +76,19 @@ class _AddItemState extends State<AddItem> {
               _isLoading = state.isLoading;
             });
           }
+
           if (state is AddNewStateSuccess) {
-            Navigator.of(context).pop();
-            SaverSnackBar.show(
+            Navigator.pop(context);
+            SaverSnackBar.shower(
               context: context,
               message: "New Item Added to Kitchen",
               isTrue: true,
             );
           }
+
           if (state is AddNewStateError) {
-            Navigator.of(context).pop();
-            SaverSnackBar.show(
+            Navigator.pop(context);
+            SaverSnackBar.shower(
               context: context,
               message: state.errorMessage,
               isTrue: false,
@@ -185,6 +187,7 @@ class _AddItemState extends State<AddItem> {
                           child: SaverTextField(
                             hintText: "Enter Item Name",
                             controller: itemNameController,
+                            validator: _validateItemName,
                           ),
                         ),
                         SizedBox(height: 20),
@@ -368,16 +371,74 @@ class _AddItemState extends State<AddItem> {
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
-        child:
-            widget.isEdit
-                ? _editItemButton()
-                : SaverButton(
-                  isLoading: _isLoading,
-                  text: "Add Item",
-                  onPressed:
-                      () => context.read<KitchenManagerBloc>().add(
+      bottomNavigationBar:
+          widget.isEdit
+              ? Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 20,
+                ),
+                child: _editItemButton(),
+              )
+              : Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 20,
+                ),
+                child: SizedBox(
+                  height: 40,
+                  child: SaverButton(
+                    isLoading: _isLoading,
+                    text: "Add Item",
+                    onPressed: () {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      if (itemNameController.text.isEmpty) {
+                        SaverSnackBar.show(
+                          context: context,
+                          message: "Please enter item name",
+                          isTrue: false,
+                        );
+                        setState(() {
+                          _isLoading = false;
+                        });
+                        return;
+                      } else if (selectedUnit == null) {
+                        SaverSnackBar.show(
+                          context: context,
+                          message: "Please select a unit type",
+                          isTrue: false,
+                        );
+                        setState(() {
+                          _isLoading = false;
+                        });
+                        return;
+                      } else if (numberOfQuantity == 0) {
+                        SaverSnackBar.show(
+                          context: context,
+                          message: "Please enter quantity",
+                          isTrue: false,
+                        );
+                        setState(() {
+                          _isLoading = false;
+                        });
+                        return;
+                      } else if (selectedCategory == "") {
+                        SaverSnackBar.show(
+                          context: context,
+                          message: "Please select a category",
+                          isTrue: false,
+                        );
+                        setState(() {
+                          _isLoading = false;
+                        });
+                        return;
+                      }
+
+                      // Show loading inside the button
+
+                      context.read<KitchenManagerBloc>().add(
                         AddNewItemEvent(
                           itemName: itemNameController.text,
                           category: selectedCategory,
@@ -385,9 +446,11 @@ class _AddItemState extends State<AddItem> {
                           quantity: numberOfQuantity,
                           expiredDate: selectedExpiryDate,
                         ),
-                      ),
+                      );
+                    },
+                  ),
                 ),
-      ),
+              ),
     );
   }
 
@@ -407,5 +470,17 @@ class _AddItemState extends State<AddItem> {
         ),
       ],
     );
+  }
+
+  String? _validateItemName(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Item name can't be empty";
+    }
+
+    final RegExp itemRegExp = RegExp(r'^[a-zA-Z]+$');
+    if (!itemRegExp.hasMatch(value)) {
+      return "Item name must start with a letter";
+    }
+    return null;
   }
 }
