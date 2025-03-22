@@ -52,7 +52,8 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                         ? _showCompletedBottomSheet(context)
                         : SaverSnackBar.show(
                           context: context,
-                          message: "failed",
+                          message:
+                              "Finish your meal and clean your plate before uploading image",
                           isTrue: false,
                         );
                   },
@@ -313,7 +314,7 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                       _afterImageFile == null
                           ? ImagePickerButton(
                             onImageSelected: _setAfterImage,
-                            isFood: true,
+                            isFood: false,
                           )
                           : SizedBox(),
                     ],

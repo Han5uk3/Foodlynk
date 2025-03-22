@@ -26,11 +26,15 @@ class ImagePickerButton extends StatelessWidget {
       );
 
       if (pickedFile != null) {
-        bool hasFood = await detectFood(File(pickedFile.path));
+        bool hasFood = false;
+        isFood
+            ? hasFood = await detectFood(File(pickedFile.path))
+            : hasFood = false;
+
         isFood
             ? hasFood
                 ? onImageSelected(File(pickedFile.path))
-                : onImageSelected(File(pickedFile.path))
+                : null
             : onImageSelected(File(pickedFile.path));
       } else {
         log("No image selected");

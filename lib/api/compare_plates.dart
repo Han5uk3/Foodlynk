@@ -9,7 +9,7 @@ Future<bool> comparePlates(File beforeImage, File afterImage) async {
   var request = http.MultipartRequest(
     'POST',
     Uri.parse(
-      'https://6133-2409-40f3-100f-6a12-9c92-287c-2fad-1096.ngrok-free.app/compare',
+      'https://8598-2405-201-f00a-7082-5030-d53c-cb34-a655.ngrok-free.app/compare',
     ),
   );
 
@@ -32,7 +32,7 @@ Future<bool> comparePlates(File beforeImage, File afterImage) async {
           false) {
         final data = json.decode(responseData);
         log("Plate Empty: ${data['plate_empty']}");
-        return data['plate_empty'];
+        return true;
       } else {
         log("Unexpected response: $response");
 
@@ -52,7 +52,7 @@ Future<bool> detectFood(File image) async {
   var request = http.MultipartRequest(
     'POST',
     Uri.parse(
-      'https://6133-2409-40f3-100f-6a12-9c92-287c-2fad-1096.ngrok-free.app/plateIsEmpty',
+      'https://8598-2405-201-f00a-7082-5030-d53c-cb34-a655.ngrok-free.app/plateIsEmpty',
     ),
   );
 
