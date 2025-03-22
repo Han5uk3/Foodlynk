@@ -23,4 +23,21 @@ class AppApis {
       throw Exception('Failed to create item: ${response.statusCode}');
     }
   }
+
+  Future<bool> removeItem(String uid, String itemId) async {
+    log("PI CLLING");
+    String url = '$apiUrl/deleteKitchenItem';
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({"uid": uid, "itemId": itemId}),
+    );
+    log(response.body);
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      return json['success'];
+    } else {
+      throw Exception('Failed to delete item: ${response.statusCode}');
+    }
+  }
 }

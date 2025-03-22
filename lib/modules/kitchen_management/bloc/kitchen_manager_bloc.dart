@@ -12,6 +12,7 @@ class KitchenManagerBloc
     extends Bloc<KitchenManagerEvent, KitchenManagerState> {
   KitchenManagerBloc() : super(KitchenManagerInitial()) {
     on<AddNewItemEvent>(_addNewItem);
+    on<RemoveItemEvent>(_removeItem);
   }
 
   void _addNewItem(
@@ -39,6 +40,27 @@ class KitchenManagerBloc
     } catch (e) {
       log(e.toString());
       emit(AddNewStateError(errorMessage: e.toString()));
+    }
+  }
+
+  void _removeItem(
+    RemoveItemEvent event,
+    Emitter<KitchenManagerState> emit,
+  ) async {
+    try {
+      emit(RemoveItemStateLoading(isLoading: true));
+      bool isRemoved = await AppApis().removeItem(
+        HiveHelper.getUID(),
+        event.itemId,
+      );
+      if (isRemoved) {
+        emit(RemoveItemStateSuccess());
+      } else {
+        emit(RemoveItemStateError(errorMessage: "You can't remove this Item."));
+      }
+    } catch (e) {
+      log(e.toString());
+      emit(RemoveItemStateError(errorMessage: e.toString()));
     }
   }
 }
