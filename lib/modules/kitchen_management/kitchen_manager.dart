@@ -277,11 +277,19 @@ class _KitchenManagerState extends State<KitchenManager> {
                             ),
                           ),
                           onDismissed: (direction) {
-                            // if (direction == DismissDirection.startToEnd) {
-                            //   // addToShoppingList(items);
-                            // } else {
-                            //   removeItem(index);
-                            // }
+                            if (direction == DismissDirection.endToStart) {
+                              itemRemovedBeforeExpiry(userData, index)
+                                  ?
+                                  // add bloc code to increment the item count
+                                  log(
+                                    "Item removed before expiry ${itemRemovedBeforeExpiry(userData, index)}",
+                                  )
+                                  : log(
+                                    "Item removed before expiry ${itemRemovedBeforeExpiry(userData, index)}",
+                                  );
+                            } else {
+                              // add to shopping cart;
+                            }
                           },
                           child: GestureDetector(
                             onTap:
@@ -554,6 +562,19 @@ class _KitchenManagerState extends State<KitchenManager> {
         ),
       ),
     );
+  }
+}
+
+itemRemovedBeforeExpiry(UserModel userData, index) {
+  final Items kitchenItems = userData.kitchenItems![index];
+  final dayum = getDateDifferenceNumber(
+    "${kitchenItems.expiredDate.day}/${kitchenItems.expiredDate.month}/${kitchenItems.expiredDate.year}",
+  );
+
+  if (dayum >= 0) {
+    return true;
+  } else {
+    return false;
   }
 }
 
