@@ -251,11 +251,6 @@ class _KitchenManagerState extends State<KitchenManager> {
             SizedBox(height: 10),
             _buildSearchBar(),
             SizedBox(height: 15),
-<<<<<<< Updated upstream
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              spacing: 15,
-=======
             _buildFilterButtonsRow(),
             SizedBox(height: 20),
             _buildFilterTitle(filteredItems),
@@ -423,7 +418,6 @@ class _KitchenManagerState extends State<KitchenManager> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
->>>>>>> Stashed changes
               children: [
                 Icon(
                   Icons.shopping_bag_outlined,
@@ -459,7 +453,11 @@ class _KitchenManagerState extends State<KitchenManager> {
           if (direction == DismissDirection.startToEnd) {
           } else {
             context.read<KitchenManagerBloc>().add(
-              RemoveItemEvent(itemId: item.id),
+              RemoveItemEvent(
+                itemId: item.id,
+                beforeExpiry: !itemRemovedBeforeExpiry(item),
+                itemCount: item.quantity,
+              ),
             );
           }
         },
@@ -538,330 +536,6 @@ class _KitchenManagerState extends State<KitchenManager> {
     );
   }
 
-<<<<<<< Updated upstream
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
-
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Text('No kitchen items found');
-                  }
-
-                  // Directly access the UserModel object
-                  final userData = snapshot.data!.docs.first.data();
-
-                  // Check for null kitchen items
-                  final List<Items> kitchenItems = userData.kitchenItems ?? [];
-                  return ListView.builder(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    itemCount: kitchenItems.length,
-                    itemBuilder: (context, index) {
-                      Items items = kitchenItems[index];
-                      int days = getDateDifferenceNumber(
-                        "${items.expiredDate.day}/${items.expiredDate.month}/${items.expiredDate.year}",
-                      );
-                      int daysLeft = days.abs();
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        child: Dismissible(
-                          key: Key(
-                            items.name + items.expiredDate.toIso8601String(),
-                          ),
-                          direction: DismissDirection.horizontal,
-                          background: ClipRRect(
-                            borderRadius: BorderRadius.all(Radius.circular(16)),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: AppColor.primaryColor,
-                                border: Border.all(color: Colors.green),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              alignment: Alignment.centerLeft,
-                              padding: EdgeInsets.only(left: 12),
-
-                              child: Row(
-                                spacing: 3,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.shopping_bag_outlined,
-                                    color: Colors.white,
-                                    size: 30,
-                                  ),
-                                  Text(
-                                    "Move to Shopping List",
-                                    style: TextStyle(color: AppColor.white),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          secondaryBackground: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              border: Border.all(color: Colors.red),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            alignment: Alignment.centerRight,
-                            padding: EdgeInsets.only(right: 12),
-
-                            child: Row(
-                              spacing: 3,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  CupertinoIcons.trash,
-                                  color: Colors.white,
-                                  size: 25,
-                                ),
-                                Text(
-                                  "Remove from list",
-                                  style: TextStyle(color: AppColor.white),
-                                ),
-                              ],
-                            ),
-                          ),
-                          onDismissed: (direction) {
-                            if (direction == DismissDirection.endToStart) {
-                              itemRemovedBeforeExpiry(userData, index)
-                                  ?
-                                  // add bloc code to increment the item count
-                                  log(
-                                    "Item removed before expiry ${itemRemovedBeforeExpiry(userData, index)}",
-                                  )
-                                  : log(
-                                    "Item removed before expiry ${itemRemovedBeforeExpiry(userData, index)}",
-                                  );
-                            } else {
-                              // add to shopping cart;
-                            }
-                          },
-                          child: GestureDetector(
-                            onTap:
-                                () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => AddItem(
-                                          isEdit: true,
-                                          dateString:
-                                              "${items.expiredDate.day}/${items.expiredDate.month}/${items.expiredDate.year}",
-                                        ),
-                                  ),
-                                ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: AppColor.white,
-                                border: Border.all(color: Colors.grey.shade300),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 12,
-                                    ),
-                                    child: Container(
-                                      height: 80,
-                                      width: 80,
-                                      decoration: BoxDecoration(
-                                        color: AppColor.white,
-                                        border: Border.all(
-                                          color: AppColor.lightGrey200,
-                                        ),
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.image,
-                                          color: AppColor.lightGrey200,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      spacing: 2,
-                                      mainAxisSize: MainAxisSize.min,
-
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-
-                                      children: [
-                                        Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              items.name,
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                            Container(
-                                              margin: EdgeInsets.only(
-                                                right: 12,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                                color:
-                                                    days < 0
-                                                        ? AppColor.lightRed
-                                                        : days >= 0 && days < 3
-                                                        ? AppColor.lightYellow
-                                                        : AppColor.greenshade,
-                                              ),
-                                              height: 27,
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 9,
-                                                      vertical: 3,
-                                                    ),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    Icon(
-                                                      days < 0
-                                                          ? Icons
-                                                              .sentiment_neutral_outlined
-                                                          : days >= 0 &&
-                                                              days < 3
-                                                          ? Icons
-                                                              .sentiment_satisfied_alt_outlined
-                                                          : Icons
-                                                              .sentiment_very_satisfied_outlined,
-                                                      size: 14,
-                                                      color:
-                                                          days < 0
-                                                              ? AppColor.red
-                                                              : days >= 0 &&
-                                                                  days < 3
-                                                              ? AppColor.yellow
-                                                              : AppColor.green,
-                                                    ),
-                                                    Text(
-                                                      "$daysLeft d",
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color:
-                                                            days < 0
-                                                                ? AppColor.red
-                                                                : days >= 0 &&
-                                                                    days < 3
-                                                                ? AppColor
-                                                                    .yellow
-                                                                : AppColor
-                                                                    .green,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 12,
-                                              backgroundColor:
-                                                  AppColor.greenshade,
-                                              child: loadsvg(
-                                                "assets/icons/expiry.svg",
-                                              ),
-                                            ),
-                                            Text(
-                                              " Expiry Date: ${items.expiredDate.day}/${items.expiredDate.month}/${items.expiredDate.year}",
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: AppColor.lightGrey200,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            IntrinsicWidth(
-                                              child: Row(
-                                                children: [
-                                                  CircleAvatar(
-                                                    radius: 12,
-                                                    backgroundColor:
-                                                        AppColor.lightblue,
-                                                    child: Icon(
-                                                      size: 14,
-                                                      Icons.task_alt_outlined,
-                                                      color: AppColor.blue,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    " Category: ${items.category != "" ? items.category : "N/A"}",
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color:
-                                                          AppColor.lightGrey200,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(width: 5),
-
-                                            Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                CircleAvatar(
-                                                  radius: 12,
-                                                  backgroundColor:
-                                                      AppColor.lightRed,
-                                                  child: Icon(
-                                                    size: 14,
-                                                    Icons.list_outlined,
-                                                    color: AppColor.red,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  " Quantity: ${items.quantity}",
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color:
-                                                        AppColor.lightGrey200,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-=======
   Widget _buildExpiryBadge(int days, int daysLeft) {
     return Container(
       margin: EdgeInsets.only(right: 12),
@@ -905,7 +579,6 @@ class _KitchenManagerState extends State<KitchenManager> {
                         : days >= 0 && days < 3
                         ? AppColor.yellow
                         : AppColor.green,
->>>>>>> Stashed changes
               ),
             ),
           ],
@@ -1016,10 +689,9 @@ class _KitchenManagerState extends State<KitchenManager> {
   }
 }
 
-itemRemovedBeforeExpiry(UserModel userData, index) {
-  final Items kitchenItems = userData.kitchenItems![index];
+itemRemovedBeforeExpiry(item) {
   final dayum = getDateDifferenceNumber(
-    "${kitchenItems.expiredDate.day}/${kitchenItems.expiredDate.month}/${kitchenItems.expiredDate.year}",
+    "${item.expiredDate.day}/${item.expiredDate.month}/${item.expiredDate.year}",
   );
 
   if (dayum >= 0) {

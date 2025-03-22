@@ -33,7 +33,13 @@ class AddNewItemEvent extends KitchenManagerEvent {
 
 class RemoveItemEvent extends KitchenManagerEvent {
   final String itemId;
-  const RemoveItemEvent({required this.itemId});
+  final bool beforeExpiry;
+  final int itemCount;
+  const RemoveItemEvent({
+    required this.itemId,
+    required this.beforeExpiry,
+    required this.itemCount,
+  });
   @override
-  List<Object> get props => [itemId];
+  List<Object> get props => [itemId, beforeExpiry, itemCount];
 }

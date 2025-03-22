@@ -24,13 +24,23 @@ class AppApis {
     }
   }
 
-  Future<bool> removeItem(String uid, String itemId) async {
+  Future<bool> removeItem(
+    String uid,
+    String itemId,
+    bool isBeforeExpiry,
+    int itemCount,
+  ) async {
     log("PI CLLING");
     String url = '$apiUrl/deleteKitchenItem';
     final response = await http.post(
       Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({"uid": uid, "itemId": itemId}),
+      body: jsonEncode({
+        "uid": uid,
+        "itemId": itemId,
+        "isExpaired": isBeforeExpiry,
+        "noOfQuantity": itemCount,
+      }),
     );
     log(response.body);
     if (response.statusCode == 200) {
