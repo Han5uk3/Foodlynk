@@ -1,10 +1,13 @@
+import 'dart:developer';
 import 'package:flutter/cupertino.dart';
-
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/date_compare.dart';
+import 'package:saver_bbk_main/common_widget/loader.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
+import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/add_item.dart';
+import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class KitchenManager extends StatefulWidget {
@@ -17,53 +20,7 @@ class KitchenManager extends StatefulWidget {
 
 class _KitchenManagerState extends State<KitchenManager> {
   String selectedFilter = "";
-  List<Map<String, String>> items = [
-    {
-      "title": "Eggs",
-      "expiry": "09/03/2025",
-      "category": "Poultry",
-      "quantity": "5 Nos",
-      "status": "E",
-    },
-    {
-      "title": "Milk",
-      "expiry": "12/03/2025",
-      "category": "Dairy",
-      "quantity": "1 Ltr",
-      "status": "E",
-    },
-    {
-      "title": "Apple",
-      "expiry": "09/03/2025",
-      "category": "Fruits",
-      "quantity": "3 Nos",
-      "status": "F",
-    },
-    {
-      "title": "Chicken",
-      "expiry": "23/03/2025",
-      "category": "Meat",
-      "quantity": "1 Kg",
-      "status": "Expiring Soon",
-    },
-  ];
   List<Map<String, String>> shoppingList = [];
-  void removeItem(int index) {
-    setState(() {
-      items.removeAt(index);
-    });
-  }
-
-  void addToShoppingList(Map<String, String> item) {
-    setState(() {
-      shoppingList.add(item);
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${item["title"]} added to shopping list')),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -227,289 +184,327 @@ class _KitchenManagerState extends State<KitchenManager> {
               ),
             ),
             Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  final item = items[index];
-                  int days = getDateDifferenceNumber(items[index]["expiry"]!);
-                  int daysLeft = days.abs();
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                    child: Dismissible(
-                      key: Key(item["title"]! + item["expiry"]!),
-                      direction: DismissDirection.horizontal,
-                      background: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: AppColor.primaryColor,
-                            border: Border.all(color: Colors.green),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.only(left: 12),
+              child: StreamBuilder(
+                stream: Services.getUserDetails(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return SaverLoader();
+                  }
 
-                          child: Row(
-                            spacing: 3,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.shopping_bag_outlined,
-                                color: Colors.white,
-                                size: 30,
-                              ),
-                              Text(
-                                "Move to Shopping List",
-                                style: TextStyle(color: AppColor.white),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      secondaryBackground: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          border: Border.all(color: Colors.red),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        alignment: Alignment.centerRight,
-                        padding: EdgeInsets.only(right: 12),
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
 
-                        child: Row(
-                          spacing: 3,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(
-                              CupertinoIcons.trash,
-                              color: Colors.white,
-                              size: 25,
-                            ),
-                            Text(
-                              "Remove from list",
-                              style: TextStyle(color: AppColor.white),
-                            ),
-                          ],
-                        ),
-                      ),
-                      onDismissed: (direction) {
-                        if (direction == DismissDirection.startToEnd) {
-                          addToShoppingList(item);
-                        } else {
-                          removeItem(index);
-                        }
-                      },
-                      child: GestureDetector(
-                        onTap:
-                            () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => AddItem(
-                                      isEdit: true,
-                                      dateString: items[index]["expiry"]!,
-                                    ),
-                              ),
-                            ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: AppColor.white,
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(16),
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Text('No kitchen items found');
+                  }
+
+                  // Directly access the UserModel object
+                  final userData = snapshot.data!.docs.first.data();
+
+                  // Check for null kitchen items
+                  final List<Items> kitchenItems = userData.kitchenItems ?? [];
+                  return ListView.builder(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    itemCount: kitchenItems.length,
+                    itemBuilder: (context, index) {
+                      Items items = kitchenItems[index];
+                      int days = getDateDifferenceNumber(
+                        items.expiredDate.toIso8601String(),
+                      );
+                      int daysLeft = days.abs();
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: Dismissible(
+                          key: Key(
+                            items.name + items.expiredDate.toIso8601String(),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 12,
-                                ),
-                                child: Container(
-                                  height: 80,
-                                  width: 80,
-                                  decoration: BoxDecoration(
-                                    color: AppColor.white,
-                                    border: Border.all(
-                                      color: AppColor.lightGrey200,
-                                    ),
-                                    borderRadius: BorderRadius.circular(16),
+                          direction: DismissDirection.horizontal,
+                          background: ClipRRect(
+                            borderRadius: BorderRadius.all(Radius.circular(16)),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: AppColor.primaryColor,
+                                border: Border.all(color: Colors.green),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              alignment: Alignment.centerLeft,
+                              padding: EdgeInsets.only(left: 12),
+
+                              child: Row(
+                                spacing: 3,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.shopping_bag_outlined,
+                                    color: Colors.white,
+                                    size: 30,
                                   ),
-                                  child: Center(
-                                    child: Icon(
-                                      Icons.image,
-                                      color: AppColor.lightGrey200,
-                                    ),
+                                  Text(
+                                    "Move to Shopping List",
+                                    style: TextStyle(color: AppColor.white),
                                   ),
-                                ),
+                                ],
                               ),
-                              Expanded(
-                                child: Column(
-                                  spacing: 2,
-                                  mainAxisSize: MainAxisSize.min,
+                            ),
+                          ),
+                          secondaryBackground: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              border: Border.all(color: Colors.red),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            alignment: Alignment.centerRight,
+                            padding: EdgeInsets.only(right: 12),
 
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                                  children: [
-                                    Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          items[index]["title"]!,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16,
-                                          ),
+                            child: Row(
+                              spacing: 3,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  CupertinoIcons.trash,
+                                  color: Colors.white,
+                                  size: 25,
+                                ),
+                                Text(
+                                  "Remove from list",
+                                  style: TextStyle(color: AppColor.white),
+                                ),
+                              ],
+                            ),
+                          ),
+                          onDismissed: (direction) {
+                            // if (direction == DismissDirection.startToEnd) {
+                            //   // addToShoppingList(items);
+                            // } else {
+                            //   removeItem(index);
+                            // }
+                          },
+                          child: GestureDetector(
+                            onTap:
+                                () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => AddItem(
+                                          isEdit: true,
+                                          dateString:
+                                              items.expiredDate
+                                                  .toIso8601String(),
                                         ),
-                                        Container(
-                                          margin: EdgeInsets.only(right: 12),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              16,
+                                  ),
+                                ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: AppColor.white,
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 12,
+                                    ),
+                                    child: Container(
+                                      height: 80,
+                                      width: 80,
+                                      decoration: BoxDecoration(
+                                        color: AppColor.white,
+                                        border: Border.all(
+                                          color: AppColor.lightGrey200,
+                                        ),
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.image,
+                                          color: AppColor.lightGrey200,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      spacing: 2,
+                                      mainAxisSize: MainAxisSize.min,
+
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+
+                                      children: [
+                                        Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              items.name,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16,
+                                              ),
                                             ),
-                                            color:
-                                                days < 0
-                                                    ? AppColor.lightRed
-                                                    : days >= 0 && days < 3
-                                                    ? AppColor.lightYellow
-                                                    : AppColor.greenshade,
-                                          ),
-                                          height: 27,
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 9,
-                                              vertical: 3,
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Icon(
-                                                  days < 0
-                                                      ? Icons
-                                                          .sentiment_neutral_outlined
-                                                      : days >= 0 && days < 3
-                                                      ? Icons
-                                                          .sentiment_satisfied_alt_outlined
-                                                      : Icons
-                                                          .sentiment_very_satisfied_outlined,
-                                                  size: 14,
-                                                  color:
+                                            Container(
+                                              margin: EdgeInsets.only(
+                                                right: 12,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                color:
+                                                    days < 0
+                                                        ? AppColor.lightRed
+                                                        : days == 0 && days < 3
+                                                        ? AppColor.lightYellow
+                                                        : AppColor.greenshade,
+                                              ),
+                                              height: 27,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 9,
+                                                      vertical: 3,
+                                                    ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
                                                       days < 0
-                                                          ? AppColor.red
-                                                          : days >= 0 &&
+                                                          ? Icons
+                                                              .sentiment_neutral_outlined
+                                                          : days == 0 &&
                                                               days < 3
-                                                          ? AppColor.yellow
-                                                          : AppColor.green,
+                                                          ? Icons
+                                                              .sentiment_satisfied_alt_outlined
+                                                          : Icons
+                                                              .sentiment_very_satisfied_outlined,
+                                                      size: 14,
+                                                      color:
+                                                          days < 0
+                                                              ? AppColor.red
+                                                              : days == 0 &&
+                                                                  days < 3
+                                                              ? AppColor.yellow
+                                                              : AppColor.green,
+                                                    ),
+                                                    Text(
+                                                      "$daysLeft d",
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color:
+                                                            days < 0
+                                                                ? AppColor.red
+                                                                : days == 0 &&
+                                                                    days < 3
+                                                                ? AppColor
+                                                                    .yellow
+                                                                : AppColor
+                                                                    .green,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                Text(
-                                                  "$daysLeft d",
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color:
-                                                        days < 0
-                                                            ? AppColor.red
-                                                            : days >= 0 &&
-                                                                days < 3
-                                                            ? AppColor.yellow
-                                                            : AppColor.green,
-                                                  ),
-                                                ),
-                                              ],
+                                              ),
                                             ),
-                                          ),
+                                          ],
+                                        ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            CircleAvatar(
+                                              radius: 12,
+                                              backgroundColor:
+                                                  AppColor.greenshade,
+                                              child: loadsvg(
+                                                "assets/icons/expiry.svg",
+                                              ),
+                                            ),
+                                            Text(
+                                              " Expiry Date: ${items.expiredDate}",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: AppColor.lightGrey200,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Expanded(
+                                              child: Row(
+                                                children: [
+                                                  CircleAvatar(
+                                                    radius: 12,
+                                                    backgroundColor:
+                                                        AppColor.lightblue,
+                                                    child: Icon(
+                                                      size: 14,
+                                                      Icons.task_alt_outlined,
+                                                      color: AppColor.blue,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    " Category: ${items.category}",
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color:
+                                                          AppColor.lightGrey200,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            SizedBox(width: 5),
+                                            Expanded(
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  CircleAvatar(
+                                                    radius: 12,
+                                                    backgroundColor:
+                                                        AppColor.lightRed,
+                                                    child: Icon(
+                                                      size: 14,
+                                                      Icons.list_outlined,
+                                                      color: AppColor.red,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    " Quantity: ${items.quantity}",
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color:
+                                                          AppColor.lightGrey200,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 12,
-                                          backgroundColor: AppColor.greenshade,
-                                          child: loadsvg(
-                                            "assets/icons/expiry.svg",
-                                          ),
-                                        ),
-                                        Text(
-                                          " Expiry Date: ${items[index]["expiry"]!}",
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: AppColor.lightGrey200,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Expanded(
-                                          child: Row(
-                                            children: [
-                                              CircleAvatar(
-                                                radius: 12,
-                                                backgroundColor:
-                                                    AppColor.lightblue,
-                                                child: Icon(
-                                                  size: 14,
-                                                  Icons.task_alt_outlined,
-                                                  color: AppColor.blue,
-                                                ),
-                                              ),
-                                              Text(
-                                                " Category: ${items[index]["category"]!}",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: AppColor.lightGrey200,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(width: 5),
-                                        Expanded(
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              CircleAvatar(
-                                                radius: 12,
-                                                backgroundColor:
-                                                    AppColor.lightRed,
-                                                child: Icon(
-                                                  size: 14,
-                                                  Icons.list_outlined,
-                                                  color: AppColor.red,
-                                                ),
-                                              ),
-                                              Text(
-                                                " Quantity: ${items[index]["quantity"]!}",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: AppColor.lightGrey200,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   );
                 },
               ),

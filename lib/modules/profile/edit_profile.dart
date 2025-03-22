@@ -75,7 +75,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> _fetchUserProfile() async {
     try {
-      final snapshot = await Services.getUserProfile().first;
+      final snapshot = await Services.getUserDetails().first;
 
       if (snapshot.docs.isNotEmpty) {
         final userDoc = snapshot.docs.first;

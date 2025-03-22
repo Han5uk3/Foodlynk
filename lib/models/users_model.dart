@@ -16,6 +16,7 @@ class UserModel {
   final String? city;
   final String? zipCode;
   final int? points;
+  final List<Items>? kitchenItems;
   final DateTime? createdAt;
 
   UserModel({
@@ -34,10 +35,10 @@ class UserModel {
     this.city,
     this.zipCode,
     this.points,
+    this.kitchenItems,
     this.createdAt,
   });
 
-  /// ✅ Factory constructor to convert Firestore data into a UserModel
   factory UserModel.fromFirestore(Map<String, dynamic> data) {
     DateTime? parseTimestamp(dynamic value) {
       if (value is Timestamp) {
@@ -69,11 +70,15 @@ class UserModel {
       city: data['city'] ?? '',
       zipCode: data['zipCode'] ?? '',
       points: data['points'] ?? 0,
+      kitchenItems:
+          (data['kitchenItems'] as List<dynamic>?)
+              ?.map((item) => Items.fromJson(item as Map<String, dynamic>))
+              .toList() ??
+          [],
       createdAt: parseTimestamp(data['createdAt']),
     );
   }
 
-  /// ✅ Convert to Firestore format
   Map<String, dynamic> toFirestore({bool isNew = false}) {
     return {
       'uid': uid,
@@ -91,6 +96,7 @@ class UserModel {
       'city': city,
       'zipCode': zipCode,
       'points': points,
+      'kitchenItems': kitchenItems?.map((item) => item.toJson()).toList(),
       'createdAt':
           isNew
               ? FieldValue.serverTimestamp()
@@ -98,7 +104,6 @@ class UserModel {
     };
   }
 
-  /// ✅ Convert to JSON format
   Map<String, dynamic> toJson() {
     return {
       'uid': uid,
@@ -116,11 +121,11 @@ class UserModel {
       'city': city,
       'zipCode': zipCode,
       'points': points,
+      'kitchenItems': kitchenItems?.map((item) => item.toJson()).toList() ?? [],
       'createdAt': createdAt?.toIso8601String(),
     };
   }
 
-  /// ✅ Factory constructor for JSON
   factory UserModel.fromJson(Map<String, dynamic> json) {
     DateTime? parseJsonTimestamp(dynamic value) {
       if (value is String) {
@@ -150,7 +155,55 @@ class UserModel {
       city: json['city'] ?? '',
       zipCode: json['zipCode'] ?? '',
       points: json['points'] ?? 0,
+      kitchenItems:
+          (json['kitchenItems'] as List<dynamic>?)
+              ?.map((item) => Items.fromJson(item as Map<String, dynamic>))
+              .toList() ??
+          [],
       createdAt: parseJsonTimestamp(json['createdAt']),
     );
+  }
+}
+
+class Items {
+  final String id;
+  final String name;
+  final String category;
+  final int quantity;
+  final String unit;
+  final DateTime expiredDate;
+
+  Items({
+    required this.id,
+    required this.name,
+    required this.category,
+    required this.quantity,
+    required this.unit,
+    required this.expiredDate,
+  });
+
+  factory Items.fromJson(Map<String, dynamic> json) {
+    return Items(
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? 'Unknown',
+      category: json['category'] as String? ?? '',
+      quantity: (json['quantity'] as num?)?.toInt() ?? 0,
+      unit: json['unit'] as String? ?? '',
+      expiredDate:
+          json['expiredDate'] != null
+              ? DateTime.tryParse(json['expiredDate']) ?? DateTime.now()
+              : DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'category': category,
+      'quantity': quantity,
+      'unit': unit,
+      'expiredDate': expiredDate,
+    };
   }
 }
