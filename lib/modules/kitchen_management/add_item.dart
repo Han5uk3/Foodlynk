@@ -148,7 +148,7 @@ class _AddItemState extends State<AddItem> {
                                           color:
                                               days < 0
                                                   ? AppColor.red
-                                                  : days == 0 && days < 3
+                                                  : days >= 0 && days < 3
                                                   ? AppColor.yellow
                                                   : AppColor.green,
                                         ),
@@ -346,20 +346,21 @@ class _AddItemState extends State<AddItem> {
                                                 ),
                                               ),
                                             ),
-                                          ],
-                                        ),
-                                      _imageFile == null
-                                          ? widget.isEdit
-                                              ? SizedBox()
-                                              : ImagePickerButton(
-                                                onImageSelected: _setImage,
-                                              )
-                                          : SizedBox(),
-                                    ],
-                                  ),
-                        ),
-                      ],
-                    ),
+                                          ),
+                                        ],
+                                      ),
+                                    _imageFile == null
+                                        ? widget.isEdit
+                                            ? SizedBox()
+                                            : ImagePickerButton(
+                                              isFood: false,
+                                              onImageSelected: _setImage,
+                                            )
+                                        : SizedBox(),
+                                  ],
+                                ),
+                      ),
+                    ],
                   ),
                 ),
               ],

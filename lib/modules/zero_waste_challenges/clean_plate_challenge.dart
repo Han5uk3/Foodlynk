@@ -231,7 +231,10 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                           ),
                         ),
                       _beforeImageFile == null
-                          ? ImagePickerButton(onImageSelected: _setBeforeImage)
+                          ? ImagePickerButton(
+                            onImageSelected: _setBeforeImage,
+                            isFood: true,
+                          )
                           : SizedBox(),
                     ],
                   ),
@@ -308,7 +311,10 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                           ),
                         ),
                       _afterImageFile == null
-                          ? ImagePickerButton(onImageSelected: _setAfterImage)
+                          ? ImagePickerButton(
+                            onImageSelected: _setAfterImage,
+                            isFood: true,
+                          )
                           : SizedBox(),
                     ],
                   ),

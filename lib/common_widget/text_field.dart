@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class SaverTextField extends StatelessWidget {
   final String hintText;
   final TextEditingController controller;
   final bool isPassword;
-
+  final List<TextInputFormatter> inputFormatters;
   final TextInputType keyboardType;
   final IconData? prefixIcon;
   final IconData? suffixIcon;
@@ -23,6 +24,7 @@ class SaverTextField extends StatelessWidget {
     required this.hintText,
 
     required this.controller,
+    this.inputFormatters = const [],
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
     this.prefixIcon,
@@ -46,6 +48,7 @@ class SaverTextField extends StatelessWidget {
       obscureText: isPassword,
       keyboardType: keyboardType,
       validator: validator,
+      inputFormatters: inputFormatters,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(color: AppColor.lightGrey200),

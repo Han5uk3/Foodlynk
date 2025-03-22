@@ -92,8 +92,10 @@ class _LoginPageState extends State<LoginPage> {
             ),
             child: TextField(
               controller: _phoneController,
+              maxLength: 10,
               keyboardType: TextInputType.phone,
               decoration: const InputDecoration(
+                counterText: "",
                 hintText: 'Enter 10 digit mobile number',
                 prefixText: '+91 - ',
                 border: InputBorder.none,
@@ -151,14 +153,20 @@ class _LoginPageState extends State<LoginPage> {
               Expanded(
                 child: SaverButton(
                   onPressed: () {
-                    if (_phoneController.text.length == 10 &&
+                    if ((_phoneController.text.length == 10 &&
                         RegExp(
                           r'^[0-9]{10}$',
-                        ).hasMatch(_phoneController.text)) {
-                      AuthServices.verifyPhoneNumber(
-                        context,
-                        _phoneController.text,
-                      );
+                        ).hasMatch(_phoneController.text))) {
+                      _isChecked
+                          ? AuthServices.verifyPhoneNumber(
+                            context,
+                            _phoneController.text,
+                          )
+                          : SaverSnackBar.show(
+                            context: context,
+                            message: "Please accept our terms and conditions",
+                            isTrue: false,
+                          );
                     } else {
                       SaverSnackBar.show(
                         context: context,
