@@ -1,10 +1,13 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'package:saver_bbk_main/common_widget/empty_list.dart';
+import 'package:saver_bbk_main/common_widget/loader.dart';
 import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
+import 'package:saver_bbk_main/helpers/date_format.dart';
+import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/food_swap/my_listings_page.dart';
+import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class FoodSwapPage extends StatefulWidget {
@@ -119,212 +122,7 @@ class _FoodSwapPageState extends State<FoodSwapPage> {
               ],
             ),
             SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => MyListingsPage(isEdit: true),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColor.white,
-                        border: Border.all(color: Colors.grey.shade300),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 12,
-                                ),
-                                child: Container(
-                                  height: 80,
-                                  width: 80,
-                                  decoration: BoxDecoration(
-                                    color: AppColor.white,
-                                    border: Border.all(
-                                      color: AppColor.lightGrey200,
-                                    ),
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: Center(
-                                    child: Icon(
-                                      Icons.image,
-                                      color: AppColor.lightGrey200,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Column(
-                                  spacing: 2,
-                                  mainAxisSize: MainAxisSize.min,
-
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                                  children: [
-                                    Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          "Garlic Bread",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        Container(
-                                          margin: EdgeInsets.only(right: 12),
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 5,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                            color: AppColor.lightYellow,
-                                          ),
-                                          height: 27,
-                                          child: Center(
-                                            child: Text(
-                                              "pending",
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: AppColor.yellow,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 12,
-                                          backgroundColor: AppColor.greenshade,
-                                          child: loadsvg(
-                                            "assets/icons/expiry.svg",
-                                          ),
-                                        ),
-                                        Text(
-                                          " Expiry Date:",
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: AppColor.lightGrey200,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        IntrinsicWidth(
-                                          child: Row(
-                                            children: [
-                                              CircleAvatar(
-                                                radius: 12,
-                                                backgroundColor:
-                                                    AppColor.lightblue,
-                                                child: Icon(
-                                                  size: 14,
-                                                  Icons.location_on_outlined,
-                                                  color: AppColor.blue,
-                                                ),
-                                              ),
-                                              Text(
-                                                " Location: ",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: AppColor.lightGrey200,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(width: 5),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 12,
-                                              backgroundColor:
-                                                  AppColor.lightRed,
-                                              child: Icon(
-                                                size: 14,
-                                                Icons.list_outlined,
-                                                color: AppColor.red,
-                                              ),
-                                            ),
-                                            Text(
-                                              " Quantity:",
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: AppColor.lightGrey200,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          isPending
-                              ? Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Divider(
-                                    color: Colors.grey.shade200,
-                                    thickness: 2,
-                                    indent: 12,
-                                    endIndent: 12,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: 12,
-                                      right: 12,
-                                      bottom: 8,
-                                    ),
-                                    child: SizedBox(
-                                      width: double.infinity,
-                                      child: SaverOutlineButton(
-                                        text: "2 Requests Pending",
-                                        onPressed: () {},
-                                        borderColor: AppColor.yellow600,
-                                        textColor: AppColor.yellow600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )
-                              : SizedBox.shrink(),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-                itemCount: 5,
-              ),
-            ),
+            swapMyList(),
           ],
         ),
       ),
@@ -366,7 +164,7 @@ class _FoodSwapPageState extends State<FoodSwapPage> {
   }
 
   _showFilterDialog() {
-    String? selectedOption = "option 1";
+    // String? selectedOption = "option 1";
     showBottomSheet(
       backgroundColor: AppColor.white,
       context: context,
@@ -444,6 +242,232 @@ class _FoodSwapPageState extends State<FoodSwapPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget swapMyList() {
+    return StreamBuilder(
+      stream: Services.getUserSwapListStream(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return SaverLoader();
+        }
+
+        if (snapshot.hasError) {
+          return Text(
+            "Error: ${snapshot.error}",
+            style: TextStyle(color: Colors.red),
+          );
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Expanded(
+            child: EmptyList(
+              message: "No food swap listings available",
+              subMessage: "Tap the + button to create a new listing",
+            ),
+          );
+        }
+        final items =
+            snapshot.data!.docs.map((doc) {
+              return Items.fromMap(doc.data() as Map<String, dynamic>);
+            }).toList();
+        return Expanded(
+          child: ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return swapCard(item);
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget swapCard(Items items) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => MyListingsPage(isEdit: true, items: items),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColor.white,
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
+                  child: Container(
+                    height: 80,
+                    width: 80,
+                    decoration: BoxDecoration(
+                      color: AppColor.white,
+                      border: Border.all(color: AppColor.lightGrey200),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Center(
+                      child: Icon(Icons.image, color: AppColor.lightGrey200),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    spacing: 2,
+                    mainAxisSize: MainAxisSize.min,
+
+                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            items.name ?? "",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(right: 12),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              color: AppColor.lightYellow,
+                            ),
+                            height: 27,
+                            child: Center(
+                              child: Text(
+                                "pending",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColor.yellow,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          CircleAvatar(
+                            radius: 12,
+                            backgroundColor: AppColor.greenshade,
+                            child: loadsvg("assets/icons/expiry.svg"),
+                          ),
+                          Text(
+                            " Expiry Date: ${DateFormatHelper.ddmmyyyy(items.expiredDate ?? DateTime.now())}",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColor.lightGrey200,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          IntrinsicWidth(
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 12,
+                                  backgroundColor: AppColor.lightblue,
+                                  child: Icon(
+                                    size: 14,
+                                    Icons.location_on_outlined,
+                                    color: AppColor.blue,
+                                  ),
+                                ),
+                                Text(
+                                  " Location: ",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppColor.lightGrey200,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 5),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              CircleAvatar(
+                                radius: 12,
+                                backgroundColor: AppColor.lightRed,
+                                child: Icon(
+                                  size: 14,
+                                  Icons.list_outlined,
+                                  color: AppColor.red,
+                                ),
+                              ),
+                              Text(
+                                " Quantity: ${items.quantity}",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColor.lightGrey200,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            isPending
+                ? Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Divider(
+                      color: Colors.grey.shade200,
+                      thickness: 2,
+                      indent: 12,
+                      endIndent: 12,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 12,
+                        right: 12,
+                        bottom: 8,
+                      ),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: SaverOutlineButton(
+                          text: "2 Requests Pending",
+                          onPressed: () {},
+                          borderColor: AppColor.yellow600,
+                          textColor: AppColor.yellow600,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+                : SizedBox.shrink(),
+          ],
+        ),
+      ),
     );
   }
 }

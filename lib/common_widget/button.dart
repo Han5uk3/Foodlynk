@@ -26,6 +26,7 @@ class SaverButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
+      height: 45.0,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: isLoading ? AppColor.lightGrey200 : color,

@@ -23,4 +23,8 @@ class Services {
       return snapshot.docs.first.get('points');
     });
   }
+
+  static Stream getUserSwapListStream() {
+    return Collections.foodSwap.where('uid', isEqualTo: uid).snapshots();
+  }
 }

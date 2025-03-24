@@ -17,6 +17,8 @@ class UserModel {
   final String? zipCode;
   final int? points;
   final List<Items>? kitchenItems;
+  final int? monthlyItemQuantityAddedCount;
+  final int? monthlyItemQuantityRemovedCount;
   final DateTime? createdAt;
 
   UserModel({
@@ -36,6 +38,8 @@ class UserModel {
     this.zipCode,
     this.points,
     this.kitchenItems,
+    this.monthlyItemQuantityAddedCount,
+    this.monthlyItemQuantityRemovedCount,
     this.createdAt,
   });
 
@@ -72,9 +76,11 @@ class UserModel {
       points: data['points'] ?? 0,
       kitchenItems:
           (data['kitchenItems'] as List<dynamic>?)
-              ?.map((item) => Items.fromJson(item as Map<String, dynamic>))
+              ?.map((item) => Items.fromMap(item as Map<String, dynamic>))
               .toList() ??
           [],
+      monthlyItemQuantityAddedCount: data['addedItemQuantityCount'] ?? 0,
+      monthlyItemQuantityRemovedCount: data['noOfQuantityRemoved'] ?? 0,
       createdAt: parseTimestamp(data['createdAt']),
     );
   }
@@ -96,7 +102,9 @@ class UserModel {
       'city': city,
       'zipCode': zipCode,
       'points': points,
-      'kitchenItems': kitchenItems?.map((item) => item.toJson()).toList(),
+      'kitchenItems': kitchenItems?.map((item) => item).toList(),
+      'addedItemQuantityCount': monthlyItemQuantityAddedCount,
+      'noOfQuantityRemoved': monthlyItemQuantityRemovedCount,
       'createdAt':
           isNew
               ? FieldValue.serverTimestamp()
@@ -121,7 +129,9 @@ class UserModel {
       'city': city,
       'zipCode': zipCode,
       'points': points,
-      'kitchenItems': kitchenItems?.map((item) => item.toJson()).toList() ?? [],
+      'kitchenItems': kitchenItems?.map((item) => item).toList() ?? [],
+     'addedItemQuantityCount': monthlyItemQuantityAddedCount,
+      'noOfQuantityRemoved': monthlyItemQuantityRemovedCount,
       'createdAt': createdAt?.toIso8601String(),
     };
   }
@@ -155,9 +165,11 @@ class UserModel {
       city: json['city'] ?? '',
       zipCode: json['zipCode'] ?? '',
       points: json['points'] ?? 0,
+      monthlyItemQuantityAddedCount: json['addedItemQuantityCount'] ?? 0,
+      monthlyItemQuantityRemovedCount: json['noOfQuantityRemoved'] ?? 0,
       kitchenItems:
           (json['kitchenItems'] as List<dynamic>?)
-              ?.map((item) => Items.fromJson(item as Map<String, dynamic>))
+              ?.map((item) => Items.fromMap(item as Map<String, dynamic>))
               .toList() ??
           [],
       createdAt: parseJsonTimestamp(json['createdAt']),
@@ -166,44 +178,44 @@ class UserModel {
 }
 
 class Items {
-  final String id;
-  final String name;
-  final String category;
-  final int quantity;
-  final String unit;
-  final DateTime expiredDate;
+  final String? id;
+  final String? name;
+  final String? category;
+  final int? quantity;
+  final String? unit;
+  final DateTime? expiredDate;
 
   Items({
-    required this.id,
-    required this.name,
-    required this.category,
-    required this.quantity,
-    required this.unit,
-    required this.expiredDate,
+    this.id,
+    this.name,
+    this.category,
+    this.quantity,
+    this.unit,
+    this.expiredDate,
   });
 
-  factory Items.fromJson(Map<String, dynamic> json) {
+  /// ✅ Renamed `fromJson` to `fromMap`
+  factory Items.fromMap(Map<String, dynamic> map) {
     return Items(
-      id: json['id'] as String? ?? '',
-      name: json['name'] as String? ?? 'Unknown',
-      category: json['category'] as String? ?? '',
-      quantity: (json['quantity'] as num?)?.toInt() ?? 0,
-      unit: json['unit'] as String? ?? '',
-      expiredDate:
-          json['expiredDate'] != null
-              ? DateTime.tryParse(json['expiredDate']) ?? DateTime.now()
-              : DateTime.now(),
+      id: map['id'] as String? ?? '',
+      name: map['name'] as String? ?? 'Unknown',
+      category: map['category'] as String? ?? '',
+      quantity: (map['quantity'] as num?)?.toInt() ?? 0,
+      unit: map['unit'] as String? ?? '',
+      expiredDate: map['expiredDate'] is Timestamp
+          ? (map['expiredDate'] as Timestamp).toDate() 
+          : DateTime.tryParse(map['expiredDate'] ?? '') ?? DateTime.now(),
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'id': id,
       'name': name,
       'category': category,
       'quantity': quantity,
       'unit': unit,
-      'expiredDate': expiredDate,
+      'expiredDate': Timestamp.fromDate(expiredDate ?? DateTime.now()),
     };
   }
 }

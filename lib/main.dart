@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:saver_bbk_main/modules/food_swap/bloc/food_swap_bloc.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/bloc/kitchen_manager_bloc.dart';
 import 'package:saver_bbk_main/firebase_options.dart';
 import 'package:saver_bbk_main/modules/profile/bloc/profile_bloc.dart';
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<KitchenManagerBloc>(
           create: (context) => KitchenManagerBloc(),
         ),
+        BlocProvider<FoodSwapBloc>(create: (context) => FoodSwapBloc()),
       ],
       child: MaterialApp(
         title: 'Saver App',
