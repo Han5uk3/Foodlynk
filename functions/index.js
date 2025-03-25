@@ -1,20 +1,26 @@
 var serviceAccount = require("./saver-app-2ae53-firebase-adminsdk-fbsvc-a817628f88.json");
+const { onRequest, runWith } = require("firebase-functions/v2/https");
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const express = require("express");
+const dotenv = require("dotenv");
 const { v4: uuidv4 } = require("uuid");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
+const generateProteinPlan = require("./Ai/generateProteinPlan");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
+dotenv.config();
 const db = admin.firestore();
 const app = express();
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: true }));
+
+app.post("/generate-protein-plan", generateProteinPlan);
 app.post("/addKitchenItem", async (req, res) => {
   const { uid, item } = req.body;
   if (!uid || !item) {
@@ -94,7 +100,4 @@ const resetMonthlyStats = async () => {
     throw new Error("Failed to reset monthly stats");
   }
 };
-
-// exports.api = functions.region("us-central1").https.onRequest(app);
-
-app.listen(3000, () => console.log("SERVER IS RUNNING"));
+exports.api = onRequest({ timeoutSeconds: 300, memory: "512MB" }, app);;

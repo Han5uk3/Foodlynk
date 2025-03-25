@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:http/http.dart' as http;
+import 'package:saver_bbk_main/models/protein_plan_model.dart';
 
 class AppApis {
   static final String apiUrl = 'https://api-ab2ifjorfa-uc.a.run.app';
-      
 
   Future<bool> createNewItem(Map<String, dynamic> newItem, String uid) async {
     String url = '$apiUrl/addKitchenItem';
@@ -49,6 +49,42 @@ class AppApis {
       return json['success'];
     } else {
       throw Exception('Failed to delete item: ${response.statusCode}');
+    }
+  }
+
+  Future<GenaratedProteinPlanModel> generateProteinPlan(
+    String whatareyoucooking,
+    String towhomareyoucooking,
+    int numberOfServings,
+    List<String> dietaryPreferences,
+    List<String> ingredients,
+  ) async {
+    final url = Uri.parse("$apiUrl/generate-protein-plan");
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': 'AIzaSyDaaqXsBPdtJiFSTTxT1pLbaPiH_MKla4o',
+        },
+        body: jsonEncode({
+          "whatAreYouCooking": whatareyoucooking,
+          "toWhomAreYouCooking": towhomareyoucooking,
+          "numberOfServings": numberOfServings,
+          "dietaryPreferences": dietaryPreferences,
+          "ingredients": ingredients,
+        }),
+      );
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        return GenaratedProteinPlanModel.fromJson(json);
+      } else {
+        throw Exception(
+          'Failed to generate protein plan: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 }

@@ -8,6 +8,7 @@ import 'package:saver_bbk_main/firebase_options.dart';
 import 'package:saver_bbk_main/modules/profile/bloc/profile_bloc.dart';
 
 import 'package:saver_bbk_main/modules/splash_screen/splash_screen.dart';
+import 'package:saver_bbk_main/modules/zero_waste_cooking/bloc/zero_waste_cooking_bloc.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 const boxName = 'myBox';
@@ -32,6 +33,9 @@ class MyApp extends StatelessWidget {
           create: (context) => KitchenManagerBloc(),
         ),
         BlocProvider<FoodSwapBloc>(create: (context) => FoodSwapBloc()),
+        BlocProvider<ZeroWasteCookingBloc>(
+          create: (context) => ZeroWasteCookingBloc(),
+        ),
       ],
       child: MaterialApp(
         title: 'Saver App',

@@ -37,4 +37,25 @@ class Services {
         .snapshots()
         .map((query) => query.docs.where((doc) => doc['uid'] != uid).toList());
   }
+
+  static Future<List<String>> getKitchenItemNames() async {
+    try {
+      DocumentSnapshot doc = await Collections.users.doc(uid).get();
+      if (doc.exists) {
+        var data = doc.data() as Map<String, dynamic>;
+        if (data["kitchenItems"] != null) {
+          List<String> itemNames =
+              (data['kitchenItems'] as List)
+                  .map((item) => item['name'].toString())
+                  .toList();
+
+          return itemNames;
+        }
+      }
+      return [];
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
 }
