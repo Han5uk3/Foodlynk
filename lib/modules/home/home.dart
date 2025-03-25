@@ -6,6 +6,7 @@ import 'package:saver_bbk_main/modules/kitchen_management/kitchen_manager.dart';
 import 'package:saver_bbk_main/modules/notifications/notifications_page.dart';
 import 'package:saver_bbk_main/modules/profile/profile_page.dart';
 import 'package:saver_bbk_main/modules/zero_waste_challenges/zero_waste_challenges.dart';
+import 'package:saver_bbk_main/modules/zero_waste_cooking/zero_waste_cooking_page.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class MainScreen extends StatefulWidget {
@@ -58,7 +59,7 @@ class _MainScreenState extends State<MainScreen> {
         case 5:
           return Page6(onBack: goBack);
         case 6:
-          return Page7(onBack: goBack);
+          return ZeroWasteCookingPage(onBack: goBack);
         default:
           return HomePage(onGridTap: onGridTap);
       }
