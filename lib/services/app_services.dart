@@ -23,4 +23,18 @@ class Services {
       return snapshot.docs.first.get('points');
     });
   }
+
+  static Stream<List<DocumentSnapshot>> getUserSwapListStream() {
+    return Collections.foodSwap.snapshots().map(
+      (query) => query.docs.where((doc) => doc['uid'] == uid).toList(),
+    );
+  }
+
+  static Stream<List<DocumentSnapshot>> getAvialableSwapListStream() {
+    return Collections.foodSwap
+        .where('status', isEqualTo: "P")
+        .orderBy('expiredDate', descending: false)
+        .snapshots()
+        .map((query) => query.docs.where((doc) => doc['uid'] != uid).toList());
+  }
 }

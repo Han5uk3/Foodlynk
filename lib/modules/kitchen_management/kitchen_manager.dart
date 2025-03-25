@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saver_bbk_main/common_widget/date_compare.dart';
+import 'package:saver_bbk_main/common_widget/empty_list.dart';
 import 'package:saver_bbk_main/common_widget/loader.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
@@ -11,6 +12,7 @@ import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/add_item.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/bloc/kitchen_manager_bloc.dart';
+import 'package:saver_bbk_main/modules/kitchen_management/widgets/food_expiry_tracker.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
@@ -29,12 +31,9 @@ class _KitchenManagerState extends State<KitchenManager> {
   String searchQuery = "";
   List<Items> kitchenItems = [];
   bool isLoading = true;
-  Map<String, dynamic> monthlyStats = {
-    'totalAdded': 0,
-    'removedBeforeExpiry': 0,
-    'percentage': 0,
-  };
   final FocusNode searchFocusNode = FocusNode();
+  UserModel? userData;
+  double percentage = 0.0;
   @override
   void initState() {
     super.initState();
@@ -66,10 +65,15 @@ class _KitchenManagerState extends State<KitchenManager> {
     try {
       final snapshot = await Services.getUserDetails().first;
       if (snapshot.docs.isNotEmpty) {
-        final userData = snapshot.docs.first.data();
+        userData = snapshot.docs.first.data();
         setState(() {
-          kitchenItems = userData.kitchenItems ?? [];
-
+          kitchenItems = userData?.kitchenItems ?? [];
+          double addedCount =
+              userData?.monthlyItemQuantityAddedCount?.toDouble() ?? 0.0;
+          double removedCount =
+              userData?.monthlyItemQuantityRemovedCount?.toDouble() ?? 1.0;
+          percentage =
+              (removedCount != 0) ? (addedCount / removedCount) * 100 : 0.0;
           isLoading = false;
         });
       } else {
@@ -99,7 +103,7 @@ class _KitchenManagerState extends State<KitchenManager> {
     return items.where((item) {
       bool matchesFilter = true;
       int days = getDateDifferenceNumber(
-        "${item.expiredDate.day}/${item.expiredDate.month}/${item.expiredDate.year}",
+        "${item.expiredDate?.day}/${item.expiredDate?.month}/${item.expiredDate?.year}",
       );
 
       if (selectedFilter.isNotEmpty) {
@@ -113,7 +117,7 @@ class _KitchenManagerState extends State<KitchenManager> {
       }
 
       bool matchesSearch =
-          searchQuery.isEmpty || item.name.toLowerCase().contains(searchQuery);
+          searchQuery.isEmpty || item.name!.toLowerCase().contains(searchQuery);
 
       return matchesFilter && matchesSearch;
     }).toList();
@@ -179,75 +183,7 @@ class _KitchenManagerState extends State<KitchenManager> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              child: CustomPaint(
-                painter: DiagonalBackgroundPainter(),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                  child: Row(
-                    children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Transform.rotate(
-                            angle: -1.57,
-                            child: SizedBox(
-                              height: 60,
-                              width: 60,
-                              child: CircularProgressIndicator(
-                                value: monthlyStats['percentage'] / 100,
-                                strokeWidth: 8,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  AppColor.pointColor,
-                                ),
-                                backgroundColor: Color.fromARGB(
-                                  130,
-                                  249,
-                                  219,
-                                  116,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Text(
-                            "${monthlyStats['percentage']}%",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColor.pointColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "You've consumed ${monthlyStats['percentage']}% of your food before expiry this month!",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              "${monthlyStats['removedBeforeExpiry']} items used / ${monthlyStats['totalAdded']} items added",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppColor.lightGrey200,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            FoodExpiryTracker(),
             SizedBox(height: 10),
             _buildSearchBar(),
             SizedBox(height: 15),
@@ -257,7 +193,7 @@ class _KitchenManagerState extends State<KitchenManager> {
             Expanded(
               child:
                   filteredItems.isEmpty
-                      ? _buildEmptyState()
+                      ? EmptyList()
                       : _buildItemsList(filteredItems),
             ),
           ],
@@ -365,46 +301,45 @@ class _KitchenManagerState extends State<KitchenManager> {
     );
   }
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.info_outline, size: 48, color: AppColor.lightGrey200),
-          SizedBox(height: 12),
-          Text(
-            searchQuery.isNotEmpty
-                ? "No items match your search"
-                : selectedFilter.isNotEmpty
-                ? "No ${selectedFilter.toLowerCase()} items found"
-                : "No items found",
-            style: TextStyle(fontSize: 16, color: AppColor.lightGrey200),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildItemsList(List<Items> filteredItems) {
-    return ListView.builder(
-      padding: EdgeInsets.symmetric(vertical: 10),
-      itemCount: filteredItems.length,
-      itemBuilder: (context, index) {
-        return _buildItemCard(filteredItems[index]);
+    return StreamBuilder(
+      stream: Services.getUserDetails(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return SaverLoader();
+        }
+        if (snapshot.hasError) {
+          return const Center(child: Text("Error loading data"));
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return EmptyList();
+        }
+
+        final List<Items> filteredItems = filterItems(kitchenItems);
+
+        return filteredItems.isEmpty
+            ? EmptyList()
+            : ListView.builder(
+              itemCount: filteredItems.length,
+              itemBuilder: (context, index) {
+                final item = filteredItems[index];
+                return _buildItemCard(item);
+              },
+            );
       },
     );
   }
 
   Widget _buildItemCard(Items item) {
     int days = getDateDifferenceNumber(
-      "${item.expiredDate.day}/${item.expiredDate.month}/${item.expiredDate.year}",
+      "${item.expiredDate?.day}/${item.expiredDate?.month}/${item.expiredDate?.year}",
     );
     int daysLeft = days.abs();
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Dismissible(
-        key: Key(item.name + item.expiredDate.toIso8601String()),
+        key: Key(item.id ?? item.expiredDate?.toIso8601String() ?? ""),
         direction: DismissDirection.horizontal,
         background: ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -451,13 +386,14 @@ class _KitchenManagerState extends State<KitchenManager> {
           ),
         ),
         onDismissed: (direction) {
+          kitchenItems.removeWhere((i) => i.id == item.id);
           if (direction == DismissDirection.startToEnd) {
           } else {
             context.read<KitchenManagerBloc>().add(
               RemoveItemEvent(
-                itemId: item.id,
+                itemId: item.id ?? "",
                 beforeExpiry: !itemRemovedBeforeExpiry(item),
-                itemCount: item.quantity,
+                itemCount: item.quantity ?? 0,
               ),
             );
           }
@@ -471,7 +407,7 @@ class _KitchenManagerState extends State<KitchenManager> {
                           (context) => AddItem(
                             isEdit: true,
                             dateString:
-                                "${item.expiredDate.day}/${item.expiredDate.month}/${item.expiredDate.year}",
+                                "${item.expiredDate?.day}/${item.expiredDate?.month}/${item.expiredDate?.year}",
                           ),
                     ),
                   )
@@ -518,7 +454,7 @@ class _KitchenManagerState extends State<KitchenManager> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      item.name,
+                      item.name ?? "",
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
@@ -598,7 +534,7 @@ class _KitchenManagerState extends State<KitchenManager> {
           child: loadsvg("assets/icons/expiry.svg"),
         ),
         Text(
-          " Expiry Date: ${item.expiredDate.day}/${item.expiredDate.month}/${item.expiredDate.year}",
+          " Expiry Date: ${item.expiredDate?.day}/${item.expiredDate?.month}/${item.expiredDate?.year}",
           style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
         ),
       ],
@@ -700,36 +636,4 @@ itemRemovedBeforeExpiry(item) {
   } else {
     return false;
   }
-}
-
-class DiagonalBackgroundPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    var paint = Paint();
-
-    Path topLeftPath =
-        Path()
-          ..moveTo(0, 0)
-          ..lineTo(size.width * 0.53, 0)
-          ..lineTo(size.width * 0.76, size.height)
-          ..lineTo(0, size.height)
-          ..close();
-
-    paint.color = Color.fromARGB(100, 246, 231, 178);
-    canvas.drawPath(topLeftPath, paint);
-
-    Path bottomRightPath =
-        Path()
-          ..moveTo(size.width, 0)
-          ..lineTo(size.width * 0.53, 0)
-          ..lineTo(size.width * 0.76, size.height)
-          ..lineTo(size.width, size.height)
-          ..close();
-
-    paint.color = Color.fromARGB(200, 246, 231, 178);
-    canvas.drawPath(bottomRightPath, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
