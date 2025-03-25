@@ -10,6 +10,8 @@ PreferredSizeWidget saverAppBar(
   bool isneedtopop = false,
   void Function()? onpop,
   bool iswhite = true,
+  bool isneedchat = false,
+
   List<Widget>? actions,
 }) {
   return AppBar(
@@ -35,6 +37,14 @@ PreferredSizeWidget saverAppBar(
             )
             : null,
     backgroundColor: iswhite ? AppColor.white : AppColor.appbarColor,
-    actions: actions,
+    actions:
+        isneedchat
+            ? [
+              IconButton(
+                onPressed: () {},
+                icon: Icon(Icons.chat_bubble, color: iconColor),
+              ),
+            ]
+            : actions,
   );
 }

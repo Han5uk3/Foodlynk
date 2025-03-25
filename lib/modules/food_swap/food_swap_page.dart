@@ -10,6 +10,7 @@ import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/helpers/date_format.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
+import 'package:saver_bbk_main/modules/food_swap/food_swap_request.dart';
 import 'package:saver_bbk_main/modules/food_swap/my_listings_page.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
@@ -362,6 +363,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
           separatorBuilder: (context, index) => SizedBox(height: 12),
           itemBuilder: (context, index) {
             final item = availableSwaps[index];
+
             return _buildAvailableSwapCard(item);
           },
         );
@@ -416,7 +418,11 @@ class _FoodSwapPageState extends State<FoodSwapPage>
               width: double.infinity,
               child: SaverOutlineButton(
                 text: "Request Swap",
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => FoodSwapRequest(items: items)),
+                  );
+                },
                 borderColor: AppColor.green,
                 textColor: AppColor.green,
               ),
