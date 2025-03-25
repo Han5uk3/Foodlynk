@@ -3,6 +3,7 @@ import 'dart:ui';
 class AppColor {
   static const Color white = Color(0xFFFFFFFF);
   static const Color lightGreen = Color(0xFFEAF0D7);
+  static const Color lightGreen100 = Color(0xFFF6F8EB);
   static const Color primaryColor = Color(0xFF92CF4E);
   static const Color black = Color(0xFF000000);
   static const Color lightGrey = Color(0xFFD9D9D9);
@@ -18,6 +19,7 @@ class AppColor {
   static const Color red = Color(0xFFFF3B30);
   static const Color lightRed = Color.fromARGB(30, 255, 58, 48);
   static const Color green = Color(0xFF11BE7A);
+  static const Color green500 = Color(0xFF92CF4E);
   static const Color greenshade = Color.fromARGB(30, 17, 190, 121);
   static const Color appbarColor = Color(0xFF771F6D);
   static const Color pointColor = Color(0xFFFFC600);
