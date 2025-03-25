@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:number_selector/number_selector.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
+import 'package:saver_bbk_main/modules/zero_waste_cooking/zero_waste_recipe_result_page.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class ZeroWasteCookingPage extends StatefulWidget {
@@ -165,7 +166,13 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                   Expanded(
                     child: SaverButton(
                       text: "Get Portion Plan",
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ZeroWasteRecipeResultPage(),
+                          ),
+                        );
+                      },
                       color: AppColor.primaryColor,
                     ),
                   ),
