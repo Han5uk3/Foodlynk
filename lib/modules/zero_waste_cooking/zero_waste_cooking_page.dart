@@ -216,7 +216,7 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                                   await Services.getKitchenItemNames(
                                     selectedPreferences,
                                   );
-                              if (kitchenItemNames.isNotEmpty) {
+                              if (kitchenItemNames.length >= 5) {
                                 context.read<ZeroWasteCookingBloc>().add(
                                   GeneratePortionPlanEvent(
                                     options[selectedType!],
@@ -229,7 +229,8 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                               } else {
                                 SaverSnackBar.show(
                                   context: context,
-                                  message: "Please add items to your kitchen",
+                                  message:
+                                      "You don't have enough ingredients in your kitchen to generate the portion plan.",
                                   isTrue: false,
                                 );
                                 return;

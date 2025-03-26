@@ -6,6 +6,7 @@ import 'package:number_selector/number_selector.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/calender.dart';
 import 'package:saver_bbk_main/common_widget/dropdown.dart';
+import 'package:saver_bbk_main/common_widget/empty_list.dart';
 import 'package:saver_bbk_main/common_widget/image_picker.dart';
 import 'package:saver_bbk_main/common_widget/label.dart';
 import 'package:saver_bbk_main/common_widget/loader.dart';
@@ -13,13 +14,16 @@ import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/text_field.dart';
+import 'package:saver_bbk_main/helpers/date_format.dart';
+import 'package:saver_bbk_main/models/food_swap_model.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/food_swap/bloc/food_swap_bloc.dart';
+import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class MyListingsPage extends StatefulWidget {
   final bool isEdit;
-  final Items? items;
+  final FoodSwapModel? items;
 
   const MyListingsPage({super.key, required this.isEdit, this.items});
 
@@ -163,22 +167,16 @@ class _MyListingsPageState extends State<MyListingsPage>
                 ? TabBarView(
                   controller: tabController,
                   children: [
-                    FoodDetails(
-                      isEditable: true,
-                      items: widget.items ?? Items(),
-                    ),
-                    const RequestsDetails(),
+                    FoodDetails(isEditable: true, items: widget.items!),
+                    RequestsDetails(foodSwapModel: widget.items!),
                   ],
                 )
-                : FoodDetails(
-                  isEditable: false,
-                  items: widget.items ?? Items(),
-                ),
+                : FoodDetails(isEditable: false, items: widget.items!),
       ),
     );
   }
 
-  void _showDeleteFoodSwap(BuildContext context, Items items) {
+  void _showDeleteFoodSwap(BuildContext context, FoodSwapModel items) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -238,7 +236,7 @@ class FoodDetails extends StatefulWidget {
   const FoodDetails({super.key, required this.isEditable, required this.items});
 
   final bool isEditable;
-  final Items items;
+  final FoodSwapModel items;
 
   @override
   _FoodDetailsState createState() => _FoodDetailsState();
@@ -271,7 +269,7 @@ class _FoodDetailsState extends State<FoodDetails> {
 
   void _initializeValues() {
     if (widget.isEditable) {
-      nameController.text = widget.items.name ?? "Unknown";
+      nameController.text = widget.items.name ?? "";
       selectedUnit = widget.items.unit;
       numberOfQuantity = widget.items.quantity ?? 0;
       selectedCategory = widget.items.category ?? "";
@@ -461,24 +459,48 @@ class _FoodDetailsState extends State<FoodDetails> {
 }
 
 class RequestsDetails extends StatelessWidget {
-  const RequestsDetails({super.key});
+  final FoodSwapModel foodSwapModel;
+  const RequestsDetails({super.key, required this.foodSwapModel});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(top: 14, left: 14, right: 14),
-        child: ListView.builder(
-          itemCount: 5,
-          itemBuilder: (context, index) {
-            return _buildRequestItem(context);
+        child: StreamBuilder<List<AcceptedSwapItem>>(
+          stream: Services.getRequestSwapListStream(foodSwapModel.id ?? ""),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.none) {
+              return Text("No requests found.");
+            }
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return SaverLoader();
+            }
+            if (snapshot.hasError) {
+              return Text("Error fetching requests: ${snapshot.error}");
+            }
+
+            if (snapshot.data!.isEmpty) {
+              return EmptyList(
+                message: "No requests found.",
+                subMessage: "Check back later for new requests",
+              );
+            }
+            final acceptedSwapItem = snapshot.data!;
+            return ListView.builder(
+              itemCount: acceptedSwapItem.length,
+              itemBuilder: (context, index) {
+                final AcceptedSwapItem item = acceptedSwapItem[index];
+                return _buildRequestItem(context, item);
+              },
+            );
           },
         ),
       ),
     );
   }
 
-  Widget _buildRequestItem(BuildContext context) {
+  Widget _buildRequestItem(BuildContext context, AcceptedSwapItem item) {
     return GestureDetector(
       onTap: () {},
       child: Container(
@@ -535,7 +557,9 @@ class RequestsDetails extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const Text("Requested on 30/02/2025"),
+                      Text(
+                        "Requested on ${DateFormatHelper.ddmmyyyyString(item.pickupDate ?? "")}",
+                      ),
                     ],
                   ),
                 ),

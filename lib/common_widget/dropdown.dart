@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saver_bbk_main/common_widget/loader.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class SaverDropdown extends StatelessWidget {
@@ -9,6 +10,7 @@ class SaverDropdown extends StatelessWidget {
   final double borderRadius;
   final String hint;
   final bool isView;
+  final bool? isLoading;
 
   const SaverDropdown({
     super.key,
@@ -19,6 +21,7 @@ class SaverDropdown extends StatelessWidget {
     this.borderColor = AppColor.lightGrey,
     this.borderRadius = 7.0,
     this.hint = 'Select an option',
+    this.isLoading = false,
   });
 
   @override
@@ -36,8 +39,16 @@ class SaverDropdown extends StatelessWidget {
           value: selectedItem.isNotEmpty ? selectedItem : null,
           hint: Text(hint, style: TextStyle(color: AppColor.lightGrey200)),
           isExpanded: true,
-          icon: const Icon(Icons.arrow_drop_down),
-          onChanged: isView ? null : onChanged,
+          icon:
+              (isLoading ?? false)
+                  ? SaverLoader()
+                  : const Icon(Icons.arrow_drop_down),
+          onChanged:
+              (isLoading ?? false)
+                  ? null
+                  : isView
+                  ? null
+                  : onChanged,
           items:
               items.map((String item) {
                 return DropdownMenuItem<String>(value: item, child: Text(item));

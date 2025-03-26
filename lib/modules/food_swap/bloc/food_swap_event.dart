@@ -27,3 +27,29 @@ class RemoveItemFromFoodSwapEvent extends FoodSwapEvent {
   @override
   List<Object> get props => [swapId];
 }
+
+class AcceptFoodSwapEvent extends FoodSwapEvent {
+  final String? swapId;
+  final String? uid;
+  final String? acceptedSwapItem;
+  final String? pickupLocation;
+  final DateTime? pickupDate;
+  final DateTime? pickupTime;
+  const AcceptFoodSwapEvent({
+    this.swapId,
+    this.uid,
+    this.acceptedSwapItem,
+    this.pickupLocation,
+    this.pickupDate,
+    this.pickupTime,
+  });
+  @override
+  List<Object> get props => [
+    swapId ?? "",
+    uid ?? "",
+    acceptedSwapItem ?? "",
+    pickupLocation ?? "",
+    pickupDate ?? "",
+    pickupTime ?? "",
+  ];
+}
