@@ -38,14 +38,34 @@ class Services {
         .map((query) => query.docs.where((doc) => doc['uid'] != uid).toList());
   }
 
-  static Future<List<String>> getKitchenItemNames() async {
+  static Future<List<String>> getKitchenItemNames(
+    List<String> selectedPreferences,
+  ) async {
     try {
       DocumentSnapshot doc = await Collections.users.doc(uid).get();
       if (doc.exists) {
         var data = doc.data() as Map<String, dynamic>;
+
         if (data["kitchenItems"] != null) {
-          List<String> itemNames =
+          List<Map<String, dynamic>> kitchenItems =
               (data['kitchenItems'] as List)
+                  .map((item) => item as Map<String, dynamic>)
+                  .toList();
+          List<String> excludedCategories = [];
+          if (selectedPreferences.contains("Vegan")) {
+            excludedCategories.addAll(["Meat", "Poultry", "Seafood", "Dairy"]);
+          }
+          if (selectedPreferences.contains("Vegetarian")) {
+            excludedCategories.addAll(["Meat", "Poultry", "Seafood"]);
+          }
+          if (selectedPreferences.contains("No Preferences")) {
+            excludedCategories.clear();
+          }
+          List<String> itemNames =
+              kitchenItems
+                  .where(
+                    (item) => !excludedCategories.contains(item['category']),
+                  )
                   .map((item) => item['name'].toString())
                   .toList();
 

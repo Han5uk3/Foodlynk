@@ -115,6 +115,8 @@ Only return the JSON response without any other text or explanation.
       success: true,
       data: {
         recipeName: recipeData.name || "Unknown Recipe",
+        noOfServings: numberOfServings,
+        itemsFromKitchen: ingredients,
         ingredients: formattedIngredients,
         nutritionalInfo: cleanNutritionalInfo,
       },

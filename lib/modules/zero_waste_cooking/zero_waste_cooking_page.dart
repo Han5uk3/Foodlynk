@@ -7,7 +7,7 @@ import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/modules/zero_waste_cooking/bloc/zero_waste_cooking_bloc.dart';
-import 'package:saver_bbk_main/modules/zero_waste_cooking/gen.dart';
+import 'package:saver_bbk_main/modules/zero_waste_cooking/zero_waste_generated_result.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
@@ -52,8 +52,10 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                 context,
                 MaterialPageRoute(
                   builder:
-                      (context) =>
-                          RecipePage(recipe: state.generatedPortionPlan),
+                      (context) => ZeroWasteRecipeResultPage(
+                        genaratedPlanModel: state.generatedPortionPlan,
+                        selectedMeal: options[selectedMeal!],
+                      ),
                 ),
               );
             }
@@ -211,7 +213,9 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                                 }
                               }
                               List<String> kitchenItemNames =
-                                  await Services.getKitchenItemNames();
+                                  await Services.getKitchenItemNames(
+                                    selectedPreferences,
+                                  );
                               if (kitchenItemNames.isNotEmpty) {
                                 context.read<ZeroWasteCookingBloc>().add(
                                   GeneratePortionPlanEvent(

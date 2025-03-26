@@ -29,17 +29,29 @@ class GenaratedProteinPlanModel {
 class Data {
   final String? recipeName;
   final List<Ingredient>? ingredients;
+  final int? numberOfServings;
+  final List<String>? itemsFromKitchen;
   final NutritionalInfo? nutritionalInfo;
 
-  Data({this.recipeName, this.ingredients, this.nutritionalInfo});
+  Data({
+    this.recipeName,
+    this.ingredients,
+    this.numberOfServings,
+    this.itemsFromKitchen,
+    this.nutritionalInfo,
+  });
 
   Data copyWith({
     String? recipeName,
     List<Ingredient>? ingredients,
+    int? numberOfServings,
+    List<String>? itemsFromKitchen,
     NutritionalInfo? nutritionalInfo,
   }) => Data(
     recipeName: recipeName ?? this.recipeName,
     ingredients: ingredients ?? this.ingredients,
+    numberOfServings: numberOfServings ?? this.numberOfServings,
+    itemsFromKitchen: itemsFromKitchen ?? this.itemsFromKitchen,
     nutritionalInfo: nutritionalInfo ?? this.nutritionalInfo,
   );
 
@@ -55,6 +67,11 @@ class Data {
             : List<Ingredient>.from(
               json["ingredients"]!.map((x) => Ingredient.fromJson(x)),
             ),
+    numberOfServings: json["noOfServings"],
+    itemsFromKitchen:
+        json["itemsFromKitchen"] == null
+            ? []
+            : List<String>.from(json["itemsFromKitchen"]!.map((x) => x)),
     nutritionalInfo:
         json["nutritionalInfo"] == null
             ? null
@@ -67,6 +84,11 @@ class Data {
         ingredients == null
             ? []
             : List<dynamic>.from(ingredients!.map((x) => x.toJson())),
+    "noOfServings": numberOfServings,
+    "itemsFromKitchen":
+        itemsFromKitchen == null
+            ? []
+            : List<dynamic>.from(itemsFromKitchen!.map((x) => x)),
     "nutritionalInfo": nutritionalInfo?.toJson(),
   };
 }
