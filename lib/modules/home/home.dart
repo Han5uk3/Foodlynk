@@ -6,6 +6,7 @@ import 'package:saver_bbk_main/modules/home/home_page.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/kitchen_manager.dart';
 import 'package:saver_bbk_main/modules/notifications/notifications_page.dart';
 import 'package:saver_bbk_main/modules/profile/profile_page.dart';
+import 'package:saver_bbk_main/modules/smart_shopping_list/smart_shopping_list_home.dart';
 import 'package:saver_bbk_main/modules/zero_waste_challenges/zero_waste_challenges.dart';
 import 'package:saver_bbk_main/modules/zero_waste_cooking/zero_waste_cooking_page.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
@@ -52,7 +53,7 @@ class _MainScreenState extends State<MainScreen> {
         case 1:
           return KitchenManager(onBack: goBack);
         case 2:
-          return Page3(onBack: goBack);
+          return SmartShoppingHome(onBack: goBack);
         case 3:
           return FoodShareHomePage(onBack: goBack);
         case 4:

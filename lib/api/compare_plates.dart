@@ -12,7 +12,7 @@ Future<bool> comparePlates(File beforeImage, File afterImage) async {
       'https://8598-2405-201-f00a-7082-5030-d53c-cb34-a655.ngrok-free.app/compare',
     ),
   );
-
+  log(beforeImage.path);
   request.files.add(
     await http.MultipartFile.fromPath('before', beforeImage.path),
   );
