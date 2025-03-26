@@ -23,6 +23,7 @@ class _DonationDetailsState extends State<DonationDetails> {
   TextEditingController descriptionController = TextEditingController();
   TextEditingController locationNameController = TextEditingController();
   TextEditingController yourNameController = TextEditingController();
+  TextEditingController yourPhoneController = TextEditingController();
   String terms =
       "I certify that the food I donated is safe to eat and has been stored in tightly sealed containers in accordance with health guidelines. I pledge to bear full and legal responsibility for all consequences of its use and disposal. I also release (Ne'ma Savers) from all liability for the food I donated.";
   File? _imageFile;
@@ -37,6 +38,19 @@ class _DonationDetailsState extends State<DonationDetails> {
     "Seafood",
   ];
   String selectedItem = "";
+  String selectedCode = "+91";
+  DateTime selectedDate = DateTime.now();
+  List<String> code = [
+    "+91",
+    "+966",
+    "+965",
+    "+974",
+    "+971",
+    "+970",
+    "+973",
+    "+98",
+    "+968",
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,6 +89,7 @@ class _DonationDetailsState extends State<DonationDetails> {
               hintText: "Enter food name",
               controller: foodNameController,
             ),
+            SizedBox(height: 8),
             Text("Food Type"),
             SaverDropdown(
               items: items,
@@ -85,6 +100,7 @@ class _DonationDetailsState extends State<DonationDetails> {
                 });
               },
             ),
+            SizedBox(height: 8),
             Text("Description"),
             SizedBox(
               height: 120,
@@ -95,6 +111,7 @@ class _DonationDetailsState extends State<DonationDetails> {
                 controller: descriptionController,
               ),
             ),
+            SizedBox(height: 8),
             Text("Expiry Date"),
             ShowCalendar(
               isEdit: false,
@@ -102,6 +119,7 @@ class _DonationDetailsState extends State<DonationDetails> {
               initialDate: DateTime.now(),
               onDatePicked: _onDatePicked,
             ),
+            SizedBox(height: 8),
             Text("Pickup Location"),
             SaverTextField(
               hintText: "Enter pickup location",
@@ -109,6 +127,7 @@ class _DonationDetailsState extends State<DonationDetails> {
               suffixIcon: Icons.location_on_outlined,
               suffixIconColor: Colors.black,
             ),
+            SizedBox(height: 8),
             Text("Upload Image"),
             Row(
               children: [
@@ -208,7 +227,12 @@ class _DonationDetailsState extends State<DonationDetails> {
     });
   }
 
-  _onDatePicked(DateTime date) {}
+  _onDatePicked(DateTime date) {
+    setState(() {
+      selectedDate = date;
+    });
+  }
+
   _buildBeneficiaryBody() {
     return SingleChildScrollView(
       child: Padding(
@@ -228,6 +252,7 @@ class _DonationDetailsState extends State<DonationDetails> {
                 });
               },
             ),
+            SizedBox(height: 8),
             Text("Preferred Pickup Location"),
             SaverTextField(
               hintText: "Choose",
@@ -235,9 +260,9 @@ class _DonationDetailsState extends State<DonationDetails> {
               suffixIcon: Icons.location_on_outlined,
               suffixIconColor: Colors.black,
             ),
-            SizedBox(height: 12),
+            SizedBox(height: 6),
             Divider(color: Colors.grey.shade300),
-            SizedBox(height: 12),
+            SizedBox(height: 4),
             Text(
               "Contact Info (Optional)",
               style: TextStyle(
@@ -246,15 +271,38 @@ class _DonationDetailsState extends State<DonationDetails> {
                 fontWeight: FontWeight.w700,
               ),
             ),
+            SizedBox(height: 8),
             Text("Your Name"),
+
             SaverTextField(
               hintText: "Enter your name",
               controller: yourNameController,
             ),
+            SizedBox(height: 8),
             Text("Mobile Number"),
-            SaverTextField(
-              hintText: "Enter mobile number",
-              controller: foodNameController,
+            Row(
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.21,
+                  child: SaverDropdown(
+                    items: code,
+                    hint: "+91",
+                    selectedItem: selectedItem,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedItem = value!;
+                      });
+                    },
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: SaverTextField(
+                    hintText: "Enter mobile number",
+                    controller: yourPhoneController,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
