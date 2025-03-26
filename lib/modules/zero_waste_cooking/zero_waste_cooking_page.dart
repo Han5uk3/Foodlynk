@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:number_selector/number_selector.dart';
@@ -61,7 +59,6 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
             }
           }
           if (state is GeneratedFailureState) {
-            log(state.errorMessage);
             SaverSnackBar.show(
               context: context,
               message: state.errorMessage,

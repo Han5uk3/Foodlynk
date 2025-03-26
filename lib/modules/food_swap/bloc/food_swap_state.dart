@@ -65,3 +65,12 @@ class AcceptFoodSwapError extends FoodSwapState {
 }
 
 class AcceptFoodSwapSuccessState extends FoodSwapState {}
+
+class FoodSwapRequestDeclainedSuccessState extends FoodSwapState {}
+
+class FoodSwapRequestDeclinedError extends FoodSwapState {
+  final String errorMessage;
+  const FoodSwapRequestDeclinedError({required this.errorMessage});
+  @override
+  List<Object> get props => [errorMessage];
+}

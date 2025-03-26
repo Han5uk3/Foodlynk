@@ -535,9 +535,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
             subMessage: "Tap the + button to create a new listing",
           );
         }
-
-        myListings = snapshot.data!;
-
+        myListings = List.from(snapshot.data!);
         if (_searchController.text.isNotEmpty) {
           myListings?.removeWhere(
             (item) =>

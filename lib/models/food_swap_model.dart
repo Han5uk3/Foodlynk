@@ -51,6 +51,7 @@ class FoodSwapModel {
 }
 
 class AcceptedSwapItem {
+  final int? reqId;
   final String? acceptedSwapItem;
   final String? pickupDate;
   final String? pickupLocation;
@@ -60,6 +61,7 @@ class AcceptedSwapItem {
   final String? uid;
 
   const AcceptedSwapItem({
+    this.reqId,
     this.acceptedSwapItem,
     this.pickupDate,
     this.pickupLocation,
@@ -70,6 +72,7 @@ class AcceptedSwapItem {
   });
   factory AcceptedSwapItem.fromMap(Map<String, dynamic> map) {
     return AcceptedSwapItem(
+      reqId: map['reqId'] as int?,
       acceptedSwapItem: map['acceptedSwapItem'] as String?,
       pickupDate: map['pickupDate'],
       pickupLocation: map['pickupLocation'] as String?,
@@ -88,6 +91,7 @@ class AcceptedSwapItem {
   factory AcceptedSwapItem.fromJson(String source) =>
       AcceptedSwapItem.fromMap(json.decode(source));
   AcceptedSwapItem copyWith({
+    int? reqId,
     String? acceptedSwapItem,
     String? pickupDate,
     String? pickupLocation,
@@ -97,6 +101,7 @@ class AcceptedSwapItem {
     String? uid,
   }) {
     return AcceptedSwapItem(
+      reqId: reqId ?? this.reqId,
       acceptedSwapItem: acceptedSwapItem ?? this.acceptedSwapItem,
       pickupDate: pickupDate ?? this.pickupDate,
       pickupLocation: pickupLocation ?? this.pickupLocation,

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,6 +15,7 @@ import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/text_field.dart';
+import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/helpers/date_format.dart';
 import 'package:saver_bbk_main/models/food_swap_model.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
@@ -501,118 +503,220 @@ class RequestsDetails extends StatelessWidget {
   }
 
   Widget _buildRequestItem(BuildContext context, AcceptedSwapItem item) {
-    return GestureDetector(
-      onTap: () {},
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 14),
-        decoration: BoxDecoration(
-          color: AppColor.white,
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
+    return FutureBuilder<DocumentSnapshot>(
+      future: Collections.users.doc(item.uid).get(),
+      builder: (context, userSnapshot) {
+        if (userSnapshot.connectionState == ConnectionState.waiting) {
+          return _buildRequestItemSkeleton();
+        }
+        if (userSnapshot.hasError) {
+          return _buildRequestItemSkeleton(
+            errorMessage: "Error loading user details",
+          );
+        }
+        final userData = userSnapshot.data?.data() as Map<String, dynamic>?;
+        final userName = "${userData?['firstName']} ${userData?['lastName']}";
+        final userProfilePic = userData?['profilePicUrl'];
+
+        return GestureDetector(
+          onTap: () {},
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 14),
+            decoration: BoxDecoration(
+              color: AppColor.white,
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
-                  child: Container(
-                    height: 55,
-                    width: 55,
-                    decoration: BoxDecoration(
-                      color: AppColor.white,
-                      border: Border.all(color: AppColor.lightGrey200),
-                      borderRadius: BorderRadius.circular(50),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: 12,
+                        left: 12,
+                        right: 12,
+                      ),
+                      child: Container(
+                        height: 55,
+                        width: 55,
+                        decoration: BoxDecoration(
+                          color: AppColor.white,
+                          border: Border.all(color: AppColor.lightGrey200),
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: Center(
+                          child:
+                              userProfilePic != null
+                                  ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(50),
+                                    child: Image.network(
+                                      userProfilePic,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (
+                                        context,
+                                        error,
+                                        stackTrace,
+                                      ) {
+                                        return Icon(
+                                          Icons.person,
+                                          color: AppColor.lightGrey200,
+                                        );
+                                      },
+                                    ),
+                                  )
+                                  : Icon(
+                                    Icons.person,
+                                    color: AppColor.lightGrey200,
+                                  ),
+                        ),
+                      ),
                     ),
-                    child: Center(
-                      child: Icon(Icons.image, color: AppColor.lightGrey200),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            "Jonnathan",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
+                          Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                userName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 14),
+                                child: Icon(
+                                  Icons.messenger_outline,
+                                  color: AppColor.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            "Requested on ${DateFormatHelper.ddmmyyyyString(item.pickupDate ?? "")}",
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Divider(
+                      color: Colors.grey.shade200,
+                      thickness: 2,
+                      indent: 12,
+                      endIndent: 12,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 12,
+                        right: 12,
+                        bottom: 8,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: SaverOutlineButton(
+                                text: "Accept",
+                                onPressed: () {},
+                                borderColor: AppColor.primaryColor,
+                                textColor: AppColor.primaryColor,
+                              ),
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 14),
-                            child: Icon(
-                              Icons.messenger_outline,
-                              color: AppColor.black,
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: SaverOutlineButton(
+                                text: "Decline",
+                                onPressed:
+                                    () => context.read<FoodSwapBloc>().add(
+                                      DeclineFoodSwapEvent(
+                                        reqId: item.reqId ?? 0,
+                                        swapId: item.swapedItemId ?? "",
+                                      ),
+                                    ),
+                                borderColor: AppColor.red,
+                                textColor: AppColor.red,
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      Text(
-                        "Requested on ${DateFormatHelper.ddmmyyyyString(item.pickupDate ?? "")}",
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Divider(
-                  color: Colors.grey.shade200,
-                  thickness: 2,
-                  indent: 12,
-                  endIndent: 12,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 12,
-                    right: 12,
-                    bottom: 8,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Expanded(
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: SaverOutlineButton(
-                            text: "Accept",
-                            onPressed: () {},
-                            borderColor: AppColor.primaryColor,
-                            textColor: AppColor.primaryColor,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: SaverOutlineButton(
-                            text: "Decline",
-                            onPressed: () {},
-                            borderColor: AppColor.red,
-                            textColor: AppColor.red,
-                          ),
-                        ),
-                      ),
-                    ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildRequestItemSkeleton({String? errorMessage}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      decoration: BoxDecoration(
+        color: AppColor.white,
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Container(
+                  height: 55,
+                  width: 55,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(50),
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    errorMessage != null
+                        ? Text(
+                          errorMessage,
+                          style: TextStyle(color: AppColor.red),
+                        )
+                        : Container(
+                          height: 20,
+                          width: 150,
+                          color: Colors.grey.shade200,
+                        ),
+                    const SizedBox(height: 8),
+                    Container(
+                      height: 15,
+                      width: 100,
+                      color: Colors.grey.shade200,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -82,7 +81,6 @@ class _KitchenManagerState extends State<KitchenManager> {
         });
       }
     } catch (e) {
-      log('Error fetching user data: $e');
       setState(() {
         isLoading = false;
       });

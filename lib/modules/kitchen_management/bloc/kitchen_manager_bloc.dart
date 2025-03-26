@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:saver_bbk_main/api/app_apis.dart';
@@ -38,7 +36,6 @@ class KitchenManagerBloc
         emit(AddNewStateError(errorMessage: "You can't add new Item."));
       }
     } catch (e) {
-      log(e.toString());
       emit(AddNewStateError(errorMessage: e.toString()));
     }
   }
@@ -61,7 +58,6 @@ class KitchenManagerBloc
         emit(RemoveItemStateError(errorMessage: "You can't remove this Item."));
       }
     } catch (e) {
-      log(e.toString());
       emit(RemoveItemStateError(errorMessage: e.toString()));
     }
   }
