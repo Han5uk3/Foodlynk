@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:saver_bbk_main/models/protein_plan_model.dart';
 
@@ -65,7 +66,7 @@ class AppApis {
         url,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': 'AIzaSyDaaqXsBPdtJiFSTTxT1pLbaPiH_MKla4o',
+          'x-api-key': dotenv.env['GOOGLE_GEMINI_API_KEY'] ?? "",
         },
         body: jsonEncode({
           "whatAreYouCooking": whatareyoucooking,

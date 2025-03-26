@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:saver_bbk_main/modules/food_swap/bloc/food_swap_bloc.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/bloc/kitchen_manager_bloc.dart';
@@ -15,6 +16,7 @@ const boxName = 'myBox';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await dotenv.load(fileName: ".env");
   await Hive.initFlutter();
   await Hive.openBox(boxName);
   runApp(const MyApp());
