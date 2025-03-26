@@ -226,7 +226,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
                                                       const EdgeInsets.only(
                                                         left: 9,
                                                       ),
-                                                  child: Text("Duration"),
+                                                  child: Text("Period"),
                                                 ),
                                               ),
                                             ],
@@ -242,7 +242,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
                                                       const EdgeInsets.only(
                                                         left: 12,
                                                       ),
-                                                  child: Text("Duration"),
+                                                  child: Text("Period"),
                                                 ),
                                               ),
                                             ],
