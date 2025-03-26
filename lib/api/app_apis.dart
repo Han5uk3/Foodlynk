@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:saver_bbk_main/models/protein_plan_model.dart';
@@ -17,9 +15,6 @@ class AppApis {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({"uid": uid, "item": newItem}),
     );
-    log(url);
-    log(response.body);
-    log({"uid": uid, "item": newItem}.toString());
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
       return json['success'];
@@ -34,7 +29,10 @@ class AppApis {
     bool isBeforeExpiry,
     int itemCount,
   ) async {
+<<<<<<< Updated upstream
     log("API CLLING");
+=======
+>>>>>>> Stashed changes
     String url = '$apiUrl/deleteKitchenItem';
     final response = await http.post(
       Uri.parse(url),
@@ -46,7 +44,6 @@ class AppApis {
         "noOfQuantity": itemCount,
       }),
     );
-    log(response.body);
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
       return json['success'];

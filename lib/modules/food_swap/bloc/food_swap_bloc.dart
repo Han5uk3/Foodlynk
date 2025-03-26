@@ -16,6 +16,7 @@ class FoodSwapBloc extends Bloc<FoodSwapEvent, FoodSwapState> {
     on<UpdateItemInFoodSwapEvent>(_updateItemInFoodSwap);
     on<RemoveItemFromFoodSwapEvent>(_removeItemFromFoodSwap);
     on<AcceptFoodSwapEvent>(_acceptFoodSwap);
+    on<DeclineFoodSwapEvent>(_declineFoodSwap);
   }
 
   void _addFoodToSwapList(
@@ -128,6 +129,31 @@ class FoodSwapBloc extends Bloc<FoodSwapEvent, FoodSwapState> {
       }
     } catch (e) {
       emit(AcceptFoodSwapError(errorMessage: e.toString()));
+    }
+  }
+
+  void _declineFoodSwap(
+    DeclineFoodSwapEvent event,
+    Emitter<FoodSwapState> emit,
+  ) async {
+    try {
+      final docRef = Collections.foodSwap.doc(event.swapId);
+      final snapshot = await docRef.get();
+      if (snapshot.exists) {
+        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+        List<dynamic> requestList = data['requests'] ?? [];
+        requestList.removeWhere((req) => req['reqId'] == event.reqId);
+        await docRef.update({'requests': requestList});
+        emit(FoodSwapRequestDeclainedSuccessState());
+      } else {
+        emit(
+          FoodSwapRequestDeclinedError(
+            errorMessage: "Document does not exist.",
+          ),
+        );
+      }
+    } catch (e) {
+      emit(FoodSwapRequestDeclinedError(errorMessage: e.toString()));
     }
   }
 }

@@ -53,3 +53,11 @@ class AcceptFoodSwapEvent extends FoodSwapEvent {
     pickupTime ?? "",
   ];
 }
+
+class DeclineFoodSwapEvent extends FoodSwapEvent {
+  final String swapId;
+  final int reqId;
+  const DeclineFoodSwapEvent({required this.reqId, required this.swapId});
+  @override
+  List<Object> get props => [reqId, swapId];
+}
