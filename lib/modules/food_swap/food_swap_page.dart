@@ -1,7 +1,3 @@
-import 'dart:developer';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/empty_list.dart';
@@ -10,7 +6,7 @@ import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/helpers/date_format.dart';
-import 'package:saver_bbk_main/models/users_model.dart';
+import 'package:saver_bbk_main/models/food_swap_model.dart';
 import 'package:saver_bbk_main/modules/food_swap/food_swap_request.dart';
 import 'package:saver_bbk_main/modules/food_swap/my_listings_page.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
@@ -29,10 +25,11 @@ class _FoodSwapPageState extends State<FoodSwapPage>
   late TabController _tabController;
   bool isPending = true;
   final TextEditingController _searchController = TextEditingController();
-  final Stream<List<DocumentSnapshot>> _userSwapListStream =
+  final Stream<List<FoodSwapModel>> _userSwapListStream =
       Services.getUserSwapListStream();
-  final Stream<List<DocumentSnapshot>> _availableSwapsStream =
+  final Stream<List<FoodSwapModel>> _availableSwapsStream =
       Services.getAvialableSwapListStream();
+  List<FoodSwapModel>? myListings;
   @override
   void initState() {
     super.initState();
@@ -80,7 +77,9 @@ class _FoodSwapPageState extends State<FoodSwapPage>
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => MyListingsPage(isEdit: false),
+              builder:
+                  (context) =>
+                      MyListingsPage(isEdit: false, items: FoodSwapModel()),
             ),
           );
         },
@@ -523,7 +522,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
   }
 
   Widget _buildMyListingsTab() {
-    return StreamBuilder<List<DocumentSnapshot>>(
+    return StreamBuilder<List<FoodSwapModel>>(
       stream: _userSwapListStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -537,27 +536,22 @@ class _FoodSwapPageState extends State<FoodSwapPage>
           );
         }
 
-        final myListings =
-            snapshot.data!
-                .map((doc) => Items.fromMap(doc.data() as Map<String, dynamic>))
-                .toList();
+        myListings = snapshot.data!;
 
         if (_searchController.text.isNotEmpty) {
-          myListings.removeWhere(
+          myListings?.removeWhere(
             (item) =>
-                !(item.name?.toLowerCase().contains(
-                      _searchController.text.toLowerCase(),
-                    ) ??
-                    false),
+                !(item.name!.toLowerCase().contains(
+                  _searchController.text.toLowerCase(),
+                )),
           );
         }
-
         return ListView.separated(
-          itemCount: myListings.length,
+          itemCount: myListings?.length ?? 0,
           separatorBuilder: (context, index) => SizedBox(height: 12),
           itemBuilder: (context, index) {
-            final item = myListings[index];
-            return _buildMyListingCard(item);
+            final item = myListings![index];
+            return _buildMyListingCard(item, index);
           },
         );
       },
@@ -565,7 +559,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
   }
 
   Widget _buildAvailableSwapsTab() {
-    return StreamBuilder<List<DocumentSnapshot>>(
+    return StreamBuilder<List<FoodSwapModel>>(
       stream: _availableSwapsStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -573,7 +567,6 @@ class _FoodSwapPageState extends State<FoodSwapPage>
         }
 
         if (snapshot.hasError) {
-          log("Error loading data: ${snapshot.error}");
           return const Center(child: Text("Error loading data"));
         }
 
@@ -583,19 +576,13 @@ class _FoodSwapPageState extends State<FoodSwapPage>
             subMessage: "Check back later for new listings",
           );
         }
-
-        final availableSwaps =
-            snapshot.data!
-                .map((doc) => Items.fromMap(doc.data() as Map<String, dynamic>))
-                .toList();
-
+        final availableSwaps = snapshot.data!;
         if (_searchController.text.isNotEmpty) {
           availableSwaps.removeWhere(
             (item) =>
-                !(item.name?.toLowerCase().contains(
-                      _searchController.text.toLowerCase(),
-                    ) ??
-                    false),
+                !(item.name!.toLowerCase().contains(
+                  _searchController.text.toLowerCase(),
+                )),
           );
         }
 
@@ -612,7 +599,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
     );
   }
 
-  Widget _buildMyListingCard(Items items) {
+  Widget _buildMyListingCard(FoodSwapModel items, int index) {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
@@ -630,14 +617,14 @@ class _FoodSwapPageState extends State<FoodSwapPage>
         child: Column(
           children: [
             _buildItemDetailsRow(items, isPending: true),
-            if (isPending) _buildPendingRequestsSection(),
+            if (isPending) _buildPendingRequestsSection(index),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAvailableSwapCard(Items items) {
+  Widget _buildAvailableSwapCard(FoodSwapModel items) {
     return Container(
       decoration: BoxDecoration(
         color: AppColor.white,
@@ -676,7 +663,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
     );
   }
 
-  Widget _buildItemDetailsRow(Items items, {required bool isPending}) {
+  Widget _buildItemDetailsRow(FoodSwapModel items, {required bool isPending}) {
     return Row(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -711,7 +698,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
     );
   }
 
-  Widget _buildItemHeaderRow(Items items, bool isPending) {
+  Widget _buildItemHeaderRow(FoodSwapModel items, bool isPending) {
     return Row(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -742,7 +729,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
     );
   }
 
-  Widget _buildExpiryDateRow(Items items) {
+  Widget _buildExpiryDateRow(FoodSwapModel items) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -759,7 +746,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
     );
   }
 
-  Widget _buildLocationAndQuantityRow(Items items) {
+  Widget _buildLocationAndQuantityRow(FoodSwapModel items) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -790,7 +777,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
     );
   }
 
-  Widget _buildPendingRequestsSection() {
+  Widget _buildPendingRequestsSection(int index) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -805,7 +792,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
           child: SizedBox(
             width: double.infinity,
             child: SaverOutlineButton(
-              text: "2 Requests Pending",
+              text: "${myListings![index].requests?.length} Requests Pending",
               onPressed: () {},
               borderColor: AppColor.yellow600,
               textColor: AppColor.yellow600,

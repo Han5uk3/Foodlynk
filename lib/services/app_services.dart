@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
+import 'package:saver_bbk_main/models/food_swap_model.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
 
 class Services {
@@ -24,18 +25,37 @@ class Services {
     });
   }
 
-  static Stream<List<DocumentSnapshot>> getUserSwapListStream() {
-    return Collections.foodSwap.snapshots().map(
-      (query) => query.docs.where((doc) => doc['uid'] == uid).toList(),
-    );
+  static Stream<List<FoodSwapModel>> getUserSwapListStream() {
+    return Collections.foodSwap.snapshots().map((query) {
+      return query.docs
+          .where((doc) => doc['uid'] == uid)
+          .map(
+            (doc) => FoodSwapModel.fromMap(
+              doc.data() as Map<String, dynamic>,
+              doc.id,
+            ),
+          )
+          .toList();
+    });
   }
 
-  static Stream<List<DocumentSnapshot>> getAvialableSwapListStream() {
+  static Stream<List<FoodSwapModel>> getAvialableSwapListStream() {
     return Collections.foodSwap
         .where('status', isEqualTo: "P")
         .orderBy('expiredDate', descending: false)
         .snapshots()
-        .map((query) => query.docs.where((doc) => doc['uid'] != uid).toList());
+        .map((query) {
+          final filteredDocs =
+              query.docs.where((doc) => doc['uid'] != uid).toList();
+          return filteredDocs
+              .map(
+                (doc) => FoodSwapModel.fromMap(
+                  doc.data() as Map<String, dynamic>,
+                  doc.id,
+                ),
+              )
+              .toList();
+        });
   }
 
   static Future<List<String>> getKitchenItemNames(
@@ -74,8 +94,46 @@ class Services {
       }
       return [];
     } catch (e) {
-      print(e);
       return [];
     }
+  }
+
+  static Future<List<FoodSwapModel>> getUserSwapListFuture() async {
+    try {
+      QuerySnapshot querySnapshot =
+          await Collections.foodSwap.where('uid', isEqualTo: uid).get();
+
+      return querySnapshot.docs
+          .map(
+            (doc) => FoodSwapModel.fromMap(
+              doc.data() as Map<String, dynamic>,
+              doc.id,
+            ),
+          )
+          .toList();
+    } catch (e) {
+      print('Error: $e');
+      return [];
+    }
+  }
+
+  static Stream<List<AcceptedSwapItem>> getRequestSwapListStream(
+    String itemId,
+  ) {
+    return Collections.foodSwap.doc(itemId).snapshots().map((snapshot) {
+      if (snapshot.exists) {
+        final data = snapshot.data() as Map<String, dynamic>?;
+        if (data != null && data.containsKey('requests')) {
+          final List<dynamic> swapsRequests = data['requests'];
+          return swapsRequests.map((req) {
+            return AcceptedSwapItem.fromMap(req as Map<String, dynamic>);
+          }).toList();
+        } else {
+          return [];
+        }
+      } else {
+        return [];
+      }
+    });
   }
 }

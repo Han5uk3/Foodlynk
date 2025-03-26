@@ -49,3 +49,19 @@ class DeleteFromFoodSwapError extends FoodSwapState {
 }
 
 class DeleteFromFoodSwapSuccessState extends FoodSwapState {}
+
+class AcceptFoodSwapLoadingState extends FoodSwapState {
+  final bool isLoading;
+  const AcceptFoodSwapLoadingState({required this.isLoading});
+  @override
+  List<Object> get props => [isLoading];
+}
+
+class AcceptFoodSwapError extends FoodSwapState {
+  final String errorMessage;
+  const AcceptFoodSwapError({required this.errorMessage});
+  @override
+  List<Object> get props => [errorMessage];
+}
+
+class AcceptFoodSwapSuccessState extends FoodSwapState {}

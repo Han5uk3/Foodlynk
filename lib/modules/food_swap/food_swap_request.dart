@@ -1,59 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/calender.dart';
 import 'package:saver_bbk_main/common_widget/dropdown.dart';
 import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
+import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/common_widget/text_field.dart';
 import 'package:saver_bbk_main/helpers/date_format.dart';
-import 'package:saver_bbk_main/models/users_model.dart';
+import 'package:saver_bbk_main/models/food_swap_model.dart';
+import 'package:saver_bbk_main/modules/food_swap/bloc/food_swap_bloc.dart';
+import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class FoodSwapRequest extends StatefulWidget {
   const FoodSwapRequest({super.key, required this.items});
 
-  final Items items;
+  final FoodSwapModel items;
 
   @override
   State<FoodSwapRequest> createState() => _FoodSwapRequestState();
 }
 
 class _FoodSwapRequestState extends State<FoodSwapRequest> {
+  DateTime _dateTime = DateTime.now();
+  DateTime selectedTime = DateTime.now();
+  DateTime selectedDate = DateTime.now();
+  String dayT = "AM";
+  String? selectedItem;
+  TextEditingController locationController = TextEditingController();
+
+  late Future<List<FoodSwapModel>> _swapListFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _swapListFuture = Services.getUserSwapListFuture();
+  }
+
   void _onDatePicked(DateTime date) {
     setState(() {
       selectedDate = date;
     });
   }
 
-  DateTime _dateTime = DateTime.now();
-  DateTime selectedTime = DateTime.now();
-  setTimeOfDay() async {
-    String daytime = selectedTime.hour < 12 ? "AM" : "PM";
+  setTimeOfDay() {
     setState(() {
-      dayT = daytime;
+      dayT = selectedTime.hour < 12 ? "AM" : "PM";
     });
   }
-
-  String dayT = "AM";
-  DateTime selectedDate = DateTime.now();
-  List<String> items = ["Item 1", "Item 2", "Item 3"];
-  String? selectedItem = "";
-  TextEditingController locationController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(left: 14, right: 14, bottom: 24),
-        child: SaverButton(
-          text: "Submit Swap Request",
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
       appBar: saverAppBar(
         "Food Swap Request",
         context,
@@ -61,83 +62,152 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
         isneedtopop: true,
         iswhite: true,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(left: 14, right: 14, bottom: 3),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildItemDetailsRow(widget.items, isPending: false),
-                ],
-              ),
-              SizedBox(height: 20),
-              Text(
-                "Your Swap Item",
-                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-              ),
-              SizedBox(height: 10),
-              SaverDropdown(
-                hint: "Choose from my listings",
-                items: items,
-                selectedItem: selectedItem!,
-                onChanged: (value) {
-                  setState(() {
-                    selectedItem = value;
-                  });
-                },
-              ),
-              SizedBox(height: 20),
-              Text(
-                "Pickup Location",
-                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-              ),
-              SizedBox(height: 10),
-              SaverTextField(
-                hintText: "Enter pickup location",
-                controller: locationController,
-                suffixIcon: Icons.location_on_outlined,
-                suffixIconColor: AppColor.black,
-              ),
-              SizedBox(height: 20),
-              Text(
-                "Pickup Date & Time",
-                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-              ),
-              SizedBox(height: 10),
-
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: ShowCalendar(
-                      isEdit: false,
-                      restrictBackDates: true,
-                      initialDate: DateTime.now(),
-                      onDatePicked: _onDatePicked,
+      body: BlocListener<FoodSwapBloc, FoodSwapState>(
+        listener: (context, state) {
+          if (state is AcceptFoodSwapSuccessState) {
+            Navigator.pop(context);
+            SaverSnackBar.show(
+              context: context,
+              message: "Your request has been sent",
+              isTrue: true,
+            );
+          }
+          if (state is AcceptFoodSwapError) {
+            SaverSnackBar.show(
+              context: context,
+              message: "Failed to send request. Please try again later.",
+              isTrue: false,
+            );
+          }
+        },
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.only(left: 14, right: 14, bottom: 3),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildItemDetailsRow(widget.items, isPending: false),
+                  ],
+                ),
+                SizedBox(height: 20),
+                Text(
+                  "Your Swap Item",
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                ),
+                SizedBox(height: 10),
+                _buildSwapItemDropdown(),
+                SizedBox(height: 20),
+                Text(
+                  "Pickup Location",
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                ),
+                SizedBox(height: 10),
+                SaverTextField(
+                  hintText: "Enter pickup location",
+                  controller: locationController,
+                  suffixIcon: Icons.location_on_outlined,
+                  suffixIconColor: AppColor.black,
+                ),
+                SizedBox(height: 20),
+                Text(
+                  "Pickup Date & Time",
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: ShowCalendar(
+                        isEdit: false,
+                        restrictBackDates: true,
+                        initialDate: DateTime.now(),
+                        onDatePicked: _onDatePicked,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 15),
-                  Expanded(
-                    child: _buildTimePickerButton(
-                      formatTime(selectedTime),
-                      buildTimePopup,
+                    SizedBox(width: 15),
+                    Expanded(
+                      child: _buildTimePickerButton(
+                        formatTime(selectedTime),
+                        buildTimePopup,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
+      ),
+      bottomNavigationBar: BlocBuilder<FoodSwapBloc, FoodSwapState>(
+        builder: (context, state) {
+          return Padding(
+            padding: const EdgeInsets.only(left: 14, right: 14, bottom: 24),
+            child: SaverButton(
+              text: "Submit Swap Request",
+              isLoading: state is AcceptFoodSwapLoadingState,
+              onPressed:
+                  () => context.read<FoodSwapBloc>().add(
+                    AcceptFoodSwapEvent(
+                      uid: Services.uid,
+                      acceptedSwapItem: selectedItem,
+                      pickupDate: selectedDate,
+                      pickupLocation: locationController.text,
+                      pickupTime: selectedTime,
+                      swapId: widget.items.id,
+                    ),
+                  ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildItemDetailsRow(Items items, {required bool isPending}) {
+  Widget _buildSwapItemDropdown() {
+    return FutureBuilder<List<FoodSwapModel>>(
+      future: _swapListFuture,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text(
+            "Error fetching swap list: ${snapshot.error}",
+            style: TextStyle(color: Colors.red),
+          );
+        }
+        List<FoodSwapModel> items = snapshot.data ?? [];
+
+        List<String> dropdownItems =
+            items.isNotEmpty
+                ? items.map((item) => item.name ?? "No Name").toList()
+                : ["No items available"];
+
+        String defaultValue =
+            dropdownItems.contains(selectedItem)
+                ? selectedItem!
+                : dropdownItems.first;
+
+        return SaverDropdown(
+          hint: "Choose from my listings",
+          items: dropdownItems,
+          isLoading: snapshot.connectionState == ConnectionState.waiting,
+          selectedItem: defaultValue,
+          onChanged: (value) {
+            setState(() {
+              selectedItem = value;
+            });
+          },
+        );
+      },
+      key: ValueKey(selectedItem),
+    );
+  }
+
+  Widget _buildItemDetailsRow(FoodSwapModel items, {required bool isPending}) {
     return Row(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -173,7 +243,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
     );
   }
 
-  Widget _buildItemHeaderRow(Items items, bool isPending) {
+  Widget _buildItemHeaderRow(FoodSwapModel items, bool isPending) {
     return Row(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -204,7 +274,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
     );
   }
 
-  Widget _buildExpiryDateRow(Items items) {
+  Widget _buildExpiryDateRow(FoodSwapModel items) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -221,7 +291,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
     );
   }
 
-  Widget _buildLocationAndQuantityRow(Items items) {
+  Widget _buildLocationAndQuantityRow(FoodSwapModel items) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -306,6 +376,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                         Navigator.pop(context);
                         setState(() {
                           selectedTime = _dateTime;
+                          setTimeOfDay();
                         });
                       },
                     ),
@@ -327,13 +398,12 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
         fontSize: 30,
       ),
       time: _dateTime,
-      is24HourMode: false, // Ensures it's in 12-hour format
+      is24HourMode: false,
       isShowSeconds: false,
-      isForce2Digits: true, // Ensures consistent formatting
+      isForce2Digits: true,
       onTimeChange: (time) {
         setState(() {
           _dateTime = time;
-          setTimeOfDay();
         });
       },
     );
