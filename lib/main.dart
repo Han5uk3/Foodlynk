@@ -16,7 +16,7 @@ const boxName = 'myBox';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: "lib/.env");
   await Hive.initFlutter();
   await Hive.openBox(boxName);
   runApp(const MyApp());
