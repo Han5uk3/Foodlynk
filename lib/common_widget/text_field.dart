@@ -16,6 +16,8 @@ class SaverTextField extends StatelessWidget {
   final Color suffixIconColor;
   final double borderRadius;
   final FocusNode? focus;
+  final int minLines;
+  final int maxlines;
   final VoidCallback? onEditingComplete;
   final String? Function(String?)? validator;
 
@@ -29,11 +31,13 @@ class SaverTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.prefixIcon,
     this.focus,
+    this.maxlines = 1,
     this.onEditingComplete,
     this.prefixIconColor = AppColor.lightGrey,
     this.suffixIcon,
     this.suffixIconColor = AppColor.lightGrey,
     this.validator,
+    this.minLines = 1,
     this.onSuffixTap,
     this.borderColor = AppColor.lightGrey,
     this.borderRadius = 7.0,
@@ -42,6 +46,8 @@ class SaverTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      minLines: minLines,
+      maxLines: maxlines,
       focusNode: focus,
       onEditingComplete: onEditingComplete,
       controller: controller,

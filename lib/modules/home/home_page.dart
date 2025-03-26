@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
     },
     {
       "id": 7,
-      "name": "Waste-Free Cooking",
+      "name": "Zero Waste Cooking",
       "image": "waste free cooking.svg",
       "color": 0xFFFAF0FA,
     },

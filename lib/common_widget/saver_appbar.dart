@@ -42,7 +42,10 @@ PreferredSizeWidget saverAppBar(
             ? [
               IconButton(
                 onPressed: () {},
-                icon: Icon(Icons.chat_bubble, color: iconColor),
+                icon: Icon(
+                  Icons.chat_bubble_outline_outlined,
+                  color: iconColor,
+                ),
               ),
             ]
             : actions,
