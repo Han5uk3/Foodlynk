@@ -22,6 +22,27 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       emit(LogoutStateLoading(isLoading: true));
       await FirebaseAuth.instance.signOut();
       await HiveHelper.removeUID();
+      UserModel? model = UserModel(
+        address: null,
+        city: null,
+        state: null,
+        country: null,
+        createdAt: null,
+        dob: null,
+        email: null,
+        firstName: null,
+        lastName: null,
+        gender: null,
+        kitchenItems: null,
+        monthlyItemQuantityAddedCount: null,
+        monthlyItemQuantityRemovedCount: null,
+        nationality: null,
+        phoneNumber: null,
+        points: null,
+        title: null,
+        uid: null,
+        zipCode: null,
+      );
       emit(LogoutStateSuccess());
     } catch (e) {
       emit(LogoutStateError(errorMessage: e.toString()));

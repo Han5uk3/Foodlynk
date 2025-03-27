@@ -29,10 +29,6 @@ class AppApis {
     bool isBeforeExpiry,
     int itemCount,
   ) async {
-<<<<<<< Updated upstream
-    log("API CLLING");
-=======
->>>>>>> Stashed changes
     String url = '$apiUrl/deleteKitchenItem';
     final response = await http.post(
       Uri.parse(url),
@@ -59,7 +55,6 @@ class AppApis {
     List<String> dietaryPreferences,
     List<String> ingredients,
   ) async {
-    log(ingredients.toString());
     final url = Uri.parse("$apiUrl/generate-protein-plan");
     try {
       final response = await http.post(

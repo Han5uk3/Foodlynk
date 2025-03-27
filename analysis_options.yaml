@@ -13,6 +13,9 @@ analyzer:
     depend_on_referenced_packages: ignore
     library_private_types_in_public_api: ignore
     unnecessary_type_check: ignore
+    unused_local_variable: ignore
+    avoid_init_to_null: ignore
+    must_be_immutable: ignore ignore ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:

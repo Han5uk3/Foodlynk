@@ -19,6 +19,8 @@ import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/helpers/date_format.dart';
 import 'package:saver_bbk_main/models/food_swap_model.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
+import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
+import 'package:saver_bbk_main/modules/community/chat_page.dart';
 import 'package:saver_bbk_main/modules/food_swap/bloc/food_swap_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
@@ -460,209 +462,277 @@ class _FoodDetailsState extends State<FoodDetails> {
   }
 }
 
-class RequestsDetails extends StatelessWidget {
+class RequestsDetails extends StatefulWidget {
   final FoodSwapModel foodSwapModel;
   const RequestsDetails({super.key, required this.foodSwapModel});
 
   @override
+  State<RequestsDetails> createState() => _RequestsDetailsState();
+}
+
+class _RequestsDetailsState extends State<RequestsDetails> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.only(top: 14, left: 14, right: 14),
-        child: StreamBuilder<List<AcceptedSwapItem>>(
-          stream: Services.getRequestSwapListStream(foodSwapModel.id ?? ""),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.none) {
-              return Text("No requests found.");
-            }
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return SaverLoader();
-            }
-            if (snapshot.hasError) {
-              return Text("Error fetching requests: ${snapshot.error}");
-            }
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<FoodSwapBloc, FoodSwapState>(
+            listener: (context, state) {
+              if (state is RequestAcceptedError) {
+                SaverSnackBar.show(
+                  context: context,
+                  message: state.errorMessage,
+                  isTrue: false,
+                );
+              }
+            },
+          ),
+          BlocListener<CommunityBloc, CommunityState>(
+            listener: (context, state) {
+              if (state.status == ChatStatus.goToChatPage) {
+                if (mounted) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatPage(isFromFoodSwap: true),
+                    ),
+                  );
+                }
+              }
 
-            if (snapshot.data!.isEmpty) {
-              return EmptyList(
-                message: "No requests found.",
-                subMessage: "Check back later for new requests",
-              );
-            }
-            final acceptedSwapItem = snapshot.data!;
-            return ListView.builder(
-              itemCount: acceptedSwapItem.length,
-              itemBuilder: (context, index) {
-                final AcceptedSwapItem item = acceptedSwapItem[index];
-                return _buildRequestItem(context, item);
-              },
-            );
-          },
-        ),
+              if (state.status == ChatStatus.error) {
+                SaverSnackBar.show(
+                  context: context,
+                  message: state.errorMessage ?? 'An error occurred',
+                  isTrue: false,
+                );
+              }
+            },
+          ),
+        ],
+        child:
+            widget.foodSwapModel.status == "A"
+                ? EmptyList(message: "Already accepted")
+                : Padding(
+                  padding: const EdgeInsets.only(top: 14, left: 14, right: 14),
+                  child: StreamBuilder<List<AcceptedSwapItem>>(
+                    stream: Services.getRequestSwapListStream(
+                      widget.foodSwapModel.id ?? "",
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.none) {
+                        return Text("No requests found.");
+                      }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return SaverLoader();
+                      }
+                      if (snapshot.hasError) {
+                        return Text(
+                          "Error fetching requests: ${snapshot.error}",
+                        );
+                      }
+
+                      if (snapshot.data!.isEmpty) {
+                        return EmptyList(
+                          message: "No requests found.",
+                          subMessage: "Check back later for new requests",
+                        );
+                      }
+                      final acceptedSwapItem = snapshot.data!;
+                      return ListView.builder(
+                        itemCount: acceptedSwapItem.length,
+                        itemBuilder: (context, index) {
+                          final AcceptedSwapItem item = acceptedSwapItem[index];
+                          return _buildRequestItem(context, item);
+                        },
+                      );
+                    },
+                  ),
+                ),
       ),
     );
   }
 
   Widget _buildRequestItem(BuildContext context, AcceptedSwapItem item) {
-    return FutureBuilder<DocumentSnapshot>(
-      future: Collections.users.doc(item.uid).get(),
-      builder: (context, userSnapshot) {
-        if (userSnapshot.connectionState == ConnectionState.waiting) {
-          return _buildRequestItemSkeleton();
-        }
-        if (userSnapshot.hasError) {
-          return _buildRequestItemSkeleton(
-            errorMessage: "Error loading user details",
-          );
-        }
-        final userData = userSnapshot.data?.data() as Map<String, dynamic>?;
-        final userName = "${userData?['firstName']} ${userData?['lastName']}";
-        final userProfilePic = userData?['profilePicUrl'];
+    return BlocBuilder<FoodSwapBloc, FoodSwapState>(
+      builder: (context, state) {
+        return FutureBuilder<DocumentSnapshot>(
+          future: Collections.users.doc(item.uid).get(),
+          builder: (context, userSnapshot) {
+            if (userSnapshot.connectionState == ConnectionState.waiting) {
+              return _buildRequestItemSkeleton();
+            }
+            if (userSnapshot.hasError) {
+              return _buildRequestItemSkeleton(
+                errorMessage: "Error loading user details",
+              );
+            }
+            final userData = userSnapshot.data?.data() as Map<String, dynamic>?;
+            final userName =
+                "${userData?['firstName']} ${userData?['lastName']}";
+            final userProfilePic = userData?['profilePicUrl'];
 
-        return GestureDetector(
-          onTap: () {},
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 14),
-            decoration: BoxDecoration(
-              color: AppColor.white,
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
+            return GestureDetector(
+              onTap: () {},
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 14),
+                decoration: BoxDecoration(
+                  color: AppColor.white,
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        top: 12,
-                        left: 12,
-                        right: 12,
-                      ),
-                      child: Container(
-                        height: 55,
-                        width: 55,
-                        decoration: BoxDecoration(
-                          color: AppColor.white,
-                          border: Border.all(color: AppColor.lightGrey200),
-                          borderRadius: BorderRadius.circular(50),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 12,
+                            left: 12,
+                            right: 12,
+                          ),
+                          child: Container(
+                            height: 55,
+                            width: 55,
+                            decoration: BoxDecoration(
+                              color: AppColor.white,
+                              border: Border.all(color: AppColor.lightGrey200),
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            child: Center(
+                              child:
+                                  userProfilePic != null
+                                      ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(50),
+                                        child: Image.network(
+                                          userProfilePic,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (
+                                            context,
+                                            error,
+                                            stackTrace,
+                                          ) {
+                                            return Icon(
+                                              Icons.person,
+                                              color: AppColor.lightGrey200,
+                                            );
+                                          },
+                                        ),
+                                      )
+                                      : Icon(
+                                        Icons.person,
+                                        color: AppColor.lightGrey200,
+                                      ),
+                            ),
+                          ),
                         ),
-                        child: Center(
-                          child:
-                              userProfilePic != null
-                                  ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(50),
-                                    child: Image.network(
-                                      userProfilePic,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (
-                                        context,
-                                        error,
-                                        stackTrace,
-                                      ) {
-                                        return Icon(
-                                          Icons.person,
-                                          color: AppColor.lightGrey200,
-                                        );
-                                      },
-                                    ),
-                                  )
-                                  : Icon(
-                                    Icons.person,
-                                    color: AppColor.lightGrey200,
-                                  ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    userName,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 14),
+                                    child: Icon(
+                                      Icons.messenger_outline,
+                                      color: AppColor.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
                               Text(
-                                userName,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
+                                "Requested on ${DateFormatHelper.ddmmyyyyString(item.pickupDate ?? "")}",
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Divider(
+                          color: Colors.grey.shade200,
+                          thickness: 2,
+                          indent: 12,
+                          endIndent: 12,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 12,
+                            right: 12,
+                            bottom: 8,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              Expanded(
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: SaverOutlineButton(
+                                    isLoading:
+                                        state is RequestAcceptedLoadingState,
+                                    text: "Accept",
+                                    onPressed:
+                                        () => context.read<FoodSwapBloc>().add(
+                                          AcceptedFoodSwapRequestEvent(
+                                            swapId: item.swapedItemId ?? "",
+                                            reciverUid: item.uid ?? "",
+                                            communityBloc:
+                                                context.read<CommunityBloc>(),
+                                          ),
+                                        ),
+                                    borderColor: AppColor.primaryColor,
+                                    textColor: AppColor.primaryColor,
+                                  ),
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(right: 14),
-                                child: Icon(
-                                  Icons.messenger_outline,
-                                  color: AppColor.black,
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: SaverOutlineButton(
+                                    isLoading:
+                                        state
+                                            is FoodSwapRequestDeclinedLoadingState,
+                                    text: "Decline",
+                                    onPressed:
+                                        () => context.read<FoodSwapBloc>().add(
+                                          DeclineFoodSwapEvent(
+                                            reqId: item.reqId ?? 0,
+                                            swapId: item.swapedItemId ?? "",
+                                          ),
+                                        ),
+                                    borderColor: AppColor.red,
+                                    textColor: AppColor.red,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                          Text(
-                            "Requested on ${DateFormatHelper.ddmmyyyyString(item.pickupDate ?? "")}",
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Divider(
-                      color: Colors.grey.shade200,
-                      thickness: 2,
-                      indent: 12,
-                      endIndent: 12,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 12,
-                        right: 12,
-                        bottom: 8,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Expanded(
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: SaverOutlineButton(
-                                text: "Accept",
-                                onPressed: () {},
-                                borderColor: AppColor.primaryColor,
-                                textColor: AppColor.primaryColor,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: SaverOutlineButton(
-                                text: "Decline",
-                                onPressed:
-                                    () => context.read<FoodSwapBloc>().add(
-                                      DeclineFoodSwapEvent(
-                                        reqId: item.reqId ?? 0,
-                                        swapId: item.swapedItemId ?? "",
-                                      ),
-                                    ),
-                                borderColor: AppColor.red,
-                                textColor: AppColor.red,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );

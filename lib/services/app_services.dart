@@ -6,7 +6,7 @@ import 'package:saver_bbk_main/models/users_model.dart';
 
 class Services {
   static String uid = HiveHelper.getUID();
-  static Stream<QuerySnapshot<UserModel>> getUserDetails() {
+  static Stream<QuerySnapshot<UserModel>> getUserDetails({String? uid}) {
     return Collections.users
         .where('uid', isEqualTo: uid)
         .withConverter<UserModel>(

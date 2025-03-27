@@ -64,7 +64,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
       ),
       body: BlocListener<FoodSwapBloc, FoodSwapState>(
         listener: (context, state) {
-          if (state is AcceptFoodSwapSuccessState) {
+          if (state is RequestFoodSwapSuccessState) {
             Navigator.pop(context);
             SaverSnackBar.show(
               context: context,
@@ -72,7 +72,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
               isTrue: true,
             );
           }
-          if (state is AcceptFoodSwapError) {
+          if (state is RequestFoodSwapError) {
             SaverSnackBar.show(
               context: context,
               message: "Failed to send request. Please try again later.",
@@ -150,10 +150,10 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
             padding: const EdgeInsets.only(left: 14, right: 14, bottom: 24),
             child: SaverButton(
               text: "Submit Swap Request",
-              isLoading: state is AcceptFoodSwapLoadingState,
+              isLoading: state is RequestFoodSwapLoadingState,
               onPressed:
                   () => context.read<FoodSwapBloc>().add(
-                    AcceptFoodSwapEvent(
+                    RequestFoodSwapEvent(
                       uid: Services.uid,
                       acceptedSwapItem: selectedItem,
                       pickupDate: selectedDate,

@@ -23,7 +23,6 @@ class FoodSwapPage extends StatefulWidget {
 class _FoodSwapPageState extends State<FoodSwapPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool isPending = true;
   final TextEditingController _searchController = TextEditingController();
   final Stream<List<FoodSwapModel>> _userSwapListStream =
       Services.getUserSwapListStream();
@@ -615,7 +614,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
         child: Column(
           children: [
             _buildItemDetailsRow(items, isPending: true),
-            if (isPending) _buildPendingRequestsSection(index),
+            if (items.status == "P") _buildPendingRequestsSection(index),
           ],
         ),
       ),
@@ -686,7 +685,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildItemHeaderRow(items, isPending),
+              _buildItemHeaderRow(items),
               _buildExpiryDateRow(items),
               _buildLocationAndQuantityRow(items),
             ],
@@ -696,7 +695,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
     );
   }
 
-  Widget _buildItemHeaderRow(FoodSwapModel items, bool isPending) {
+  Widget _buildItemHeaderRow(FoodSwapModel items) {
     return Row(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -710,15 +709,16 @@ class _FoodSwapPageState extends State<FoodSwapPage>
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            color: isPending ? AppColor.lightYellow : AppColor.lightblue,
+            color:
+                items.status == "P" ? AppColor.lightYellow : AppColor.lightblue,
           ),
           height: 27,
           child: Center(
             child: Text(
-              isPending ? "pending" : "available",
+              items.status == "P" ? "Pending" : "Accepted",
               style: TextStyle(
                 fontSize: 12,
-                color: isPending ? AppColor.yellow : AppColor.blue,
+                color: items.status == "P" ? AppColor.yellow : AppColor.blue,
               ),
             ),
           ),

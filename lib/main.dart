@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
 import 'package:saver_bbk_main/modules/food_swap/bloc/food_swap_bloc.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/bloc/kitchen_manager_bloc.dart';
 import 'package:saver_bbk_main/firebase_options.dart';
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
         BlocProvider<ZeroWasteCookingBloc>(
           create: (context) => ZeroWasteCookingBloc(),
         ),
+        BlocProvider<CommunityBloc>(create: (context) => CommunityBloc()),
       ],
       child: MaterialApp(
         title: 'Saver App',
