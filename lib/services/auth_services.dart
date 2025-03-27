@@ -1,31 +1,52 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
+import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
 import 'package:saver_bbk_main/modules/home/home.dart';
-import 'package:saver_bbk_main/modules/login/login.dart';
 import 'package:saver_bbk_main/modules/login/otp/verify_otp.dart';
+import 'package:saver_bbk_main/modules/profile/edit_profile.dart';
 
 class AuthServices {
   static String verId = "";
   static final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
   static void verifyPhoneNumber(BuildContext context, String number) async {
+    showLoadingDialog(context, 'Sending OTP...');
+
     await _firebaseAuth.verifyPhoneNumber(
       phoneNumber: '+91 $number',
       verificationCompleted: (PhoneAuthCredential credential) {
+        Navigator.pop(context);
+
         signInWithPhoneNumber(
           context,
           credential.verificationId!,
           credential.smsCode!,
+          '+91 $number',
         );
       },
       verificationFailed: (FirebaseAuthException e) {
+        Navigator.pop(context);
+
         if (e.code == 'invalid-phone-number') {
-         
+          SaverSnackBar.show(
+            context: context,
+            message: "Invalid phone number format",
+            isTrue: false,
+          );
+        } else {
+          SaverSnackBar.show(
+            context: context,
+            message: "Verification failed: ${e.message}",
+            isTrue: false,
+          );
         }
       },
       codeSent: (String verificationId, int? resendToken) {
+        Navigator.pop(context);
+
         verId = verificationId;
         Navigator.push(
           context,
@@ -36,55 +57,146 @@ class AuthServices {
           ),
         );
       },
-      codeAutoRetrievalTimeout: (String verificationId) {},
+      codeAutoRetrievalTimeout: (String verificationId) {
+        try {
+          Navigator.pop(context);
+        } catch (e) {}
+      },
+      timeout: const Duration(seconds: 60),
     );
   }
 
-  static void logoutApp(BuildContext context) async {
-    await _firebaseAuth.signOut();
-    // ignore: use_build_context_synchronously
-    Navigator.push(context, MaterialPageRoute(builder: (ctx) => LoginPage()));
+  static void submitOtp(BuildContext context, String otp, String phoneNumber) {
+    showLoadingDialog(context, 'Verifying OTP...');
+    signInWithPhoneNumber(context, verId, otp, phoneNumber);
   }
 
-  static void submitOtp(BuildContext context, String otp) {
-    signInWithPhoneNumber(context, verId, otp);
-  }
-
-  static Future<void> signInWithPhoneNumber(
+  static Future signInWithPhoneNumber(
     BuildContext context,
     String verificationId,
     String smsCode,
+    String phoneNumber,
   ) async {
     try {
       final AuthCredential credential = PhoneAuthProvider.credential(
         verificationId: verificationId,
         smsCode: smsCode,
       );
+
       final UserCredential userCredential = await _firebaseAuth
           .signInWithCredential(credential);
-      await HiveHelper.putUID(userCredential.user!.uid);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) {
-            return const MainScreen(currentIndex: 0);
-          },
-        ),
-      );
-      SaverSnackBar.show(
-        context: context,
-        message: "Login Success",
-        isTrue: true,
-      );
+
+      await checkUser(userCredential.user!.uid, context, smsCode, phoneNumber);
     } catch (e) {
+      try {
+        Navigator.pop(context);
+      } catch (dialogError) {}
+
       SaverSnackBar.show(
         context: context,
-        message: "Login Failed",
+        message: "OTP verification failed",
         isTrue: false,
       );
+
       if (kDebugMode) {
-        print("Error: $e");
+        print("Auth Error: $e");
       }
     }
+  }
+
+  static Future checkUser(
+    String uid,
+    BuildContext context,
+    String otp,
+    String phoneNumber,
+  ) async {
+    try {
+      if (!isDialogShowing(context)) {
+        showLoadingDialog(context, 'Checking account...');
+      }
+
+      final querySnapshot =
+          await Collections.users.where('uid', isEqualTo: uid).get();
+      try {
+        Navigator.pop(context);
+      } catch (e) {}
+
+      if (querySnapshot.docs.isNotEmpty) {
+        await HiveHelper.putUID(uid);
+        await HiveHelper.putisGuest(false);
+
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) => const MainScreen(currentIndex: 0),
+          ),
+          (route) => false,
+        );
+
+        SaverSnackBar.show(
+          context: context,
+          message: "Login Success",
+          isTrue: true,
+        );
+      } else {
+        await HiveHelper.putisGuest(false);
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder:
+                (context) =>
+                    EditProfilePage(isEdit: false, phoneNumber: phoneNumber),
+          ),
+          (route) => false,
+        );
+
+        SaverSnackBar.show(
+          context: context,
+          message: "Welcome! Please complete your profile",
+          isTrue: true,
+        );
+      }
+    } catch (e) {
+      try {
+        Navigator.pop(context);
+      } catch (dialogError) {}
+
+      SaverSnackBar.show(
+        context: context,
+        message: "Error checking user profile",
+        isTrue: false,
+      );
+
+      if (kDebugMode) {
+        print("Database Error: $e");
+      }
+    }
+  }
+
+  static void showLoadingDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.lightGreen),
+                ),
+                const SizedBox(height: 20),
+                Text(message, style: const TextStyle(fontSize: 16)),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  static bool isDialogShowing(BuildContext context) {
+    return ModalRoute.of(context)?.isCurrent != true;
   }
 }

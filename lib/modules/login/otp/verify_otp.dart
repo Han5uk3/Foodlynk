@@ -22,6 +22,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   bool hasError = false;
   int resendSeconds = 30;
   Timer? _timer;
+  bool isVerifying = false;
 
   @override
   void initState() {
@@ -38,7 +39,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   void startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (resendSeconds > 0) {
         setState(() {
           resendSeconds--;
@@ -50,11 +51,30 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   void resendOTP() {
-    // Implement your OTP resend logic here
+    setState(() {
+      isVerifying = true;
+    });
+
+    AuthServices.verifyPhoneNumber(context, widget.phoneNumber);
+
     setState(() {
       resendSeconds = 30;
+      isVerifying = false;
     });
     startTimer();
+  }
+
+  void verifyOTP() {
+    if (otpController.text.length != 6) {
+      errorController?.add(ErrorAnimationType.shake);
+      SaverSnackBar.show(
+        context: context,
+        message: "Please enter valid 6-digit OTP",
+        isTrue: false,
+      );
+    } else {
+      AuthServices.submitOtp(context, otpController.text, widget.phoneNumber);
+    }
   }
 
   @override
@@ -68,21 +88,21 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               RichText(
                 text: TextSpan(
                   text: 'OTP has been sent to ',
-                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                  style: const TextStyle(color: Colors.grey, fontSize: 16),
                   children: [
                     TextSpan(
                       text: widget.phoneNumber,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
-                    TextSpan(
+                    const TextSpan(
                       text: ' ✓',
                       style: TextStyle(
                         color: Colors.green,
@@ -93,7 +113,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               Form(
                 child: PinCodeTextField(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -109,18 +129,18 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     activeFillColor: Colors.white,
                     inactiveFillColor: Colors.white,
                     selectedFillColor: Colors.white,
-                    activeColor: Color(0xFFD9D9D9),
-                    inactiveColor: Color(0xFFD9D9D9),
-                    selectedColor: Color(0xFF383838),
+                    activeColor: const Color(0xFFD9D9D9),
+                    inactiveColor: const Color(0xFFD9D9D9),
+                    selectedColor: const Color(0xFF383838),
                   ),
                   cursorColor: Colors.black,
-                  animationDuration: Duration(milliseconds: 300),
+                  animationDuration: const Duration(milliseconds: 300),
                   enableActiveFill: true,
                   errorAnimationController: errorController,
                   controller: otpController,
                   keyboardType: TextInputType.number,
                   onCompleted: (v) {
-                    AuthServices.submitOtp(context, otpController.text);
+                    verifyOTP();
                   },
                   onChanged: (value) {
                     setState(() {
@@ -128,12 +148,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     });
                   },
                   beforeTextPaste: (text) {
-                    // Return true if you want to allow pasting
                     return true;
                   },
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               GestureDetector(
                 onTap: resendSeconds > 0 ? null : resendOTP,
                 child: Text(
@@ -141,29 +160,16 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       ? "Resend OTP in 00:${resendSeconds.toString().padLeft(2, '0')} s"
                       : "Resend OTP",
                   style: TextStyle(
-                    color: Colors.lightGreen,
+                    color: resendSeconds > 0 ? Colors.grey : Colors.lightGreen,
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
                 ),
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               SizedBox(
                 width: double.infinity,
-                child: SaverButton(
-                  text: "Verify",
-                  onPressed: () {
-                    if (otpController.text.length != 6) {
-                      SaverSnackBar.show(
-                        context: context,
-                        message: "Please enter valid OTP",
-                        isTrue: false,
-                      );
-                    } else {
-                      AuthServices.submitOtp(context, otpController.text);
-                    }
-                  },
-                ),
+                child: SaverButton(text: "Verify", onPressed: verifyOTP),
               ),
             ],
           ),

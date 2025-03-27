@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:saver_bbk_main/modules/community/community_page.dart';
+import 'package:saver_bbk_main/modules/food_share/food_share_home_page.dart';
+import 'package:saver_bbk_main/modules/food_swap/food_swap_page.dart';
 import 'package:saver_bbk_main/modules/home/home_page.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/kitchen_manager.dart';
+import 'package:saver_bbk_main/modules/notifications/notifications_page.dart';
 import 'package:saver_bbk_main/modules/profile/profile_page.dart';
+import 'package:saver_bbk_main/modules/smart_shopping_list/smart_shopping_list_home.dart';
 import 'package:saver_bbk_main/modules/zero_waste_challenges/zero_waste_challenges.dart';
+import 'package:saver_bbk_main/modules/zero_waste_cooking/zero_waste_cooking_page.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class MainScreen extends StatefulWidget {
@@ -47,15 +53,15 @@ class _MainScreenState extends State<MainScreen> {
         case 1:
           return KitchenManager(onBack: goBack);
         case 2:
-          return Page3(onBack: goBack);
+          return SmartShoppingHome(onBack: goBack);
         case 3:
-          return Page4(onBack: goBack);
+          return FoodShareHomePage(onBack: goBack);
         case 4:
-          return Page5(onBack: goBack);
+          return FoodSwapPage(onBack: goBack);
         case 5:
           return Page6(onBack: goBack);
         case 6:
-          return Page7(onBack: goBack);
+          return ZeroWasteCookingPage(onBack: goBack);
         default:
           return HomePage(onGridTap: onGridTap);
       }
@@ -65,9 +71,9 @@ class _MainScreenState extends State<MainScreen> {
       case 0:
         return HomePage(onGridTap: onGridTap);
       case 1:
-        return const CommunityScreen();
+        return CommunityPage();
       case 2:
-        return const NotificationScreen();
+        return NotificationsPage();
       case 3:
         return const ProfilePage();
       default:
@@ -108,16 +114,11 @@ class _MainScreenState extends State<MainScreen> {
             showUnselectedLabels: true,
             type: BottomNavigationBarType.fixed,
             items: [
-              _bottomNavBarItem(
-                0,
-                Icons.home_filled,
-                Icons.home_outlined,
-                'Home',
-              ),
+              _bottomNavBarItem(0, Icons.home, Icons.home_outlined, 'Home'),
               _bottomNavBarItem(
                 1,
-                Icons.group,
-                Icons.group_outlined,
+                Icons.forum,
+                Icons.forum_outlined,
                 'Community',
               ),
               _bottomNavBarItem(
@@ -128,8 +129,8 @@ class _MainScreenState extends State<MainScreen> {
               ),
               _bottomNavBarItem(
                 3,
-                Icons.person,
-                Icons.person_outline,
+                Icons.account_circle,
+                Icons.account_circle_outlined,
                 'Profile',
               ),
             ],
@@ -172,7 +173,7 @@ class NotificationScreen extends StatelessWidget {
 
 class Page1 extends StatelessWidget {
   final VoidCallback onBack;
-  const Page1({Key? key, required this.onBack}) : super(key: key);
+  const Page1({super.key, required this.onBack});
 
   @override
   Widget build(BuildContext context) {
@@ -182,7 +183,7 @@ class Page1 extends StatelessWidget {
 
 class Page2 extends StatelessWidget {
   final VoidCallback onBack;
-  const Page2({Key? key, required this.onBack}) : super(key: key);
+  const Page2({super.key, required this.onBack});
 
   @override
   Widget build(BuildContext context) {
@@ -192,7 +193,7 @@ class Page2 extends StatelessWidget {
 
 class Page3 extends StatelessWidget {
   final VoidCallback onBack;
-  const Page3({Key? key, required this.onBack}) : super(key: key);
+  const Page3({super.key, required this.onBack});
 
   @override
   Widget build(BuildContext context) {
@@ -202,7 +203,7 @@ class Page3 extends StatelessWidget {
 
 class Page4 extends StatelessWidget {
   final VoidCallback onBack;
-  const Page4({Key? key, required this.onBack}) : super(key: key);
+  const Page4({super.key, required this.onBack});
 
   @override
   Widget build(BuildContext context) {
@@ -212,7 +213,7 @@ class Page4 extends StatelessWidget {
 
 class Page5 extends StatelessWidget {
   final VoidCallback onBack;
-  const Page5({Key? key, required this.onBack}) : super(key: key);
+  const Page5({super.key, required this.onBack});
 
   @override
   Widget build(BuildContext context) {
@@ -222,7 +223,7 @@ class Page5 extends StatelessWidget {
 
 class Page6 extends StatelessWidget {
   final VoidCallback onBack;
-  const Page6({Key? key, required this.onBack}) : super(key: key);
+  const Page6({super.key, required this.onBack});
 
   @override
   Widget build(BuildContext context) {
@@ -232,7 +233,7 @@ class Page6 extends StatelessWidget {
 
 class Page7 extends StatelessWidget {
   final VoidCallback onBack;
-  const Page7({Key? key, required this.onBack}) : super(key: key);
+  const Page7({super.key, required this.onBack});
 
   @override
   Widget build(BuildContext context) {

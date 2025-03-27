@@ -1,30 +1,43 @@
 import 'dart:io';
-
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:number_selector/number_selector.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
+import 'package:saver_bbk_main/common_widget/calender.dart';
+import 'package:saver_bbk_main/common_widget/date_compare.dart';
 import 'package:saver_bbk_main/common_widget/dropdown.dart';
 import 'package:saver_bbk_main/common_widget/image_picker.dart';
 import 'package:saver_bbk_main/common_widget/label.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
+import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/text_field.dart';
+import 'package:saver_bbk_main/modules/kitchen_management/bloc/kitchen_manager_bloc.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class AddItem extends StatefulWidget {
-  const AddItem({super.key});
-
+  const AddItem({super.key, required this.isEdit, this.dateString});
+  final String? dateString;
+  final bool isEdit;
   @override
   State<AddItem> createState() => _AddItemState();
 }
 
 class _AddItemState extends State<AddItem> {
   TextEditingController itemNameController = TextEditingController();
-  String selectedItem = "";
+  String? selectedUnit;
+  int numberOfQuantity = 0;
   String selectedCategory = "";
-  String date = "DD/MM/YYYY";
-  DateTime initialDate = DateTime.now();
+  DateTime selectedExpiryDate = DateTime.now();
+  bool _isLoading = false;
 
-  List<String> items = ["Kg", "Pcs", "ml", "Ltr", "gm", "Nos"];
+  void _onDatePicked(DateTime date) {
+    setState(() {
+      selectedExpiryDate = date;
+    });
+  }
+
+  List<String> unit = ["Kg", "Pcs", "ml", "Ltr", "gm", "Nos"];
   List<String> category = [
     "Dairy",
     "Meat",
@@ -42,229 +55,432 @@ class _AddItemState extends State<AddItem> {
     });
   }
 
-  int value = 0;
   @override
   Widget build(BuildContext context) {
+    int days = 0;
+    widget.isEdit
+        ? days = getDateDifferenceNumber(widget.dateString!)
+        : days = 0;
+
     return Scaffold(
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
-        child: SaverButton(text: "Add Item", onPressed: () {}),
-      ),
       appBar: saverAppBar(
-        "Add Item",
+        widget.isEdit ? "Edit Item" : "Add Item",
         context,
         isneedtopop: true,
         iswhite: true,
       ),
-      body: SingleChildScrollView(
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: Column(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Label(text: "Item Name", style: TextStyle(fontSize: 16)),
-                      SizedBox(height: 5),
-                      SaverTextField(
-                        hintText: "Enter Item Name",
-                        controller: itemNameController,
-                      ),
-                      SizedBox(height: 20),
-                      Label(text: "Quantity", style: TextStyle(fontSize: 16)),
-                      SizedBox(height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        spacing: 30,
-                        children: [
-                          IntrinsicWidth(
-                            child: SaverDropdown(
-                              items: items,
-                              selectedItem: selectedItem,
-                              hint: "Choose",
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedItem = value!;
-                                });
-                              },
-                            ),
-                          ),
-                          Expanded(
-                            child: NumberSelector.plain(
-                              hasBorder: true,
-                              showMinMax: false,
-                              min: 0,
-                              decrementIcon: Icons.remove,
-                              iconColor: Colors.black,
-                              borderRadius: 6,
-                              borderColor: Colors.grey.shade300,
-                              backgroundColor: AppColor.white,
-                              current: value,
-                              onUpdate: (newValue) {
-                                // Invert the logic: treat increase as decrease and vice versa
-                                setState(() {
-                                  value = newValue;
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                      Label(text: "Category", style: TextStyle(fontSize: 16)),
-                      SizedBox(height: 5),
-                      SaverDropdown(
-                        items: category,
-                        selectedItem: selectedCategory,
-                        hint: "Choose",
-                        onChanged: (value) {
-                          setState(() {
-                            selectedCategory = value!;
-                          });
-                        },
-                      ),
-                      SizedBox(height: 20),
-                      Label(
-                        text: "Expiry Date",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      SizedBox(height: 5),
-                      Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 12),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                date,
-                                style: TextStyle(
-                                  color: Colors.grey.shade400,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () async {
-                                  DateTime? pickedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: initialDate,
-                                    firstDate: DateTime(2000),
-                                    barrierDismissible: false,
-                                    lastDate: DateTime(2100),
-                                    builder: (context, child) {
-                                      return Theme(
-                                        data: Theme.of(context).copyWith(
-                                          colorScheme: ColorScheme.light(
-                                            primary: AppColor.green,
-                                            surface: AppColor.white,
-                                          ),
-                                        ),
-                                        child: child!,
-                                      );
-                                    },
-                                  );
+      body: BlocListener<KitchenManagerBloc, KitchenManagerState>(
+        listener: (context, state) {
+          if (state is AddNewStateLoading) {
+            setState(() {
+              _isLoading = state.isLoading;
+            });
+          }
 
-                                  if (pickedDate != null) {
-                                    setState(() {
-                                      date =
-                                          "${pickedDate.day.toString()}/${pickedDate.month.toString()}/${pickedDate.year.toString()}";
-                                      initialDate = pickedDate;
-                                    });
-                                  }
-                                },
-                                icon: Icon(
-                                  Icons.calendar_month_outlined,
-                                  color: AppColor.black,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      Label(
-                        text: "Upload Image",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      SizedBox(height: 5),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12, bottom: 12),
-                        child: Row(
-                          children: [
-                            if (_imageFile != null)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 12),
-                                child: IntrinsicWidth(
-                                  child: IntrinsicHeight(
-                                    child: Stack(
+          if (state is AddNewStateSuccess) {
+            Navigator.pop(context);
+            SaverSnackBar.shower(
+              context: context,
+              message: "New Item Added to Kitchen",
+              isTrue: true,
+            );
+          }
+
+          if (state is AddNewStateError) {
+            Navigator.pop(context);
+            SaverSnackBar.shower(
+              context: context,
+              message: state.errorMessage,
+              isTrue: false,
+            );
+          }
+        },
+        child: SingleChildScrollView(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        widget.isEdit
+                            ? Column(
+                              children: [
+                                Container(
+                                  height: 45,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color:
+                                          days < 0
+                                              ? AppColor.red
+                                              : days >= 0 && days < 3
+                                              ? AppColor.yellow
+                                              : AppColor.green,
+                                    ),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(12),
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 2,
+                                      vertical: 10,
+                                    ),
+                                    child: Row(
+                                      spacing: 2,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
-                                        SizedBox(
-                                          height: 100,
-                                          width: 100,
-                                          child: Center(
-                                            child: Container(
-                                              height: 90,
-                                              width: 90,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                                image: DecorationImage(
-                                                  image: FileImage(_imageFile!),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
+                                        Icon(
+                                          days < 0
+                                              ? Icons.sentiment_neutral_outlined
+                                              : days >= 0 && days < 3
+                                              ? Icons
+                                                  .sentiment_satisfied_alt_outlined
+                                              : Icons
+                                                  .sentiment_very_satisfied_outlined,
+                                          size: 18,
+                                          color:
+                                              days < 0
+                                                  ? AppColor.red
+                                                  : days >= 0 && days < 3
+                                                  ? AppColor.yellow
+                                                  : AppColor.green,
                                         ),
-                                        Align(
-                                          alignment: Alignment.topRight,
-                                          child: Positioned(
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                setState(() {
-                                                  _imageFile = null;
-                                                });
-                                              },
-                                              child: CircleAvatar(
-                                                radius: 10,
-                                                backgroundColor: Colors.white,
-                                                child: Center(
-                                                  child: Icon(
-                                                    Icons.close,
-                                                    color: AppColor.black,
-                                                    size: 15,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
+                                        Text(
+                                          getDateDifferenceMessage(
+                                            widget.dateString!,
+                                          ),
+                                          style: TextStyle(
+                                            color:
+                                                days < 0
+                                                    ? AppColor.red
+                                                    : days >= 0 && days < 3
+                                                    ? AppColor.yellow
+                                                    : AppColor.green,
+                                            fontSize: 12,
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
                                 ),
+                                SizedBox(height: 20),
+                              ],
+                            )
+                            : SizedBox.shrink(),
+
+                        Label(
+                          text: "Item Name",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        SizedBox(height: 5),
+                        IgnorePointer(
+                          ignoring: widget.isEdit,
+                          child: SaverTextField(
+                            hintText: "Enter Item Name",
+                            controller: itemNameController,
+                            validator: _validateItemName,
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        Label(text: "Quantity", style: TextStyle(fontSize: 16)),
+                        SizedBox(height: 5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: 30,
+                          children: [
+                            IntrinsicWidth(
+                              child: SaverDropdown(
+                                items: unit,
+                                selectedItem: selectedUnit ?? "",
+                                isView: widget.isEdit,
+                                hint: "Choose",
+                                onChanged:
+                                    widget.isEdit
+                                        ? (value) {
+                                          null;
+                                        }
+                                        : (value) {
+                                          setState(() {
+                                            selectedUnit = value!;
+                                          });
+                                        },
                               ),
-                            ImagePickerButton(onImageSelected: _setImage),
+                            ),
+                            Expanded(
+                              child: IgnorePointer(
+                                ignoring: widget.isEdit,
+                                child: NumberSelector.plain(
+                                  hasBorder: true,
+                                  showMinMax: false,
+                                  min: 1,
+                                  iconColor: Colors.grey.shade500,
+                                  borderRadius: 6,
+                                  borderColor: Colors.grey.shade300,
+                                  backgroundColor: AppColor.white,
+                                  current: numberOfQuantity,
+                                  onUpdate: (newValue) {
+                                    setState(() {
+                                      numberOfQuantity = newValue;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 20),
+                        Label(text: "Category", style: TextStyle(fontSize: 16)),
+                        SizedBox(height: 5),
+                        SaverDropdown(
+                          items: category,
+                          selectedItem: selectedCategory,
+                          isView: widget.isEdit,
+                          hint: "Choose",
+                          onChanged: (value) {
+                            setState(() {
+                              selectedCategory = value!;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 20),
+                        Label(
+                          text: "Expiry Date",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        SizedBox(height: 5),
+                        ShowCalendar(
+                          isEdit: widget.isEdit,
+                          restrictBackDates: true,
+                          initialDate: selectedExpiryDate,
+                          onDatePicked: _onDatePicked,
+                        ),
+                        SizedBox(height: 20),
+                        Label(
+                          text: "Upload Image",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        SizedBox(height: 5),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 12, bottom: 12),
+                          child:
+                              widget.isEdit
+                                  ? DottedBorder(
+                                    borderType: BorderType.RRect,
+                                    radius: Radius.circular(12),
+                                    dashPattern: [6, 3],
+                                    strokeWidth: 2,
+                                    color: Colors.grey.shade400,
+                                    child: SizedBox(
+                                      height: 80,
+                                      width: 80,
+                                      child: Center(
+                                        child: Icon(
+                                          size: 40,
+                                          Icons.add_photo_alternate_outlined,
+                                          color: Colors.grey.shade400,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  : Row(
+                                    children: [
+                                      if (_imageFile != null)
+                                        Stack(
+                                          children: [
+                                            SizedBox(
+                                              height: 100,
+                                              width: 100,
+                                              child: Center(
+                                                child: Container(
+                                                  height: 90,
+                                                  width: 90,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                    image: DecorationImage(
+                                                      image: FileImage(
+                                                        _imageFile!,
+                                                      ),
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Positioned(
+                                              child: SizedBox(
+                                                width: 100,
+                                                child: Align(
+                                                  alignment: Alignment.topRight,
+                                                  child: GestureDetector(
+                                                    onTap:
+                                                        widget.isEdit
+                                                            ? null
+                                                            : () {
+                                                              setState(() {
+                                                                _imageFile =
+                                                                    null;
+                                                              });
+                                                            },
+                                                    child: CircleAvatar(
+                                                      radius: 10,
+                                                      backgroundColor:
+                                                          Colors.white70,
+                                                      child: Center(
+                                                        child: Icon(
+                                                          Icons.close,
+                                                          color: AppColor.black,
+                                                          size: 15,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      _imageFile == null
+                                          ? widget.isEdit
+                                              ? SizedBox()
+                                              : ImagePickerButton(
+                                                isFood: false,
+                                                onImageSelected: _setImage,
+                                              )
+                                          : SizedBox(),
+                                    ],
+                                  ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
+      bottomNavigationBar:
+          widget.isEdit
+              ? Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 20,
+                ),
+                child: _editItemButton(),
+              )
+              : Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 20,
+                ),
+                child: SizedBox(
+                  height: 40,
+                  child: SaverButton(
+                    isLoading: _isLoading,
+                    text: "Add Item",
+                    onPressed: () {
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      if (itemNameController.text.isEmpty) {
+                        SaverSnackBar.show(
+                          context: context,
+                          message: "Please enter item name",
+                          isTrue: false,
+                        );
+                        setState(() {
+                          _isLoading = false;
+                        });
+                        return;
+                      } else if (selectedUnit == null) {
+                        SaverSnackBar.show(
+                          context: context,
+                          message: "Please select a unit type",
+                          isTrue: false,
+                        );
+                        setState(() {
+                          _isLoading = false;
+                        });
+                        return;
+                      } else if (numberOfQuantity == 0) {
+                        SaverSnackBar.show(
+                          context: context,
+                          message: "Please enter quantity",
+                          isTrue: false,
+                        );
+                        setState(() {
+                          _isLoading = false;
+                        });
+                        return;
+                      } else if (selectedCategory == "") {
+                        SaverSnackBar.show(
+                          context: context,
+                          message: "Please select a category",
+                          isTrue: false,
+                        );
+                        setState(() {
+                          _isLoading = false;
+                        });
+                        return;
+                      }
+
+                      // Show loading inside the button
+
+                      context.read<KitchenManagerBloc>().add(
+                        AddNewItemEvent(
+                          itemName: itemNameController.text,
+                          category: selectedCategory,
+                          unitName: selectedUnit ?? "",
+                          quantity: numberOfQuantity,
+                          expiredDate: selectedExpiryDate,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
     );
+  }
+
+  Widget _editItemButton() {
+    return Row(
+      spacing: 20,
+      children: [
+        Expanded(
+          child: SaverButton(text: "Move to Shopping List", onPressed: () {}),
+        ),
+        Expanded(
+          child: SaverButton(
+            text: "Remove from list",
+            onPressed: () {},
+            color: AppColor.red,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String? _validateItemName(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Item name can't be empty";
+    }
+
+    final RegExp itemRegExp = RegExp(r'^[a-zA-Z]+$');
+    if (!itemRegExp.hasMatch(value)) {
+      return "Item name must start with a letter";
+    }
+    return null;
   }
 }

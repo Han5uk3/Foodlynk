@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
+import 'package:saver_bbk_main/helpers/hive_helper.dart';
+import 'package:saver_bbk_main/modules/home/home.dart';
 import 'package:saver_bbk_main/services/auth_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
@@ -15,6 +17,15 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _phoneController = TextEditingController();
   bool _isChecked = false;
+  bool isVerifying = false;
+
+  void _continueAsGuest() {
+    HiveHelper.putisGuest(true);
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => MainScreen(currentIndex: 0)),
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,8 +92,10 @@ class _LoginPageState extends State<LoginPage> {
             ),
             child: TextField(
               controller: _phoneController,
+              maxLength: 10,
               keyboardType: TextInputType.phone,
               decoration: const InputDecoration(
+                counterText: "",
                 hintText: 'Enter 10 digit mobile number',
                 prefixText: '+91 - ',
                 border: InputBorder.none,
@@ -140,14 +153,20 @@ class _LoginPageState extends State<LoginPage> {
               Expanded(
                 child: SaverButton(
                   onPressed: () {
-                    if (_phoneController.text.length == 10 &&
+                    if ((_phoneController.text.length == 10 &&
                         RegExp(
                           r'^[0-9]{10}$',
-                        ).hasMatch(_phoneController.text)) {
-                      AuthServices.verifyPhoneNumber(
-                        context,
-                        _phoneController.text,
-                      );
+                        ).hasMatch(_phoneController.text))) {
+                      _isChecked
+                          ? AuthServices.verifyPhoneNumber(
+                            context,
+                            _phoneController.text,
+                          )
+                          : SaverSnackBar.show(
+                            context: context,
+                            message: "Please accept our terms and conditions",
+                            isTrue: false,
+                          );
                     } else {
                       SaverSnackBar.show(
                         context: context,
@@ -176,7 +195,7 @@ class _LoginPageState extends State<LoginPage> {
 
           Center(
             child: GestureDetector(
-              onTap: () {},
+              onTap: _continueAsGuest,
               child: const Text(
                 'Continue as Guest',
                 style: TextStyle(color: AppColor.primaryColor),

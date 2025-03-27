@@ -3,6 +3,7 @@ import 'package:saver_bbk_main/common_widget/label.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/modules/home/widgets/coins.dart';
 import 'package:saver_bbk_main/modules/home/widgets/home_banner.dart';
+import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class HomePage extends StatefulWidget {
@@ -53,7 +54,7 @@ class _HomePageState extends State<HomePage> {
     },
     {
       "id": 7,
-      "name": "Waste-Free Cooking",
+      "name": "Zero Waste Cooking",
       "image": "waste free cooking.svg",
       "color": 0xFFFAF0FA,
     },
@@ -85,7 +86,6 @@ class _HomePageState extends State<HomePage> {
 
   Widget gridItem(int index) {
     return GestureDetector(
-      // FIXED: Wrap the callback in a function instead of calling it directly
       onTap: () {
         widget.onGridTap(index);
       },
@@ -133,7 +133,12 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () {},
                 icon: Icon(Icons.language, color: AppColor.white),
               ),
-              Coins(coins: 5),
+              StreamBuilder<int>(
+                stream: Services.getUserPointsStream(),
+                builder: (context, snapshot) {
+                  return Coins(coins: snapshot.data ?? 0);
+                },
+              ),
             ],
           ),
         ],

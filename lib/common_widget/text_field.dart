@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class SaverTextField extends StatelessWidget {
   final String hintText;
   final TextEditingController controller;
   final bool isPassword;
+  final List<TextInputFormatter> inputFormatters;
   final TextInputType keyboardType;
   final IconData? prefixIcon;
   final IconData? suffixIcon;
@@ -14,22 +16,28 @@ class SaverTextField extends StatelessWidget {
   final Color suffixIconColor;
   final double borderRadius;
   final FocusNode? focus;
+  final int minLines;
+  final int maxlines;
   final VoidCallback? onEditingComplete;
   final String? Function(String?)? validator;
 
   const SaverTextField({
     super.key,
     required this.hintText,
+
     required this.controller,
+    this.inputFormatters = const [],
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
     this.prefixIcon,
     this.focus,
+    this.maxlines = 1,
     this.onEditingComplete,
     this.prefixIconColor = AppColor.lightGrey,
     this.suffixIcon,
-    this.suffixIconColor=AppColor.lightGrey,
+    this.suffixIconColor = AppColor.lightGrey,
     this.validator,
+    this.minLines = 1,
     this.onSuffixTap,
     this.borderColor = AppColor.lightGrey,
     this.borderRadius = 7.0,
@@ -38,17 +46,22 @@ class SaverTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      minLines: minLines,
+      maxLines: maxlines,
       focusNode: focus,
       onEditingComplete: onEditingComplete,
       controller: controller,
       obscureText: isPassword,
       keyboardType: keyboardType,
       validator: validator,
+      inputFormatters: inputFormatters,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(color: AppColor.lightGrey200),
         prefixIcon:
-            prefixIcon != null ? Icon(prefixIcon, color: prefixIconColor) : null,
+            prefixIcon != null
+                ? Icon(prefixIcon, color: prefixIconColor)
+                : null,
         suffixIcon:
             suffixIcon != null
                 ? GestureDetector(
