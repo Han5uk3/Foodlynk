@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
 import 'package:saver_bbk_main/models/food_swap_model.dart';
@@ -6,7 +7,7 @@ import 'package:saver_bbk_main/models/users_model.dart';
 
 class Services {
   static String uid = HiveHelper.getUID();
-  static Stream<QuerySnapshot<UserModel>> getUserDetails() {
+  static Stream<QuerySnapshot<UserModel>> getUserDetails({String? uid}) {
     return Collections.users
         .where('uid', isEqualTo: uid)
         .withConverter<UserModel>(
@@ -135,5 +136,15 @@ class Services {
         return [];
       }
     });
+  }
+
+  static Future<void> updateFCMToken(String token) async {
+    try {
+      return Collections.users.doc(uid).update({'fcmToken': token});
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error updating FCM token: $e');
+      }
+    }
   }
 }

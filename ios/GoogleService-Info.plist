@@ -32,5 +32,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:97691650237:ios:49e46ddb9440f95a2a4fd4</string>
+	<key>DATABASE_URL</key>
+	<string>https://saver-app-2ae53-default-rtdb.firebaseio.com</string>
 </dict>
 </plist>

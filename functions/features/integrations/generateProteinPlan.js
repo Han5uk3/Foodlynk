@@ -1,14 +1,6 @@
-const express = require("express");
-const dotenv = require("dotenv");
-const cors = require("cors");
-const functions = require("firebase-functions");
-const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: true }));
-const GeminiAIService = require("./Gemini_Ai");
+const GeminiAIService = require("../Ai/Gemini_Ai");
 
-async function generateProteinPlan(req, res) {
+exports.generateProteinPlan = async (req, res) => {
   const {
     whatAreYouCooking,
     toWhomAreYouCooking,
@@ -129,6 +121,4 @@ Only return the JSON response without any other text or explanation.
       details: error.message,
     });
   }
-}
-
-module.exports = generateProteinPlan;
+};

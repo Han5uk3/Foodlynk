@@ -9,6 +9,7 @@ class UserModel {
   final String? phoneNumber;
   final String? address;
   final String? gender;
+  final String? fcmToken;
   final Timestamp? dob;
   final String? nationality;
   final String? country;
@@ -25,6 +26,7 @@ class UserModel {
     this.uid,
     this.title,
     this.firstName,
+    this.fcmToken,
     this.lastName,
     this.email,
     this.phoneNumber,
@@ -62,6 +64,7 @@ class UserModel {
       uid: data['uid'] ?? '',
       title: data['title'] ?? '',
       firstName: data['firstName'] ?? '',
+      fcmToken: data['fcmToken'] ?? '',
       lastName: data['lastName'] ?? '',
       email: data['email'] ?? '',
       phoneNumber: data['phoneNumber'] ?? '',
@@ -90,6 +93,7 @@ class UserModel {
       'uid': uid,
       'title': title,
       'firstName': firstName,
+      'fcmToken': fcmToken,
       'lastName': lastName,
       'email': email,
       'phoneNumber': phoneNumber,
@@ -117,6 +121,7 @@ class UserModel {
       'uid': uid,
       'title': title,
       'firstName': firstName,
+      'fcmToken': fcmToken,
       'lastName': lastName,
       'email': email,
       'phoneNumber': phoneNumber,
@@ -130,7 +135,7 @@ class UserModel {
       'zipCode': zipCode,
       'points': points,
       'kitchenItems': kitchenItems?.map((item) => item).toList() ?? [],
-     'addedItemQuantityCount': monthlyItemQuantityAddedCount,
+      'addedItemQuantityCount': monthlyItemQuantityAddedCount,
       'noOfQuantityRemoved': monthlyItemQuantityRemovedCount,
       'createdAt': createdAt?.toIso8601String(),
     };
@@ -153,6 +158,7 @@ class UserModel {
       uid: json['uid'] ?? '',
       title: json['title'] ?? '',
       firstName: json['firstName'] ?? '',
+      fcmToken: json['fcmToken'] ?? '',
       lastName: json['lastName'] ?? '',
       email: json['email'] ?? '',
       phoneNumber: json['phoneNumber'] ?? '',
@@ -202,9 +208,10 @@ class Items {
       category: map['category'] as String? ?? '',
       quantity: (map['quantity'] as num?)?.toInt() ?? 0,
       unit: map['unit'] as String? ?? '',
-      expiredDate: map['expiredDate'] is Timestamp
-          ? (map['expiredDate'] as Timestamp).toDate() 
-          : DateTime.tryParse(map['expiredDate'] ?? '') ?? DateTime.now(),
+      expiredDate:
+          map['expiredDate'] is Timestamp
+              ? (map['expiredDate'] as Timestamp).toDate()
+              : DateTime.tryParse(map['expiredDate'] ?? '') ?? DateTime.now(),
     );
   }
 

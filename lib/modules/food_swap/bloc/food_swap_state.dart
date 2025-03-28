@@ -50,27 +50,50 @@ class DeleteFromFoodSwapError extends FoodSwapState {
 
 class DeleteFromFoodSwapSuccessState extends FoodSwapState {}
 
-class AcceptFoodSwapLoadingState extends FoodSwapState {
+class RequestFoodSwapLoadingState extends FoodSwapState {
   final bool isLoading;
-  const AcceptFoodSwapLoadingState({required this.isLoading});
+  const RequestFoodSwapLoadingState({required this.isLoading});
   @override
   List<Object> get props => [isLoading];
 }
 
-class AcceptFoodSwapError extends FoodSwapState {
+class RequestFoodSwapError extends FoodSwapState {
   final String errorMessage;
-  const AcceptFoodSwapError({required this.errorMessage});
+  const RequestFoodSwapError({required this.errorMessage});
   @override
   List<Object> get props => [errorMessage];
 }
 
-class AcceptFoodSwapSuccessState extends FoodSwapState {}
+class RequestFoodSwapSuccessState extends FoodSwapState {}
+
+class FoodSwapRequestDeclinedLoadingState extends FoodSwapState {}
 
 class FoodSwapRequestDeclainedSuccessState extends FoodSwapState {}
 
 class FoodSwapRequestDeclinedError extends FoodSwapState {
   final String errorMessage;
   const FoodSwapRequestDeclinedError({required this.errorMessage});
+  @override
+  List<Object> get props => [errorMessage];
+}
+
+class RequestAcceptedLoadingState extends FoodSwapState {
+  final bool isLoading;
+  const RequestAcceptedLoadingState({required this.isLoading});
+  @override
+  List<Object> get props => [isLoading];
+}
+
+class RequestAcceptedSuccessState extends FoodSwapState {
+  final String reciverUID;
+  const RequestAcceptedSuccessState({required this.reciverUID});
+  @override
+  List<Object> get props => [reciverUID];
+}
+
+class RequestAcceptedError extends FoodSwapState {
+  final String errorMessage;
+  const RequestAcceptedError({required this.errorMessage});
   @override
   List<Object> get props => [errorMessage];
 }

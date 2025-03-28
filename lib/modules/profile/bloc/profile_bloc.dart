@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
+import 'package:saver_bbk_main/services/app_services.dart';
 
 part 'profile_event.dart';
 part 'profile_state.dart';
@@ -21,7 +22,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     try {
       emit(LogoutStateLoading(isLoading: true));
       await FirebaseAuth.instance.signOut();
+      Services.uid = "";
       await HiveHelper.removeUID();
+      await HiveHelper.removeIsGuest();
       emit(LogoutStateSuccess());
     } catch (e) {
       emit(LogoutStateError(errorMessage: e.toString()));

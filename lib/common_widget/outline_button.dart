@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saver_bbk_main/common_widget/loader.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class SaverOutlineButton extends StatelessWidget {
@@ -9,6 +10,7 @@ class SaverOutlineButton extends StatelessWidget {
   final double borderRadius;
   final double padding;
   final TextStyle? style;
+  final bool? isLoading;
 
   const SaverOutlineButton({
     super.key,
@@ -19,6 +21,7 @@ class SaverOutlineButton extends StatelessWidget {
     this.borderRadius = 8.0,
     this.padding = 16.0,
     this.style,
+    this.isLoading,
   });
 
   @override
@@ -31,11 +34,14 @@ class SaverOutlineButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
-      onPressed: onPressed,
-      child: Text(
-        text,
-        style: style ?? TextStyle(color: textColor, fontSize: 14.0),
-      ),
+      onPressed: (isLoading ?? false) ? null : onPressed,
+      child:
+          (isLoading ?? false)
+              ? SaverLoader()
+              : Text(
+                text,
+                style: style ?? TextStyle(color: textColor, fontSize: 14.0),
+              ),
     );
   }
 }
