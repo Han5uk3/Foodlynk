@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/outline_button.dart';
@@ -453,11 +455,15 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
                   child: SaverButton(
                     text: "Continue",
                     onPressed: () {
+                      log("Role: ${isDonor ? "Donor" : "Beneficiary"}");
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder:
-                              (context) => DonationDetails(isDonor: isDonor),
+                              (context) => DonationDetails(
+                                isDonor: isDonor,
+                                isView: false,
+                              ),
                         ),
                       );
                     },
@@ -494,127 +500,138 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
     return Expanded(
       child: IndexedStack(
         index: _tabController.index,
-        children: [_buildDonationsTab(), _buildRecievedTab()],
+        children: [_buildDonationsTab(true), _buildRecievedTab(false)],
       ),
     );
   }
 
-  _buildDonationsTab() {
+  _buildDonationsTab(bool isDonor) {
     return ListView.separated(
       itemCount: 3,
       separatorBuilder: (context, index) => SizedBox(height: 12),
       itemBuilder: (context, index) {
-        return donationCard("P");
+        return donationCard("P", isDonor);
       },
     );
   }
 
-  _buildRecievedTab() {
+  _buildRecievedTab(bool isDonor) {
     return ListView.separated(
       itemCount: 2,
       separatorBuilder: (context, index) => SizedBox(height: 12),
       itemBuilder: (context, index) {
-        return donationCard("R");
+        return donationCard("R", isDonor);
       },
     );
   }
 
-  donationCard(String status) {
-    return Card(
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Container(
-                  height: 90,
-                  width: 90,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.blue,
+  donationCard(String status, bool isDonor) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => DonationDetails(isDonor: isDonor, isView: true),
+          ),
+        );
+      },
+      child: Card(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Container(
+                    height: 90,
+                    width: 90,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.blue,
+                    ),
                   ),
-                ),
-                SizedBox(width: 5),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
+                  SizedBox(width: 5),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
 
-                        children: [
-                          Expanded(
-                            child: Text(
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: true,
-                              "dfggggggxxftfdxgzdfgzzfgdfzghfghdrxfbgxghtnhdg",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                softWrap: true,
+                                "dfggggggxxftfdxgzdfgzzfgdfzghfghdrxfbgxghtnhdg",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
-                          ),
 
-                          Container(
-                            margin: EdgeInsets.only(right: 12),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 5,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              color:
-                                  status == "P"
-                                      ? AppColor.lightYellow
-                                      : AppColor.lightGreen,
-                            ),
-                            height: 27,
-                            child: Center(
-                              child:
-                                  status == "P"
-                                      ? Text(
-                                        "pending",
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: AppColor.yellow,
+                            Container(
+                              margin: EdgeInsets.only(right: 12),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color:
+                                    status == "P"
+                                        ? AppColor.lightYellow
+                                        : AppColor.lightGreen,
+                              ),
+                              height: 27,
+                              child: Center(
+                                child:
+                                    status == "P"
+                                        ? Text(
+                                          "pending",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppColor.yellow,
+                                          ),
+                                        )
+                                        : Text(
+                                          "Picked",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppColor.primaryColor,
+                                          ),
                                         ),
-                                      )
-                                      : Text(
-                                        "Picked",
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: AppColor.primaryColor,
-                                        ),
-                                      ),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 5),
-                      _tabController.index == 0
-                          ? _buildDonatedDateRow()
-                          : _buildReceivedOnDateRow(),
-                      SizedBox(height: 5),
-                      _tabController.index == 0
-                          ? _buildServesRow()
-                          : _buildDonatedByRow(),
-                    ],
+                          ],
+                        ),
+                        SizedBox(height: 5),
+                        _tabController.index == 0
+                            ? _buildDonatedDateRow()
+                            : _buildReceivedOnDateRow(),
+                        SizedBox(height: 5),
+                        _tabController.index == 0
+                            ? _buildServesRow()
+                            : _buildDonatedByRow(),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -743,7 +760,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
         children: [
           Expanded(
             child: _buildTabButton(
-              "Donations Made",
+              "Donor",
               AppColor.appbarColor,
               AppColor.lightAppbarColor,
               0,
@@ -751,7 +768,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
           ),
           Expanded(
             child: _buildTabButton(
-              "Food Recieved",
+              "Beneficiary",
               AppColor.green500,
               AppColor.lightGreen100,
               1,
@@ -767,7 +784,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          _tabController.index == 0 ? "Donations Made" : "Food Recieved",
+          _tabController.index == 0 ? "Donor" : "Beneficiary",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         GestureDetector(

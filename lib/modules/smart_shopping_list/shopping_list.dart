@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:number_selector/number_selector.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
@@ -30,7 +32,7 @@ class _ShoppingListState extends State<ShoppingList>
   ];
   List<String> unit = ["Kg", "Pcs", "ml", "Ltr", "gm", "Nos"];
   TextEditingController listNameController = TextEditingController();
-  String? selectedUnit;
+  String? selectedUnit = "";
   @override
   void initState() {
     super.initState();
@@ -300,71 +302,55 @@ class _ShoppingListState extends State<ShoppingList>
         return StreamBuilder<Object>(
           stream: null,
           builder: (context, snapshot) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        isItem
-                            ? isView
-                                ? "Mushroom"
-                                : "Add New Item"
-                            : "Edit Shopping List",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
+            return StatefulBuilder(
+              builder: (context, setState) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            isItem
+                                ? isView
+                                    ? "Mushroom"
+                                    : "Add New Item"
+                                : "Edit Shopping List",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: Icon(Icons.close),
+                          ),
+                        ],
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Icon(Icons.close),
-                      ),
-                    ],
-                  ),
-                ),
-                Divider(color: AppColor.lightGrey, thickness: 1.5, height: 1.5),
-                Padding(
-                  padding: const EdgeInsets.only(left: 14, right: 14, top: 14),
-                  child: Text(
-                    isItem ? "Item Name" : "List Name",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-                IgnorePointer(
-                  ignoring: isView,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 14, right: 14, top: 8),
-                    child: SaverTextField(
-                      hintText:
-                          isItem
-                              ? isView
-                                  ? "Mushroom"
-                                  : "Enter Item Name"
-                              : "Weekly Grocery",
-                      controller: listNameController,
                     ),
-                  ),
-                ),
-                isItem
-                    ? Padding(
+                    Divider(
+                      color: AppColor.lightGrey,
+                      thickness: 1.5,
+                      height: 1.5,
+                    ),
+                    Padding(
                       padding: const EdgeInsets.only(
                         left: 14,
                         right: 14,
                         top: 14,
                       ),
-                      child: Text("Quantity", style: TextStyle(fontSize: 16)),
-                    )
-                    : SizedBox.shrink(),
-                isItem
-                    ? IgnorePointer(
+                      child: Text(
+                        isItem ? "Item Name" : "List Name",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                    IgnorePointer(
                       ignoring: isView,
                       child: Padding(
                         padding: const EdgeInsets.only(
@@ -372,113 +358,149 @@ class _ShoppingListState extends State<ShoppingList>
                           right: 14,
                           top: 8,
                         ),
-                        child: Row(
-                          spacing: 30,
-                          children: [
-                            IntrinsicWidth(
-                              child: SaverDropdown(
-                                items: unit,
-                                selectedItem: selectedUnit ?? "",
-                                hint: "Choose",
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedUnit = value!;
-                                  });
-                                },
-                              ),
-                            ),
-
-                            Expanded(
-                              child: NumberSelector.plain(
-                                hasBorder: true,
-                                showMinMax: false,
-                                min: 1,
-                                iconColor: Colors.grey.shade500,
-                                borderRadius: 6,
-                                borderColor: Colors.grey.shade300,
-                                backgroundColor: AppColor.white,
-                                current: quantity,
-                                onUpdate: (newValue) {
-                                  setState(() {
-                                    quantity = newValue;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
+                        child: SaverTextField(
+                          hintText:
+                              isItem
+                                  ? isView
+                                      ? "Mushroom"
+                                      : "Enter Item Name"
+                                  : "Weekly Grocery",
+                          controller: listNameController,
                         ),
                       ),
-                    )
-                    : SizedBox.shrink(),
-                isView
-                    ? Padding(
+                    ),
+                    isItem
+                        ? Padding(
+                          padding: const EdgeInsets.only(
+                            left: 14,
+                            right: 14,
+                            top: 14,
+                          ),
+                          child: Text(
+                            "Quantity",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        )
+                        : SizedBox.shrink(),
+                    isItem
+                        ? IgnorePointer(
+                          ignoring: isView,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              left: 14,
+                              right: 14,
+                              top: 8,
+                            ),
+                            child: Row(
+                              spacing: 30,
+                              children: [
+                                IntrinsicWidth(
+                                  child: SaverDropdown(
+                                    items: unit,
+                                    selectedItem: selectedUnit ?? "",
+                                    hint: "Choose",
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedUnit = value;
+                                      });
+                                      log("New selected unit: $selectedUnit");
+                                    },
+                                  ),
+                                ),
+
+                                Expanded(
+                                  child: NumberSelector.plain(
+                                    hasBorder: true,
+                                    showMinMax: false,
+                                    min: 1,
+                                    iconColor: Colors.grey.shade500,
+                                    borderRadius: 6,
+                                    borderColor: Colors.grey.shade300,
+                                    backgroundColor: AppColor.white,
+                                    current: quantity,
+                                    onUpdate: (newValue) {
+                                      setState(() {
+                                        quantity = newValue;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                        : SizedBox.shrink(),
+                    isView
+                        ? Padding(
+                          padding: const EdgeInsets.only(
+                            top: 14,
+                            left: 14,
+                            right: 14,
+                          ),
+                          child: Text(
+                            maxLines: 2,
+                            softWrap: true,
+                            textAlign: TextAlign.justify,
+                            "Note: When an item is Purchased, it will be moved to kitchen manager for tracking!",
+                            style: TextStyle(color: AppColor.primaryColor),
+                          ),
+                        )
+                        : SizedBox.shrink(),
+                    Padding(
                       padding: const EdgeInsets.only(
-                        top: 14,
+                        top: 30,
+                        bottom: 24,
                         left: 14,
                         right: 14,
                       ),
-                      child: Text(
-                        maxLines: 2,
-                        softWrap: true,
-                        textAlign: TextAlign.justify,
-                        "Note: When an item is Purchased, it will be moved to kitchen manager for tracking!",
-                        style: TextStyle(color: AppColor.primaryColor),
-                      ),
-                    )
-                    : SizedBox.shrink(),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: 30,
-                    bottom: 24,
-                    left: 14,
-                    right: 14,
-                  ),
-                  child:
-                      isItem
-                          ? isView
-                              ? Row(
-                                children: [
-                                  Expanded(
-                                    child: SaverButton(
-                                      text: "Purchased",
-                                      onPressed: () {
-                                        // purchased item implementation
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder:
-                                                (context) =>
-                                                    AddItem(isEdit: false),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(width: 12),
-                                  Expanded(
-                                    child: SaverButton(
-                                      text: "Remove from List",
-                                      onPressed: () {
-                                        // remove from shopping list implementation
-                                      },
-                                      color: AppColor.red,
-                                    ),
-                                  ),
-                                ],
-                              )
+                      child:
+                          isItem
+                              ? isView
+                                  ? Row(
+                                    children: [
+                                      Expanded(
+                                        child: SaverButton(
+                                          text: "Purchased",
+                                          onPressed: () {
+                                            // purchased item implementation
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (context) =>
+                                                        AddItem(isEdit: false),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      SizedBox(width: 12),
+                                      Expanded(
+                                        child: SaverButton(
+                                          text: "Remove from List",
+                                          onPressed: () {
+                                            // remove from shopping list implementation
+                                          },
+                                          color: AppColor.red,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                  : SaverButton(
+                                    text: "Add Item",
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  )
                               : SaverButton(
-                                text: "Add Item",
+                                text: "Save Changes",
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                              )
-                          : SaverButton(
-                            text: "Save Changes",
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                ),
-              ],
+                              ),
+                    ),
+                  ],
+                );
+              },
             );
           },
         );
