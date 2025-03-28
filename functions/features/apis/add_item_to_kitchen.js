@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require("uuid");
-const { admin, db } = require("../../config/db");
+const { admin, db, FieldValue } = require("../../firebaseConfig");
 exports.addKitchenItem = async (req, res) => {
   const { uid, item } = req.body;
   if (!uid || !item) {

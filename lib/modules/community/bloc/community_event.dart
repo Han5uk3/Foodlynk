@@ -37,11 +37,13 @@ class InitializeChatRoomEvent extends CommunityEvent {
 class LoadMessagesEvent extends CommunityEvent {}
 
 class SendMessageEvent extends CommunityEvent {
+  final String reciversName;
   final String message;
-  const SendMessageEvent(this.message);
+  final String fcmToken;
+  const SendMessageEvent(this.message, this.fcmToken, this.reciversName);
 
   @override
-  List<Object> get props => [message];
+  List<Object> get props => [message, reciversName, fcmToken];
 }
 
 class UpdateMessagesEvent extends CommunityEvent {

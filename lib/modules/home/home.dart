@@ -153,15 +153,6 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-class CommunityScreen extends StatelessWidget {
-  const CommunityScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: Text('Welcome to Community'));
-  }
-}
-
 class NotificationScreen extends StatelessWidget {
   const NotificationScreen({super.key});
 

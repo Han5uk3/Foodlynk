@@ -4,18 +4,62 @@ import 'package:intl/intl.dart';
 import 'package:saver_bbk_main/common_widget/loader.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
+import 'package:saver_bbk_main/modules/community/community_page.dart';
+import 'package:saver_bbk_main/modules/home/home.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
-class ChatPage extends StatelessWidget {
+class ChatPage extends StatefulWidget {
   final bool isFromFoodSwap;
-  ChatPage({super.key, required this.isFromFoodSwap});
+  final bool isFromNotifications;
+  String? chatRoomId;
+  ChatPage({
+    super.key,
+    this.chatRoomId,
+    required this.isFromFoodSwap,
+    required this.isFromNotifications,
+  });
+
+  @override
+  State<ChatPage> createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> {
+  @override
+  void initState() {
+    if (widget.isFromNotifications) {
+      context.read<CommunityBloc>().add(
+        InitializeChatRoomEvent(
+          isFoodSwapped: false,
+          roomId: widget.chatRoomId,
+        ),
+      );
+    }
+    super.initState();
+  }
+
   final ValueNotifier<bool> chatTextNotifier = ValueNotifier(false);
+
+  String? fcmToken;
+
+  String? reciverName;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      appBar: saverAppBar("Chat", context, isneedtopop: true, iswhite: true),
+      appBar: saverAppBar(
+        "Chat",
+        context,
+        isneedtopop: true,
+        iswhite: true,
+        onpop:
+            () => Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => MainScreen(currentIndex: 1)),
+              (route) => false,
+            ),
+      ),
       body: BlocBuilder<CommunityBloc, CommunityState>(
         builder: (context, state) {
           if (state.status == ChatStatus.loading) {
@@ -30,7 +74,7 @@ class ChatPage extends StatelessWidget {
             children: [
               _buildChatHeader(),
               _buildMessagesBody(state),
-              _buildChatFooter(context),
+              _buildChatFooter(context, state),
             ],
           );
         },
@@ -43,8 +87,9 @@ class ChatPage extends StatelessWidget {
       builder: (context, state) {
         final userMap =
             state.userDetails.isNotEmpty ? state.userDetails.values.first : {};
-        final firstName = userMap['firstName'] ?? 'N/A';
-        final lastName = userMap['lastName'] ?? '';
+        fcmToken = userMap['fcmToken'];
+        reciverName =
+            "${userMap['firstName'] ?? 'N/A'} ${userMap['lastName'] ?? ''}";
         final phoneNumber = userMap['phoneNumber'] ?? 'N/A';
 
         return Container(
@@ -67,7 +112,7 @@ class ChatPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '$firstName $lastName',
+                      reciverName ?? "",
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w400,
@@ -155,7 +200,7 @@ class ChatPage extends StatelessWidget {
     return Expanded(child: _buildChatBody(state));
   }
 
-  Widget _buildChatFooter(BuildContext context) {
+  Widget _buildChatFooter(BuildContext context, CommunityState state) {
     final TextEditingController messageController = TextEditingController();
 
     return SafeArea(
@@ -176,8 +221,13 @@ class ChatPage extends StatelessWidget {
                   },
                   onSubmitted:
                       (value) => context.read<CommunityBloc>().add(
-                        SendMessageEvent(messageController.text.trim()),
+                        SendMessageEvent(
+                          messageController.text.trim(),
+                          fcmToken ?? "",
+                          reciverName ?? '',
+                        ),
                       ),
+
                   decoration: InputDecoration(
                     hintText: "Type a message...",
                     hintStyle: TextStyle(color: AppColor.lightGrey200),
@@ -192,7 +242,11 @@ class ChatPage extends StatelessWidget {
                       ? IconButton(
                         onPressed:
                             () => context.read<CommunityBloc>().add(
-                              SendMessageEvent(messageController.text.trim()),
+                              SendMessageEvent(
+                                messageController.text.trim(),
+                                fcmToken ?? "",
+                                reciverName ?? '',
+                              ),
                             ),
                         icon: Icon(Icons.send, color: Colors.grey.shade800),
                       )

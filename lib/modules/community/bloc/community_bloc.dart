@@ -3,6 +3,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
+import 'package:saver_bbk_main/api/app_apis.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/models/chat_model.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
@@ -208,6 +209,13 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         'message': event.message.trim(),
         'timestamp': timestamp,
       });
+      await AppApis().sendNotificationToFCM(
+        title: event.reciversName,
+        subTitle: event.message.trim(),
+        token: event.fcmToken,
+        chatRoomId: state.currentChatRoomId,
+        type: 'message'
+      );
       await ChatServices.database
           .ref('chats')
           .child(state.currentChatRoomId!)

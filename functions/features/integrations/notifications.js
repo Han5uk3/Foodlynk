@@ -1,7 +1,7 @@
 const admin = require("firebase-admin");
 exports.sendNotification = async (req, res) => {
   try {
-    const { token, title, body } = req.body;
+    const { token, title, body, type, chatRoomId } = req.body;
 
     if (!token || !title || !body) {
       return res
@@ -15,8 +15,7 @@ exports.sendNotification = async (req, res) => {
         body,
       },
       data: {
-        click_action: "FLUTTER_NOTIFICATION_CLICK",
-        screen: "home",
+        type: type,
       },
       android: {
         priority: "high",
@@ -32,6 +31,15 @@ exports.sendNotification = async (req, res) => {
         },
       },
     };
+
+    switch (type) {
+      case "message":
+        message.data.chatRoomId = chatRoomId;
+        break;
+
+      default:
+        break;
+    }
 
     let response;
 

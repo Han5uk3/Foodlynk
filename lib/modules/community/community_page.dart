@@ -21,7 +21,7 @@ class CommunityPage extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ChatPage(isFromFoodSwap: false),
+                builder: (context) => ChatPage(isFromFoodSwap: false,isFromNotifications: false,),
               ),
             );
           }

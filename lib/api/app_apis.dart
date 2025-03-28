@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:saver_bbk_main/models/protein_plan_model.dart';
 
 class AppApis {
-  static final String apiUrl = 'https://api-ab2ifjorfa-uc.a.run.app';
+  static final String apiUrl = "https://saver-app-functions.onrender.com";
 
   Future<bool> createNewItem(Map<String, dynamic> newItem, String uid) async {
     String url = '$apiUrl/api-local/addItemToKitchen';
@@ -79,6 +79,32 @@ class AppApis {
       }
     } catch (e) {
       rethrow;
+    }
+  }
+
+  Future<bool> sendNotificationToFCM({
+    String? token,
+    String? title,
+    String? subTitle,
+    String? type,
+    String? chatRoomId,
+  }) async {
+    final url = Uri.parse("$apiUrl/api-features/sendNotification");
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'token': token,
+        'title': title,
+        'body': subTitle,
+        'type': type,
+        'chatRoomId': chatRoomId,
+      }),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      throw Exception('Failed to send notification: ${response.statusCode}');
     }
   }
 }

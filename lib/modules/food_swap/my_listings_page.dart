@@ -494,7 +494,7 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ChatPage(isFromFoodSwap: true),
+                      builder: (context) => ChatPage(isFromFoodSwap: true,isFromNotifications: false,),
                     ),
                   );
                 }
