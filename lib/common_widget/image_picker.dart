@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:saver_bbk_main/api/compare_plates.dart';
 
 class ImagePickerButton extends StatelessWidget {
   final Function(File) onImageSelected;
@@ -16,27 +15,17 @@ class ImagePickerButton extends StatelessWidget {
   });
 
   Future<void> _pickImage(BuildContext context) async {
-    try {
-      final XFile? pickedFile = await _picker.pickImage(
-        source: ImageSource.gallery, // Try ImageSource.camera if needed
-        maxWidth: 800, // Reduce size if necessary
-        maxHeight: 800,
-        imageQuality: 85,
-      );
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 800,
+      maxHeight: 800,
+      imageQuality: 85,
+    );
 
-      if (pickedFile != null) {
-        bool hasFood = false;
-        isFood
-            ? hasFood = await detectFood(File(pickedFile.path))
-            : hasFood = false;
-
-        isFood
-            ? hasFood
-                ? onImageSelected(File(pickedFile.path))
-                : null
-            : onImageSelected(File(pickedFile.path));
-      }
-    } catch (e) {}
+    if (pickedFile != null) {
+      final File imageFile = File(pickedFile.path);
+      onImageSelected(imageFile);
+    }
   }
 
   @override

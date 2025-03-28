@@ -20,4 +20,7 @@ class HiveHelper {
   static removeUID() {
     return MyApp.box.delete('uid');
   }
+  static removeIsGuest() {
+    return MyApp.box.delete('isGuest');
+  }
 }

@@ -4,12 +4,10 @@ import 'package:http/http.dart' as http;
 import 'package:saver_bbk_main/models/protein_plan_model.dart';
 
 class AppApis {
-  static final String apiUrl =
-      'https://bc54-2409-40f3-109b-241f-20f1-dd0a-665a-c722.ngrok-free.app';
-  // 'https://api-ab2ifjorfa-uc.a.run.app';
+  static final String apiUrl = 'https://api-ab2ifjorfa-uc.a.run.app';
 
   Future<bool> createNewItem(Map<String, dynamic> newItem, String uid) async {
-    String url = '$apiUrl/addKitchenItem';
+    String url = '$apiUrl/api-local/addItemToKitchen';
     final response = await http.post(
       Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
@@ -29,7 +27,7 @@ class AppApis {
     bool isBeforeExpiry,
     int itemCount,
   ) async {
-    String url = '$apiUrl/deleteKitchenItem';
+    String url = '$apiUrl/api-local/removeItemFromKitchen';
     final response = await http.post(
       Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
@@ -55,7 +53,7 @@ class AppApis {
     List<String> dietaryPreferences,
     List<String> ingredients,
   ) async {
-    final url = Uri.parse("$apiUrl/generate-protein-plan");
+    final url = Uri.parse("$apiUrl/api-features/generate-protein-plan");
     try {
       final response = await http.post(
         url,

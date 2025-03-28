@@ -10,6 +10,7 @@ import 'package:saver_bbk_main/firebase_options.dart';
 import 'package:saver_bbk_main/modules/profile/bloc/profile_bloc.dart';
 
 import 'package:saver_bbk_main/modules/splash_screen/splash_screen.dart';
+import 'package:saver_bbk_main/modules/zero_waste_challenges/bloc/challenge_bloc.dart';
 import 'package:saver_bbk_main/modules/zero_waste_cooking/bloc/zero_waste_cooking_bloc.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
           create: (context) => ZeroWasteCookingBloc(),
         ),
         BlocProvider<CommunityBloc>(create: (context) => CommunityBloc()),
+        BlocProvider<ChallengeBloc>(create: (context) => ChallengeBloc()),
       ],
       child: MaterialApp(
         title: 'Saver App',
