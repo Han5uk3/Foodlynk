@@ -8,7 +8,7 @@ class FoodExpiryTracker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: Services.getUserDetails(),
+      stream: Services.getUserDetails(uid: Services.uid),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return const Center(child: Text("Error loading data"));
