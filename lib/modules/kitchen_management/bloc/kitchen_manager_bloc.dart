@@ -3,6 +3,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
+import 'package:saver_bbk_main/modules/kitchen_management/kitchen_manager.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 
 part 'kitchen_manager_event.dart';
@@ -15,7 +16,6 @@ class KitchenManagerBloc
     on<RemoveItemEvent>(_removeItem);
   }
 
-  // 🛒 Add New Item with optional ID
   Future<void> _addNewItem(
     AddNewItemEvent event,
     Emitter<KitchenManagerState> emit,
@@ -23,7 +23,6 @@ class KitchenManagerBloc
     try {
       emit(AddNewStateLoading(isLoading: true));
 
-      // Use provided ID or generate a new one
       final itemId =
           event.item.id?.isNotEmpty == true
               ? event.item.id
@@ -46,19 +45,15 @@ class KitchenManagerBloc
           throw Exception("User not found");
         }
 
-        // ✅ Parse the existing data properly
         Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
 
         List<dynamic> kitchenItems = userData['kitchenItems'] ?? [];
 
-        // Add the new item
         kitchenItems.add(newItem);
 
-        // Update the item count
         final currentCount = userData['addedItemQuantityCount'] ?? 0;
         final newTotal = currentCount + event.item.quantity;
 
-        // ✅ Update the Firestore document
         transaction.update(userDocRef, {
           'kitchenItems': kitchenItems,
           'addedItemQuantityCount': newTotal,
@@ -74,7 +69,6 @@ class KitchenManagerBloc
     }
   }
 
-  // 🗑️ Remove Item
   Future<void> _removeItem(
     RemoveItemEvent event,
     Emitter<KitchenManagerState> emit,
@@ -91,17 +85,26 @@ class KitchenManagerBloc
         }
 
         Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-
         List<dynamic> kitchenItems = userData['kitchenItems'] ?? [];
-
-        // ✅ Remove the item by ID
+        final itemToRemove = kitchenItems.firstWhere(
+          (item) => item['id'] == event.itemId,
+          orElse: () => null,
+        );
         kitchenItems.removeWhere((item) => item['id'] == event.itemId);
-
-        // Update the removed quantity count
+        int quantityToAdd = 0;
+        if (itemToRemove != null) {
+          final expiredDate = itemToRemove['expiredDate'];
+          final item = Items(
+            expiredDate: expiredDate,
+            id: itemToRemove['id'],
+            name: itemToRemove['name'] ?? '',
+          );
+          if (itemRemovedBeforeExpiry(item)) {
+            quantityToAdd = event.itemCount;
+          }
+        }
         final currentQuantity = userData['noOfQuantityRemoved'] ?? 0;
-        final newQuantity = currentQuantity + event.itemCount;
-
-        // ✅ Update Firestore document
+        final newQuantity = currentQuantity + quantityToAdd;
         transaction.update(userDocRef, {
           'kitchenItems': kitchenItems,
           'noOfQuantityRemoved': newQuantity,
