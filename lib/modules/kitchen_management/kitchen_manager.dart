@@ -304,9 +304,9 @@ class _KitchenManagerState extends State<KitchenManager> {
       selectedFilter.isEmpty && searchQuery.isEmpty
           ? "All Items"
           : searchQuery.isNotEmpty && selectedFilter.isNotEmpty
-          ? "Search: '$searchQuery' in $selectedFilter Items"
+          ? "Search Results for '$searchQuery' in $selectedFilter Items"
           : searchQuery.isNotEmpty
-          ? "Search: '$searchQuery'"
+          ? "Search Results for '$searchQuery'"
           : selectedFilter == "Expiring Soon"
           ? "Items $selectedFilter"
           : "$selectedFilter Items",

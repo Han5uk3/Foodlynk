@@ -56,7 +56,12 @@ class _ShoppingListState extends State<ShoppingList>
           IconButton(
             icon: Icon(Icons.edit_outlined),
             onPressed: () {
-              // _showEditBottomSheet(false, false);
+              SmartListSheet().showEditBottomSheet(
+                context,
+                false,
+                false,
+                listId: widget.listId,
+              );
             },
           ),
         ],
@@ -242,7 +247,7 @@ class _ShoppingListState extends State<ShoppingList>
                                 child: Transform.translate(
                                   offset: Offset(0, -5),
                                   child: Text(
-                                    ' x${items.quantity}',
+                                    ' x${items.quantity} ${items.unit}',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: AppColor.lightGrey200,
@@ -313,7 +318,7 @@ class _ShoppingListState extends State<ShoppingList>
                             child: Transform.translate(
                               offset: Offset(0, -5),
                               child: Text(
-                                ' x${items.quantity}',
+                                ' x${items.quantity} ${items.unit}',
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: AppColor.lightGrey200,
