@@ -4,7 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/date_compare.dart';
+import 'package:saver_bbk_main/common_widget/dropdown.dart';
 import 'package:saver_bbk_main/common_widget/empty_list.dart';
 import 'package:saver_bbk_main/common_widget/loader.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
@@ -14,6 +16,7 @@ import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/add_item.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/bloc/kitchen_manager_bloc.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/widgets/food_expiry_tracker.dart';
+import 'package:saver_bbk_main/modules/smart_shopping_list/widgets/item_sheets.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
@@ -36,7 +39,9 @@ class _KitchenManagerState extends State<KitchenManager> {
   UserModel? userData;
   double percentage = 0.0;
   StreamSubscription? _userDataSubscription;
-  
+  String selectedList = "";
+  List listNames = [];
+
   @override
   void initState() {
     super.initState();
@@ -68,12 +73,13 @@ class _KitchenManagerState extends State<KitchenManager> {
     setState(() {
       isLoading = true;
     });
-    
+
     _userDataSubscription = Services.getUserDetails(uid: Services.uid).listen(
       (snapshot) {
         if (snapshot.docs.isNotEmpty) {
           setState(() {
             userData = snapshot.docs.first.data();
+
             kitchenItems = userData?.kitchenItems ?? [];
             double addedCount =
                 userData?.monthlyItemQuantityAddedCount?.toDouble() ?? 0.0;
@@ -319,7 +325,7 @@ class _KitchenManagerState extends State<KitchenManager> {
     if (filteredItems.isEmpty) {
       return EmptyList();
     }
-    
+
     return ListView.builder(
       itemCount: filteredItems.length,
       itemBuilder: (context, index) {
@@ -394,7 +400,7 @@ class _KitchenManagerState extends State<KitchenManager> {
         ),
         onDismissed: (direction) {
           if (direction == DismissDirection.startToEnd) {
-            // Handle shopping list logic
+            _showListSelector(context, item);
           } else {
             context.read<KitchenManagerBloc>().add(
               RemoveItemEvent(
@@ -406,15 +412,17 @@ class _KitchenManagerState extends State<KitchenManager> {
           }
         },
         child: GestureDetector(
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => AddItem(
-                isEdit: true,
-                item: item,
-                dateString: dateString,
+          onTap:
+              () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder:
+                      (context) => AddItem(
+                        isEdit: true,
+                        item: item,
+                        dateString: dateString,
+                      ),
+                ),
               ),
-            ),
-          ),
           child: _buildItemCardContent(item, days, daysLeft),
         ),
       ),
@@ -634,6 +642,67 @@ class _KitchenManagerState extends State<KitchenManager> {
           ),
         ),
       ),
+    );
+  }
+
+  _showListSelector(context, Items item) {
+    showModalBottomSheet(
+      backgroundColor: Colors.white,
+      context: context,
+      builder: (BuildContext context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 12, right: 12, bottom: 6, top: 12),
+              child: Text(
+                item.name!,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              ),
+            ),
+            Divider(color: AppColor.lightGrey, thickness: 2),
+            SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.only(left: 12, right: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      "Select a list",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  SaverDropdown(
+                    items: ["weekend grocery", "New List"],
+                    selectedItem: selectedList,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedList = value!;
+                      });
+                    },
+                  ),
+                  SizedBox(height: 15),
+                  SaverButton(
+                    text: "Add to list",
+                    onPressed:
+                        () => SmartListSheet().showEditBottomSheet(
+                          context,
+                          true,
+                          false,
+                          listId: selectedList,
+                        ),
+                  ),
+                  SizedBox(height: 30),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

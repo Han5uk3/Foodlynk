@@ -231,13 +231,21 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
                         ),
                         SizedBox(height: 6),
                         LinearProgressIndicator(
-                          value: (allItems.length / purchasedList.length) * 100,
+                          value:
+                              item.items?.isEmpty ?? true
+                                  ? 0
+                                  : (item.items!
+                                          .where((e) => e.status == "PR")
+                                          .length /
+                                      item.items!.length),
                           color: Colors.orange,
                           backgroundColor: AppColor.lightGrey,
                         ),
                         SizedBox(height: 6),
                         Text(
-                          "${allItems.length} of ${purchasedList.length} items purchased",
+                          item.items?.isNotEmpty ?? false
+                              ? "${item.items!.where((e) => e.status == "PR").length} of ${item.items!.length} items purchased"
+                              : "No items in the list",
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColor.lightGrey200,

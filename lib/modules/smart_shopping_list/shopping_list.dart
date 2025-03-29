@@ -341,5 +341,4 @@ class _ShoppingListState extends State<ShoppingList>
       },
     );
   }
-
 }
