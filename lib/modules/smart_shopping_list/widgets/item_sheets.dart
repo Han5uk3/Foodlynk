@@ -136,7 +136,10 @@ class SmartListSheet {
                     // Item Name or List Name
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 14),
-                      child: Label(text: isItem ? "Item Name" : "List Name"),
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 14),
+                        child: Label(text: isItem ? "Item Name" : "List Name"),
+                      ),
                     ),
                     IgnorePointer(
                       ignoring: (isFromKitchen ?? false) ? true : isView,
@@ -314,6 +317,7 @@ class SmartListSheet {
                                   )
                               : SaverButton(
                                 text: "Save Changes",
+                                
 
                                 onPressed: () => Navigator.pop(context),
                               );
