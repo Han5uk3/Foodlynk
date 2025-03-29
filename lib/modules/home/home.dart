@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/modules/community/community_page.dart';
+import 'package:saver_bbk_main/modules/food_share/food_share_all_page.dart';
 import 'package:saver_bbk_main/modules/food_share/food_share_home_page.dart';
 import 'package:saver_bbk_main/modules/food_swap/food_swap_page.dart';
 import 'package:saver_bbk_main/modules/home/home_page.dart';
@@ -55,7 +56,7 @@ class _MainScreenState extends State<MainScreen> {
         case 2:
           return SmartShoppingHome(onBack: goBack);
         case 3:
-          return FoodShareHomePage(onBack: goBack);
+          return FoodShareAllPage(onBack: goBack);
         case 4:
           return FoodSwapPage(onBack: goBack);
         case 5:

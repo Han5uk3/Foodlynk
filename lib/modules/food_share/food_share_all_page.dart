@@ -7,16 +7,18 @@ import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/helpers/date_format.dart';
 import 'package:saver_bbk_main/modules/food_share/donation_details.dart';
+import 'package:saver_bbk_main/modules/food_share/food_share_home_page.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
-class FoodShareHomePage extends StatefulWidget {
-  const FoodShareHomePage({super.key});
+class FoodShareAllPage extends StatefulWidget {
+  const FoodShareAllPage({super.key, required this.onBack});
 
+  final VoidCallback onBack;
   @override
-  State<FoodShareHomePage> createState() => _FoodShareHomePageState();
+  State<FoodShareAllPage> createState() => _FoodShareAllPageState();
 }
 
-class _FoodShareHomePageState extends State<FoodShareHomePage>
+class _FoodShareAllPageState extends State<FoodShareAllPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<String> filterOptions = [
@@ -60,22 +62,14 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        elevation: 3,
-        backgroundColor: AppColor.primaryColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-        onPressed: () {
-          _showRoleBottomSheet();
-        },
-        child: Icon(Icons.add, color: AppColor.white, size: 32),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: saverAppBar(
-        "My Donations & Requests",
+        "Food Share",
         context,
-        iswhite: true,
-
+        iswhite: false,
+        textColor: AppColor.white,
+        iconColor: AppColor.white,
         isneedtopop: true,
+        onpop: widget.onBack,
       ),
       body: _buildBody(),
     );
@@ -707,42 +701,36 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
   }
 
   _buildBanner() {
-    return Column(
-      children: [
-        Card(
-          shape: RoundedRectangleBorder(
-            side: BorderSide(color: Colors.grey.shade300),
-            borderRadius: BorderRadius.circular(6),
+    return GestureDetector(
+      onTap:
+          () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return FoodShareHomePage();
+              },
+            ),
           ),
-          elevation: 2,
-          child: CustomPaint(
-            painter: DiagonalBackgroundPainter(),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-              height: 100,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    loadsvg("assets/icons/foodsharebannericon.svg"),
-                    Text(
-                      " You've Donated 5 Times this month!",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        elevation: 2,
+        child: CustomPaint(
+          painter: DiagonalBackgroundPainter(),
+          child: Container(
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+            ),
+            height: 100,
+            child: Text(
+              "My Donations & Requests",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 

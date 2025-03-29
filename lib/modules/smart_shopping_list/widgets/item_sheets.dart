@@ -317,7 +317,6 @@ class SmartListSheet {
                                   )
                               : SaverButton(
                                 text: "Save Changes",
-                                
 
                                 onPressed: () => Navigator.pop(context),
                               );
