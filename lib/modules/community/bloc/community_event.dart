@@ -38,12 +38,18 @@ class LoadMessagesEvent extends CommunityEvent {}
 
 class SendMessageEvent extends CommunityEvent {
   final String reciversName;
+  final String reciversUid;
   final String message;
   final String fcmToken;
-  const SendMessageEvent(this.message, this.fcmToken, this.reciversName);
+  const SendMessageEvent(
+    this.message,
+    this.fcmToken,
+    this.reciversName,
+    this.reciversUid,
+  );
 
   @override
-  List<Object> get props => [message, reciversName, fcmToken];
+  List<Object> get props => [message, reciversName, fcmToken, reciversUid];
 }
 
 class UpdateMessagesEvent extends CommunityEvent {

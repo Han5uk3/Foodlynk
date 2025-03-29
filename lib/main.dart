@@ -23,11 +23,6 @@ const boxName = 'myBox';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-
-  print('Background message: ${message.messageId}');
-
-  /// Trigger the `addNotification` function
-  await Services.addNotification(message);
 }
 
 void main() async {
@@ -58,9 +53,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void initNotifications() {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    Services.addNotification(message);
-    });
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {});
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       _handleNotificationNavigation(message);

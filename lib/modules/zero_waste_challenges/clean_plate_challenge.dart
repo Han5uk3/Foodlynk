@@ -21,9 +21,19 @@ class CleanPlateChallenge extends StatefulWidget {
 class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
   File? _beforeImageFile;
   File? _afterImageFile;
+  bool _isBeforeImageUploading = false;
+  bool _isAfterImageUploading = false;
 
   void _setAfterImage(File image) {
-    setState(() => _afterImageFile = image);
+    setState(() {
+      _isAfterImageUploading = true;
+    });
+    Future.delayed(const Duration(seconds: 1), () {
+      setState(() {
+        _afterImageFile = image;
+        _isAfterImageUploading = false;
+      });
+    });
   }
 
   @override
@@ -32,8 +42,31 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
       appBar: saverAppBar("Clean Plate Challenge", context, isneedtopop: true),
       body: BlocListener<ChallengeBloc, ChallengeState>(
         listener: (context, state) {
-          if (state is BeforeUploadImageSuccessState) {
-            setState(() => _beforeImageFile = state.image);
+          if (state is BeforeUploadImageLoadingState) {
+            setState(() => _isBeforeImageUploading = true);
+          } else if (state is BeforeUploadImageSuccessState) {
+            setState(() {
+              _beforeImageFile = state.image;
+              _isBeforeImageUploading = false;
+            });
+            SaverSnackBar.show(
+              context: context,
+              message: "Before image uploaded successfully!",
+              isTrue: true,
+            );
+          } else if (state is BeforeUploadImageErrorState) {
+            setState(() => _isBeforeImageUploading = false);
+            SaverSnackBar.show(
+              context: context,
+              message: "Failed to upload image. Please try again.",
+              isTrue: false,
+            );
+          } else if (state is ChallengeInitial) {
+            // Handle the case when image is removed
+            setState(() {
+              _beforeImageFile = null;
+              _isBeforeImageUploading = false;
+            });
           }
         },
         child: SingleChildScrollView(
@@ -47,11 +80,13 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                   "Upload before image",
                   _beforeImageFile,
                   true,
+                  _isBeforeImageUploading,
                 ),
                 _buildImageSection(
                   "Upload after image",
                   _afterImageFile,
                   false,
+                  _isAfterImageUploading,
                 ),
               ],
             ),
@@ -62,27 +97,14 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
         padding: const EdgeInsets.all(14),
         child: SaverButton(
           text: "Submit Challenge",
+          color:
+              (_beforeImageFile != null &&
+                      _afterImageFile != null &&
+                      !_isBeforeImageUploading &&
+                      !_isAfterImageUploading)
+                  ? AppColor.primaryColor
+                  : AppColor.lightGrey200,
           onPressed: () {},
-          // color:
-          // (_beforeImageFile != null && _afterImageFile != null)
-          //     ? AppColor.primary
-          //     : AppColor.lightGrey200,
-          // onPressed: (_beforeImageFile != null && _afterImageFile != null)
-          //     ? () async {
-          //         final bool isPlateEmpty = await comparePlates(
-          //           _beforeImageFile!,
-          //           _afterImageFile!,
-          //         );
-          //         isPlateEmpty
-          //             ? _showCompletedBottomSheet(context)
-          //             : SaverSnackBar.show(
-          //                 context: context,
-          //                 message:
-          //                     "Finish your meal and clean your plate before uploading image",
-          //                 isTrue: false,
-          //               );
-          //       }
-          //     : null,
         ),
       ),
     );
@@ -148,22 +170,53 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
     );
   }
 
-  Widget _buildImageSection(String title, File? imageFile, bool isBefore) {
+  Widget _buildImageSection(
+    String title,
+    File? imageFile,
+    bool isBefore,
+    bool isUploading,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Text(
-            title,
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+          child: Row(
+            children: [
+              Text(
+                title,
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              ),
+              if (isUploading) ...[
+                const SizedBox(width: 10),
+                SizedBox(
+                  width: 15,
+                  height: 15,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColor.primaryColor,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "Uploading...",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColor.primaryColor,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
         Row(
           children: [
             if (imageFile != null) _buildImagePreview(imageFile, isBefore),
+            if (isUploading && imageFile == null)
+              _buildLoadingImagePlaceholder(),
             Visibility(
-              visible: imageFile == null,
+              visible: imageFile == null && !isUploading,
               child: ImagePickerButton(
                 onImageSelected: (File image) {
                   if (isBefore) {
@@ -180,6 +233,33 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildLoadingImagePlaceholder() {
+    return Container(
+      height: 100,
+      width: 100,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.grey.shade200,
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              color: AppColor.primaryColor,
+              strokeWidth: 3,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Processing",
+              style: TextStyle(fontSize: 12, color: AppColor.primaryColor),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -204,13 +284,17 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
             right: 0,
             child: GestureDetector(
               onTap: () {
-                setState(() {
-                  if (isBefore) {
+                if (isBefore) {
+                  // Dispatch the remove event to the bloc
+                  context.read<ChallengeBloc>().add(RemoveBeforeImageEvent());
+                  setState(() {
                     _beforeImageFile = null;
-                  } else {
+                  });
+                } else {
+                  setState(() {
                     _afterImageFile = null;
-                  }
-                });
+                  });
+                }
               },
               child: CircleAvatar(
                 radius: 12,
@@ -246,6 +330,26 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
     );
   }
 
+  void _showLoadingDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 16),
+              CircularProgressIndicator(color: AppColor.primaryColor),
+              const SizedBox(height: 16),
+              Text(message),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   _showCompletedBottomSheet(BuildContext context) {
     showModalBottomSheet(
       backgroundColor: AppColor.white,
@@ -275,9 +379,16 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                     Expanded(
                       child: SaverOutlineButton(
                         text: "Take Again",
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            _beforeImageFile = null;
+                            _afterImageFile = null;
+                          });
+                        },
                       ),
                     ),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: SaverButton(
                         text: "Back",
