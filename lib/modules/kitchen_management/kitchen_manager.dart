@@ -12,6 +12,7 @@ import 'package:saver_bbk_main/common_widget/loader.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
+import 'package:saver_bbk_main/models/smart_shopping_model.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/add_item.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/bloc/kitchen_manager_bloc.dart';
@@ -39,8 +40,8 @@ class _KitchenManagerState extends State<KitchenManager> {
   UserModel? userData;
   double percentage = 0.0;
   StreamSubscription? _userDataSubscription;
-  String selectedList = "";
   List listNames = [];
+  List<Items>? filteredItems;
 
   @override
   void initState() {
@@ -175,13 +176,12 @@ class _KitchenManagerState extends State<KitchenManager> {
   }
 
   Widget _buildContent() {
-    final List<Items> filteredItems = filterItems(kitchenItems);
+    filteredItems = filterItems(kitchenItems);
 
     return BlocListener<KitchenManagerBloc, KitchenManagerState>(
       listener: (context, state) {
         if (state is RemoveItemStateSuccess) {
           if (state.insideParentPage) {
-            log("INSIDE");
             Navigator.pop(context);
           }
           SaverSnackBar.show(
@@ -210,12 +210,12 @@ class _KitchenManagerState extends State<KitchenManager> {
             SizedBox(height: 15),
             _buildFilterButtonsRow(),
             SizedBox(height: 20),
-            _buildFilterTitle(filteredItems),
+            _buildFilterTitle(filteredItems!),
             Expanded(
               child:
-                  filteredItems.isEmpty
+                  filteredItems!.isEmpty
                       ? EmptyList()
-                      : _buildItemsList(filteredItems),
+                      : _buildItemsList(filteredItems!),
             ),
           ],
         ),
@@ -353,8 +353,26 @@ class _KitchenManagerState extends State<KitchenManager> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Dismissible(
+        confirmDismiss: (direction) async {
+          if (direction == DismissDirection.startToEnd) {
+            SmartListSheet().showListSelector(context, item);
+            return false;
+          }
+          return true;
+        },
         key: Key(item.id ?? item.expiredDate?.toIso8601String() ?? ""),
         direction: DismissDirection.horizontal,
+        onDismissed: (direction) {
+          if (direction == DismissDirection.endToStart) {
+            context.read<KitchenManagerBloc>().add(
+              RemoveItemEvent(
+                itemId: item.id ?? "",
+                beforeExpiry: !itemRemovedBeforeExpiry(item),
+                itemCount: item.quantity ?? 0,
+              ),
+            );
+          }
+        },
         background: ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(16)),
           child: Container(
@@ -399,19 +417,7 @@ class _KitchenManagerState extends State<KitchenManager> {
             ],
           ),
         ),
-        onDismissed: (direction) {
-          if (direction == DismissDirection.startToEnd) {
-            _showListSelector(context, item);
-          } else {
-            context.read<KitchenManagerBloc>().add(
-              RemoveItemEvent(
-                itemId: item.id ?? "",
-                beforeExpiry: !itemRemovedBeforeExpiry(item),
-                itemCount: item.quantity ?? 0,
-              ),
-            );
-          }
-        },
+
         child: GestureDetector(
           onTap:
               () => Navigator.of(context).push(
@@ -643,67 +649,6 @@ class _KitchenManagerState extends State<KitchenManager> {
           ),
         ),
       ),
-    );
-  }
-
-  _showListSelector(context, Items item) {
-    showModalBottomSheet(
-      backgroundColor: Colors.white,
-      context: context,
-      builder: (BuildContext context) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(left: 12, right: 12, bottom: 6, top: 12),
-              child: Text(
-                item.name!,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-              ),
-            ),
-            Divider(color: AppColor.lightGrey, thickness: 2),
-            SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.only(left: 12, right: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    child: Text(
-                      "Select a list",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  SaverDropdown(
-                    items: ["weekend grocery", "New List"],
-                    selectedItem: selectedList,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedList = value!;
-                      });
-                    },
-                  ),
-                  SizedBox(height: 15),
-                  SaverButton(
-                    text: "Add to list",
-                    onPressed:
-                        () => SmartListSheet().showEditBottomSheet(
-                          context,
-                          true,
-                          false,
-                          listId: selectedList,
-                        ),
-                  ),
-                  SizedBox(height: 30),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }

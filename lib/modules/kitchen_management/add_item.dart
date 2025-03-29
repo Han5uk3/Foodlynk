@@ -17,6 +17,7 @@ import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/bloc/kitchen_manager_bloc.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/kitchen_manager.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_bloc.dart';
+import 'package:saver_bbk_main/modules/smart_shopping_list/widgets/item_sheets.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class AddItem extends StatefulWidget {
@@ -421,7 +422,7 @@ class _AddItemState extends State<AddItem> {
                   horizontal: 14,
                   vertical: 20,
                 ),
-                child: _editItemButton(),
+                child: _editItemButton(widget.item!),
               )
               : Padding(
                 padding: const EdgeInsets.symmetric(
@@ -483,7 +484,6 @@ class _AddItemState extends State<AddItem> {
                           ? context.read<SmartShoppingBloc>().add(
                             MarkAsPurchasedSmartShoppingEvent(
                               item: Items(
-                                id: widget.item!.id,
                                 name: itemNameController.text,
                                 quantity: numberOfQuantity,
                                 unit: selectedUnit ?? "",
@@ -511,12 +511,20 @@ class _AddItemState extends State<AddItem> {
     );
   }
 
-  Widget _editItemButton() {
+  Widget _editItemButton(Items item) {
     return Row(
       spacing: 20,
       children: [
         Expanded(
-          child: SaverButton(text: "Move to Shopping List", onPressed: () {}),
+          child: SaverButton(
+            text: "Move to Shopping List",
+            onPressed:
+                () => SmartListSheet().showListSelector(
+                  context,
+                  item,
+                  isFromParentSheet: true,
+                ),
+          ),
         ),
         Expanded(
           child: SaverButton(
