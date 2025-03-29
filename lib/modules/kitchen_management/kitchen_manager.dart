@@ -275,6 +275,7 @@ class _KitchenManagerState extends State<KitchenManager> {
 
   Widget _buildFilterButtonsRow() {
     return Row(
+      spacing: 12,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
