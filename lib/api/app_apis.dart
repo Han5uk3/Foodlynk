@@ -1,51 +1,13 @@
 import 'dart:convert';
+import 'dart:developer';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:saver_bbk_main/models/protein_plan_model.dart';
+import 'package:saver_bbk_main/services/app_services.dart';
 
 class AppApis {
   static final String apiUrl = "https://saver-app-functions.onrender.com";
-
-  Future<bool> createNewItem(Map<String, dynamic> newItem, String uid) async {
-    String url = '$apiUrl/api-local/addItemToKitchen';
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({"uid": uid, "item": newItem}),
-    );
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return json['success'];
-    } else {
-      throw Exception('Failed to create item: ${response.statusCode}');
-    }
-  }
-
-  Future<bool> removeItem(
-    String uid,
-    String itemId,
-    bool isBeforeExpiry,
-    int itemCount,
-  ) async {
-    String url = '$apiUrl/api-local/removeItemFromKitchen';
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        "uid": uid,
-        "itemId": itemId,
-        "isExpaired": isBeforeExpiry,
-        "noOfQuantity": itemCount,
-      }),
-    );
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return json['success'];
-    } else {
-      throw Exception('Failed to delete item: ${response.statusCode}');
-    }
-  }
-
   Future<GenaratedProteinPlanModel> generateProteinPlan(
     String whatareyoucooking,
     String towhomareyoucooking,
@@ -88,6 +50,7 @@ class AppApis {
     String? subTitle,
     String? type,
     String? chatRoomId,
+    String? reciversUid,
   }) async {
     final url = Uri.parse("$apiUrl/api-features/sendNotification");
     final response = await http.post(
@@ -102,9 +65,32 @@ class AppApis {
       }),
     );
     if (response.statusCode == 200) {
+      await Services.addNotification(
+        RemoteMessage(
+          data: {'type': type},
+          notification: RemoteNotification(title: title, body: subTitle),
+        ),
+        reciversUid ?? "",
+      );
       return true;
     } else {
       throw Exception('Failed to send notification: ${response.statusCode}');
+    }
+  }
+
+  Future<bool> comapreOnePlate(String beforeImage) async {
+    final url = Uri.parse("$apiUrl/api-features/compareOnePlate");
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'imageUrl': beforeImage}),
+    );
+    log("Response : ${response.body}");
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      return json['status'];
+    } else {
+      throw Exception('Failed to compare one plate: ${response.statusCode}');
     }
   }
 }

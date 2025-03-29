@@ -178,22 +178,20 @@ class Services {
         });
   }
 
-  static Future<void> addNotification(RemoteMessage message) async {
+  static Future<void> addNotification(
+    RemoteMessage message,
+    String reciversUid,
+  ) async {
     try {
-      print('UID: $uid');
-
       final notificationId = Collections.notifications.doc().id;
-      print('Saving to Firestore with ID: $notificationId');
-
       await Collections.notifications.doc(notificationId).set({
-        'uid': uid,
+        'uid': reciversUid,
         'notificationId': notificationId,
         'title': message.notification?.title ?? 'No Title',
         'body': message.notification?.body ?? 'No Body',
+        'type': message.data['type'] ?? 'No Type',
         'timestamp': DateTime.now().toUtc().millisecondsSinceEpoch,
       });
-
-      print('Notification saved successfully!');
     } catch (e) {
       print('Error adding notification: $e');
     }

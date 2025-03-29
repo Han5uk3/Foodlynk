@@ -43,6 +43,7 @@ class _ChatPageState extends State<ChatPage> {
   String? fcmToken;
 
   String? reciverName;
+  String? reciverUid;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +57,9 @@ class _ChatPageState extends State<ChatPage> {
         onpop:
             () => Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => MainScreen(currentIndex: 1)),
+              MaterialPageRoute(
+                builder: (context) => MainScreen(currentIndex: 1),
+              ),
               (route) => false,
             ),
       ),
@@ -90,6 +93,7 @@ class _ChatPageState extends State<ChatPage> {
         fcmToken = userMap['fcmToken'];
         reciverName =
             "${userMap['firstName'] ?? 'N/A'} ${userMap['lastName'] ?? ''}";
+        reciverUid = userMap['uid'];
         final phoneNumber = userMap['phoneNumber'] ?? 'N/A';
 
         return Container(
@@ -225,6 +229,7 @@ class _ChatPageState extends State<ChatPage> {
                           messageController.text.trim(),
                           fcmToken ?? "",
                           reciverName ?? '',
+                          reciverUid ?? '',
                         ),
                       ),
 
@@ -246,6 +251,7 @@ class _ChatPageState extends State<ChatPage> {
                                 messageController.text.trim(),
                                 fcmToken ?? "",
                                 reciverName ?? '',
+                                reciverUid ?? '',
                               ),
                             ),
                         icon: Icon(Icons.send, color: Colors.grey.shade800),

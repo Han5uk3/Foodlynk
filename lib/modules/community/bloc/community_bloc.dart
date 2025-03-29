@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -214,7 +215,8 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         subTitle: event.message.trim(),
         token: event.fcmToken,
         chatRoomId: state.currentChatRoomId,
-        type: 'message'
+        type: 'message',
+        reciversUid: event.reciversUid,
       );
       await ChatServices.database
           .ref('chats')
