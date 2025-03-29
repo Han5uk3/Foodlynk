@@ -9,6 +9,7 @@ import 'package:saver_bbk_main/common_widget/text_field.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/add_item.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_bloc.dart';
+import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class SmartListSheet {
@@ -18,6 +19,8 @@ class SmartListSheet {
     bool isView, {
     Items? items,
     String? listId,
+    bool? isFromInsideItem,
+    bool? isFromKitchen,
   }) {
     final TextEditingController itemNameController = TextEditingController(
       text: items?.name ?? '',
@@ -71,6 +74,23 @@ class SmartListSheet {
                 isTrue: false,
               );
             }
+            if (state is MovingItemSuccessState) {
+              Navigator.pop(context);
+              Navigator.pop(context);
+              if (state.isFromParentSide) Navigator.pop(context);
+              SaverSnackBar.show(
+                context: context,
+                message: "Item moved successfully",
+                isTrue: true,
+              );
+            }
+            if (state is MovingItemFailureState) {
+              SaverSnackBar.show(
+                context: context,
+                message: state.errorMessage,
+                isTrue: false,
+              );
+            }
           },
           child: StatefulBuilder(
             builder: (context, setState) {
@@ -114,7 +134,7 @@ class SmartListSheet {
                     child: Label(text: isItem ? "Item Name" : "List Name"),
                   ),
                   IgnorePointer(
-                    ignoring: isView,
+                    ignoring: (isFromKitchen ?? false) ? true : isView,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 14,
@@ -243,21 +263,45 @@ class SmartListSheet {
                                   ],
                                 )
                                 : SaverButton(
-                                  text: "Add Item",
+                                  text:
+                                      (isFromKitchen ?? false)
+                                          ? "Move to Shopping List"
+                                          : "Add Item",
                                   isLoading:
-                                      state is NewItemAddedToListLoadingState,
+                                      state is NewItemAddedToListLoadingState ||
+                                      state is MovingItemLoadingState,
                                   onPressed:
                                       () =>
-                                          context.read<SmartShoppingBloc>().add(
-                                            AddNewItemSmartShoppingEvent(
-                                              listId: listId ?? "",
-                                              itemName:
-                                                  itemNameController.text
-                                                      .trim(),
-                                              itemQuantity: quantity,
-                                              itemUnit: selectedUnit,
-                                            ),
-                                          ),
+                                          (isFromKitchen ?? false)
+                                              ? context
+                                                  .read<SmartShoppingBloc>()
+                                                  .add(
+                                                    MoveFromKitchenToSmartListEvent(
+                                                      listId: listId ?? "",
+                                                      item: Items(
+                                                        id: items?.id ?? "",
+                                                        name: items?.name ?? "",
+                                                        quantity: quantity,
+                                                        unit: selectedUnit,
+                                                      ),
+                                                      isFromParentSide:
+                                                          isFromInsideItem ??
+                                                          false,
+                                                    ),
+                                                  )
+                                              : context
+                                                  .read<SmartShoppingBloc>()
+                                                  .add(
+                                                    AddNewItemSmartShoppingEvent(
+                                                      listId: listId ?? "",
+                                                      itemName:
+                                                          itemNameController
+                                                              .text
+                                                              .trim(),
+                                                      itemQuantity: quantity,
+                                                      itemUnit: selectedUnit,
+                                                    ),
+                                                  ),
                                 )
                             : SaverButton(
                               text: "Save Changes",
@@ -271,6 +315,113 @@ class SmartListSheet {
               );
             },
           ),
+        );
+      },
+    );
+  }
+
+  showListSelector(context, Items item, {bool isFromParentSheet = false}) {
+    showModalBottomSheet(
+      backgroundColor: Colors.white,
+      context: context,
+      isDismissible: false,
+      builder: (BuildContext context) {
+        return StreamBuilder<List<Map<String, String>>>(
+          stream: Services.getUserSmartList(),
+          builder: (context, snapshot) {
+            List<String> listNames =
+                snapshot.data!.map((item) => item['listName'] ?? '').toList();
+            Map<String, String> listMap = {
+              for (var item in snapshot.data!)
+                item['listName']!: item['listId']!,
+            };
+            String? selectedListName =
+                listNames.isNotEmpty ? listNames.first : null;
+            return StatefulBuilder(
+              builder:
+                  (context, insidesetState) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(
+                              left: 12,
+                              right: 12,
+                              bottom: 6,
+                              top: 12,
+                            ),
+                            child: Text(
+                              item.name!,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.close),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ),
+                      Divider(color: AppColor.lightGrey, thickness: 2),
+                      SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12, right: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 12),
+                              child: Text(
+                                "Select a list",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            SaverDropdown(
+                              items: listNames,
+                              selectedItem: selectedListName ?? "",
+                              isLoading:
+                                  snapshot.connectionState ==
+                                  ConnectionState.waiting,
+                              onChanged: (value) {
+                                insidesetState(() {
+                                  selectedListName = value!;
+                                });
+                              },
+                            ),
+                            SizedBox(height: 15),
+                            SaverButton(
+                              text: "Add to list",
+                              onPressed: () {
+                                if (selectedListName != null) {
+                                  String? selectedListId =
+                                      listMap[selectedListName];
+                                  SmartListSheet().showEditBottomSheet(
+                                    context,
+                                    true,
+                                    false,
+                                    listId: selectedListId,
+                                    items: item,
+                                    isFromKitchen: true,
+                                    isFromInsideItem: isFromParentSheet,
+                                  );
+                                }
+                              },
+                            ),
+                            SizedBox(height: 30),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+            );
+          },
         );
       },
     );

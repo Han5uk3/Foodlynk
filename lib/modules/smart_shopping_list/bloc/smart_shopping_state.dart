@@ -60,3 +60,21 @@ class RemoveFromListFailureState extends SmartShoppingState {
   @override
   List<Object> get props => [errorMessage];
 }
+
+class MovingItemLoadingState extends SmartShoppingState {}
+
+class MovingItemSuccessState extends SmartShoppingState {
+  final bool isFromParentSide;
+
+  const MovingItemSuccessState({required this.isFromParentSide});
+  @override
+  List<Object> get props => [isFromParentSide];
+}
+
+class MovingItemFailureState extends SmartShoppingState {
+  final String errorMessage;
+  const MovingItemFailureState({required this.errorMessage});
+
+  @override
+  List<Object> get props => [errorMessage];
+}

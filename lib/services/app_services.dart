@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -195,5 +197,27 @@ class Services {
     } catch (e) {
       print('Error adding notification: $e');
     }
+  }
+
+  static Stream<List<Map<String, String>>> getUserSmartList() {
+    log("Calling getUserSmartList");
+    return Collections.smartShopping
+        .where("uid", isEqualTo: uid)
+        .snapshots()
+        .map((query) {
+          List<Map<String, String>> listNamesAndId = [];
+          for (var doc in query.docs) {
+            var data = doc.data() as Map<String, dynamic>;
+            log(data.toString());
+            if (data.containsKey('listName')) {
+              listNamesAndId.add({
+                'listId': data['listId'] ?? '',
+                'listName': data['listName'] ?? '',
+              });
+            }
+          }
+          log(listNamesAndId.toString());
+          return listNamesAndId;
+        });
   }
 }

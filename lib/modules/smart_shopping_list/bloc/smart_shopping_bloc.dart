@@ -18,6 +18,7 @@ class SmartShoppingBloc extends Bloc<SmartShoppingEvent, SmartShoppingState> {
     on<CreateNewSmartShoppingEvent>(_createNewSmartShoppingList);
     on<AddNewItemSmartShoppingEvent>(_addNewItemSmartShoppingList);
     on<MarkAsPurchasedSmartShoppingEvent>(_markAsPurchasedSmartShoppingList);
+    on<MoveFromKitchenToSmartListEvent>(_moveToSmartShoppingList);
   }
 
   void _createNewSmartShoppingList(
@@ -112,6 +113,36 @@ class SmartShoppingBloc extends Bloc<SmartShoppingEvent, SmartShoppingState> {
       context.read<KitchenManagerBloc>().add(AddNewItemEvent(item: event.item));
     } catch (e) {
       emit(PurchasedItemFailureState(errorMessage: e.toString()));
+    }
+  }
+
+  void _moveToSmartShoppingList(
+    MoveFromKitchenToSmartListEvent event,
+    Emitter<SmartShoppingState> emit,
+  ) async {
+    try {
+      emit(MovingItemLoadingState());
+
+      var docSnapshot = await Collections.smartShopping.doc(event.listId).get();
+      if (docSnapshot.exists) {
+        List<dynamic> currentItems =
+            ((docSnapshot.data() as Map<String, dynamic>?)?['items'] ?? [])
+                as List<dynamic>;
+        var newItem = {
+          'id': Items.generateRandomId(),
+          'name': event.item.name,
+          'quantity': event.item.quantity,
+          'unit': event.item.unit,
+          'status': 'AL',
+        };
+        currentItems.add(newItem);
+        await Collections.smartShopping.doc(event.listId).update({
+          'items': currentItems,
+        });
+        emit(MovingItemSuccessState(isFromParentSide: event.isFromParentSide));
+      }
+    } catch (e) {
+      emit(MovingItemFailureState(errorMessage: e.toString()));
     }
   }
 }
