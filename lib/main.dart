@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -13,14 +11,25 @@ import 'package:saver_bbk_main/modules/food_swap/bloc/food_swap_bloc.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/bloc/kitchen_manager_bloc.dart';
 import 'package:saver_bbk_main/firebase_options.dart';
 import 'package:saver_bbk_main/modules/profile/bloc/profile_bloc.dart';
+import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_bloc.dart';
 
 import 'package:saver_bbk_main/modules/splash_screen/splash_screen.dart';
 import 'package:saver_bbk_main/modules/zero_waste_challenges/bloc/challenge_bloc.dart';
 import 'package:saver_bbk_main/modules/zero_waste_cooking/bloc/zero_waste_cooking_bloc.dart';
+import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 const boxName = 'myBox';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+
+  print('Background message: ${message.messageId}');
+
+  /// Trigger the `addNotification` function
+  await Services.addNotification(message);
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -29,10 +38,6 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox(boxName);
   runApp(const MyApp());
-}
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
 }
 
 class MyApp extends StatefulWidget {
@@ -54,7 +59,7 @@ class _MyAppState extends State<MyApp> {
 
   void initNotifications() {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      // Handle foreground notifications
+    Services.addNotification(message);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
@@ -76,11 +81,9 @@ class _MyAppState extends State<MyApp> {
   void _handleNotificationNavigation(RemoteMessage message) {
     if (message.data.containsKey('type')) {
       String type = message.data['type'];
-      log("typeeeeee: $type");
       switch (type) {
         case "message":
           String chatRoomId = message.data['chatRoomId'];
-          log("chatRoomId: $chatRoomId");
           navigatorKey.currentState?.pushReplacement(
             MaterialPageRoute(
               builder:
@@ -112,6 +115,9 @@ class _MyAppState extends State<MyApp> {
         ),
         BlocProvider<CommunityBloc>(create: (context) => CommunityBloc()),
         BlocProvider<ChallengeBloc>(create: (context) => ChallengeBloc()),
+        BlocProvider<SmartShoppingBloc>(
+          create: (context) => SmartShoppingBloc(context),
+        ),
       ],
       child: MaterialApp(
         title: 'Saver App',

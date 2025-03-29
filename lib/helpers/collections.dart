@@ -4,9 +4,17 @@ class Collections {
   static final FirebaseFirestore firestore = FirebaseFirestore.instance;
   static CollectionReference users = firestore.collection(Paths.users);
   static CollectionReference foodSwap = firestore.collection(Paths.foodSwap);
+  static CollectionReference smartShopping = firestore.collection(
+    Paths.smartShopping,
+  );
+  static CollectionReference notifications = firestore.collection(
+    Paths.notifications,
+  );
 }
 
 class Paths {
   static String users = "users";
   static String foodSwap = "food-swap";
+  static String smartShopping = "smart-shopping";
+  static String notifications = "notifications";
 }

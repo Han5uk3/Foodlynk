@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel {
@@ -189,7 +191,8 @@ class Items {
   final String? category;
   final int? quantity;
   final String? unit;
-  final DateTime? expiredDate;
+  final String? status;
+  final dynamic expiredDate;
 
   Items({
     this.id,
@@ -197,21 +200,21 @@ class Items {
     this.category,
     this.quantity,
     this.unit,
+    this.status,
     this.expiredDate,
   });
 
   /// ✅ Renamed `fromJson` to `fromMap`
   factory Items.fromMap(Map<String, dynamic> map) {
+    dynamic expDate = map['expiredDate'];
     return Items(
       id: map['id'] as String? ?? '',
       name: map['name'] as String? ?? 'Unknown',
       category: map['category'] as String? ?? '',
       quantity: (map['quantity'] as num?)?.toInt() ?? 0,
       unit: map['unit'] as String? ?? '',
-      expiredDate:
-          map['expiredDate'] is Timestamp
-              ? (map['expiredDate'] as Timestamp).toDate()
-              : DateTime.tryParse(map['expiredDate'] ?? '') ?? DateTime.now(),
+      status: map['status'] as String? ?? '',
+      expiredDate: expDate,
     );
   }
 
@@ -222,7 +225,17 @@ class Items {
       'category': category,
       'quantity': quantity,
       'unit': unit,
+      'status': status,
       'expiredDate': Timestamp.fromDate(expiredDate ?? DateTime.now()),
     };
+  }
+
+  static String generateRandomId() {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    final random = Random();
+    return List.generate(
+      10,
+      (index) => chars[random.nextInt(chars.length)],
+    ).join();
   }
 }

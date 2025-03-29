@@ -1,23 +1,13 @@
-const { SecretManagerServiceClient } = require("@google-cloud/secret-manager");
 const admin = require("firebase-admin");
+const serviceAccount = require("./saver-app-2ae53-firebase-adminsdk-fbsvc-7b8f13575b.json")
+  // "/opt/render/project/src/saver-app-2ae53-firebase-adminsdk-fbsvc-7b8f13575b.json");  // Render's path
 
-async function getSecret() {
-  const client = new SecretManagerServiceClient();
-  const [version] = await client.accessSecretVersion({
-    name: "projects/saver-app-2ae53/secrets/firebase-admin-key/versions/latest",
-  });
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://saver-app-2ae53-default-rtdb.firebaseio.com",
+});
 
-  const serviceAccount = JSON.parse(version.payload.data.toString());
+const db = admin.firestore();
+const FieldValue = admin.firestore.FieldValue;
 
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://saver-app-2ae53-default-rtdb.firebaseio.com",
-  });
-
-  const db = admin.firestore();
-  const FieldValue = admin.firestore.FieldValue;
-
-  module.exports = { admin, db, FieldValue };
-}
-
-getSecret().catch(console.error);
+module.exports = { admin, db, FieldValue }; 
