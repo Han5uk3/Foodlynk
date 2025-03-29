@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -85,7 +84,6 @@ class AppApis {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'imageUrl': beforeImage}),
     );
-    log("Response : ${response.body}");
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
       return json['status'];

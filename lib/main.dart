@@ -12,11 +12,9 @@ import 'package:saver_bbk_main/modules/kitchen_management/bloc/kitchen_manager_b
 import 'package:saver_bbk_main/firebase_options.dart';
 import 'package:saver_bbk_main/modules/profile/bloc/profile_bloc.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_bloc.dart';
-
 import 'package:saver_bbk_main/modules/splash_screen/splash_screen.dart';
 import 'package:saver_bbk_main/modules/zero_waste_challenges/bloc/challenge_bloc.dart';
 import 'package:saver_bbk_main/modules/zero_waste_cooking/bloc/zero_waste_cooking_bloc.dart';
-import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 const boxName = 'myBox';

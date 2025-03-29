@@ -1,6 +1,3 @@
-import 'dart:developer';
-
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,6 +16,7 @@ class SmartShoppingBloc extends Bloc<SmartShoppingEvent, SmartShoppingState> {
     on<AddNewItemSmartShoppingEvent>(_addNewItemSmartShoppingList);
     on<MarkAsPurchasedSmartShoppingEvent>(_markAsPurchasedSmartShoppingList);
     on<MoveFromKitchenToSmartListEvent>(_moveToSmartShoppingList);
+    on<UpdateSmartShopingListNameEvent>(_chnageNewListName);
   }
 
   void _createNewSmartShoppingList(
@@ -58,9 +56,7 @@ class SmartShoppingBloc extends Bloc<SmartShoppingEvent, SmartShoppingState> {
   ) async {
     try {
       emit(NewItemAddedToListLoadingState());
-
       var docSnapshot = await Collections.smartShopping.doc(event.listId).get();
-      log(docSnapshot.data().toString());
       if (!docSnapshot.exists) {
         emit(NewItemAddedToListFailureState(errorMessage: "List not found."));
         return;
@@ -143,6 +139,21 @@ class SmartShoppingBloc extends Bloc<SmartShoppingEvent, SmartShoppingState> {
       }
     } catch (e) {
       emit(MovingItemFailureState(errorMessage: e.toString()));
+    }
+  }
+
+  void _chnageNewListName(
+    UpdateSmartShopingListNameEvent event,
+    Emitter<SmartShoppingState> emit,
+  ) async {
+    try {
+      emit(ListNameChangedLoadingState());
+      await Collections.smartShopping.doc(event.listId).update({
+        'listName': event.newName,
+      });
+      emit(ListNameChangedSuccessState(listnewName: event.newName));
+    } catch (e) {
+      emit(ListNameChangedFailureState(errorMessage: e.toString()));
     }
   }
 }
