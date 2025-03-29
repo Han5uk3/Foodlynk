@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saver_bbk_main/common_widget/loader.dart';
@@ -20,8 +22,10 @@ class ShoppingList extends StatefulWidget {
 class _ShoppingListState extends State<ShoppingList>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+
   List? allItems;
   List? purchaseItems;
+
   @override
   void initState() {
     super.initState();
@@ -337,4 +341,5 @@ class _ShoppingListState extends State<ShoppingList>
       },
     );
   }
+
 }
