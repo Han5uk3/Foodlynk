@@ -11,8 +11,8 @@ import 'package:saver_bbk_main/styles/colors.dart';
 
 class ShoppingList extends StatefulWidget {
   final String listId;
-  final String listName;
-  const ShoppingList({super.key, required this.listId, this.listName = ""});
+  String? listName;
+  ShoppingList({super.key, required this.listId, this.listName = ""});
   @override
   State<ShoppingList> createState() => _ShoppingListState();
 }
@@ -46,41 +46,50 @@ class _ShoppingListState extends State<ShoppingList>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: saverAppBar(
-        widget.listName,
-        context,
-        isneedtopop: true,
-        iswhite: true,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.edit_outlined),
-            onPressed: () {
-              SmartListSheet().showEditBottomSheet(
-                context,
-                false,
-                false,
-                listId: widget.listId,
-              );
-            },
+    return BlocBuilder<SmartShoppingBloc, SmartShoppingState>(
+      builder: (context, state) {
+        if (state is ListNameChangedSuccessState) {
+          widget.listName = state.listnewName;
+        }
+        return Scaffold(
+          appBar: saverAppBar(
+            widget.listName ?? "",
+            context,
+            isneedtopop: true,
+            iswhite: true,
+            actions: [
+              IconButton(
+                icon: Icon(Icons.edit_outlined),
+                onPressed: () {
+                  SmartListSheet().showEditBottomSheet(
+                    context,
+                    false,
+                    false,
+                    listId: widget.listId,
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-      body: Padding(padding: const EdgeInsets.all(14), child: _buildBody()),
-      floatingActionButton: FloatingActionButton(
-        elevation: 3,
-        backgroundColor: AppColor.primaryColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-        onPressed:
-            () => SmartListSheet().showEditBottomSheet(
-              context,
-              true,
-              false,
-              listId: widget.listId,
+          body: Padding(padding: const EdgeInsets.all(14), child: _buildBody()),
+          floatingActionButton: FloatingActionButton(
+            elevation: 3,
+            backgroundColor: AppColor.primaryColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
             ),
-        child: Icon(Icons.add, color: AppColor.white, size: 32),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+            onPressed:
+                () => SmartListSheet().showEditBottomSheet(
+                  context,
+                  true,
+                  false,
+                  listId: widget.listId,
+                ),
+            child: Icon(Icons.add, color: AppColor.white, size: 32),
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        );
+      },
     );
   }
 

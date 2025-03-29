@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/outline_button.dart';
@@ -455,7 +453,6 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
                   child: SaverButton(
                     text: "Continue",
                     onPressed: () {
-                      log("Role: ${isDonor ? "Donor" : "Beneficiary"}");
                       Navigator.push(
                         context,
                         MaterialPageRoute(

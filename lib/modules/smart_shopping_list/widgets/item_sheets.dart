@@ -96,6 +96,21 @@ class SmartListSheet {
                   isTrue: false,
                 );
               }
+              if (state is ListNameChangedSuccessState) {
+                Navigator.pop(context);
+                SaverSnackBar.show(
+                  context: context,
+                  message: "List name changed successfully",
+                  isTrue: true,
+                );
+              }
+              if (state is ListNameChangedFailureState) {
+                SaverSnackBar.show(
+                  context: context,
+                  message: state.errorMessage,
+                  isTrue: false,
+                );
+              }
             },
             child: StatefulBuilder(
               builder: (context, setState) {
@@ -317,9 +332,14 @@ class SmartListSheet {
                                   )
                               : SaverButton(
                                 text: "Save Changes",
-                                
-
-                                onPressed: () => Navigator.pop(context),
+                                isLoading: state is ListNameChangedLoadingState,
+                                onPressed:
+                                    () => context.read<SmartShoppingBloc>().add(
+                                      UpdateSmartShopingListNameEvent(
+                                        newName: itemNameController.text.trim(),
+                                        listId: listId ?? "",
+                                      ),
+                                    ),
                               );
                         },
                       ),
@@ -349,10 +369,13 @@ class SmartListSheet {
             stream: Services.getUserSmartList(),
             builder: (context, snapshot) {
               List<String> listNames =
-                  snapshot.data!.map((item) => item['listName'] ?? '').toList();
+                  snapshot.data
+                      ?.map((item) => item['listName'] ?? '')
+                      .toList() ??
+                  [];
               Map<String, String> listMap = {
-                for (var item in snapshot.data!)
-                  item['listName']!: item['listId']!,
+                for (var item in snapshot.data ?? [])
+                  item['listName'] ?? "": item['listId'] ?? "",
               };
               String? selectedListName =
                   listNames.isNotEmpty ? listNames.first : null;
@@ -363,6 +386,7 @@ class SmartListSheet {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Padding(
                               padding: EdgeInsets.only(

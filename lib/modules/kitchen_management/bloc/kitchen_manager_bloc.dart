@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
@@ -58,13 +57,10 @@ class KitchenManagerBloc
           'kitchenItems': kitchenItems,
           'addedItemQuantityCount': newTotal,
         });
-
-        log("Item added: $newItem");
       });
 
       emit(AddNewStateSuccess());
     } catch (e) {
-      log("Error adding item: $e");
       emit(AddNewStateError(errorMessage: e.toString()));
     }
   }
@@ -116,7 +112,6 @@ class KitchenManagerBloc
         ),
       );
     } catch (e) {
-      log("Error removing item: $e");
       emit(RemoveItemStateError(errorMessage: e.toString()));
     }
   }
