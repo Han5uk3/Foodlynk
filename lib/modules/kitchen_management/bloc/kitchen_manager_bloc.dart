@@ -1,7 +1,9 @@
+import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:saver_bbk_main/api/app_apis.dart';
-import 'package:saver_bbk_main/helpers/hive_helper.dart';
+import 'package:saver_bbk_main/helpers/collections.dart';
+import 'package:saver_bbk_main/models/users_model.dart';
+import 'package:saver_bbk_main/services/app_services.dart';
 
 part 'kitchen_manager_event.dart';
 part 'kitchen_manager_state.dart';
@@ -13,51 +15,105 @@ class KitchenManagerBloc
     on<RemoveItemEvent>(_removeItem);
   }
 
-  void _addNewItem(
+  // 🛒 Add New Item with optional ID
+  Future<void> _addNewItem(
     AddNewItemEvent event,
     Emitter<KitchenManagerState> emit,
   ) async {
     try {
       emit(AddNewStateLoading(isLoading: true));
+
+      // Use provided ID or generate a new one
+      final itemId =
+          event.item.id?.isNotEmpty == true
+              ? event.item.id
+              : Items.generateRandomId();
+
       final newItem = {
-        'name': event.itemName,
-        'quantity': event.quantity,
-        'category': event.category,
-        'unit': event.unitName,
-        'expiredDate': event.expiredDate.toIso8601String(),
+        'id': itemId,
+        'name': event.item.name,
+        'quantity': event.item.quantity,
+        'category': event.item.category,
+        'unit': event.item.unit,
+        'expiredDate': event.item.expiredDate,
       };
-      bool isAdded = await AppApis().createNewItem(
-        newItem,
-        HiveHelper.getUID(),
-      );
-      if (isAdded) {
-        emit(AddNewStateSuccess());
-      } else {
-        emit(AddNewStateError(errorMessage: "You can't add new Item."));
-      }
+
+      final userDocRef = Collections.users.doc(Services.uid);
+
+      await Collections.firestore.runTransaction((transaction) async {
+        final userDoc = await transaction.get(userDocRef);
+        if (!userDoc.exists) {
+          throw Exception("User not found");
+        }
+
+        // ✅ Parse the existing data properly
+        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+
+        List<dynamic> kitchenItems = userData['kitchenItems'] ?? [];
+
+        // Add the new item
+        kitchenItems.add(newItem);
+
+        // Update the item count
+        final currentCount = userData['addedItemQuantityCount'] ?? 0;
+        final newTotal = currentCount + event.item.quantity;
+
+        // ✅ Update the Firestore document
+        transaction.update(userDocRef, {
+          'kitchenItems': kitchenItems,
+          'addedItemQuantityCount': newTotal,
+        });
+
+        log("Item added: $newItem");
+      });
+
+      emit(AddNewStateSuccess());
     } catch (e) {
+      log("Error adding item: $e");
       emit(AddNewStateError(errorMessage: e.toString()));
     }
   }
 
-  void _removeItem(
+  // 🗑️ Remove Item
+  Future<void> _removeItem(
     RemoveItemEvent event,
     Emitter<KitchenManagerState> emit,
   ) async {
     try {
       emit(RemoveItemStateLoading(isLoading: true));
-      bool isRemoved = await AppApis().removeItem(
-        HiveHelper.getUID(),
-        event.itemId,
-        event.beforeExpiry,
-        event.itemCount,
+
+      final userDocRef = Collections.users.doc(Services.uid);
+
+      await Collections.firestore.runTransaction((transaction) async {
+        final userDoc = await transaction.get(userDocRef);
+        if (!userDoc.exists) {
+          throw Exception("User not found");
+        }
+
+        Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+
+        List<dynamic> kitchenItems = userData['kitchenItems'] ?? [];
+
+        // ✅ Remove the item by ID
+        kitchenItems.removeWhere((item) => item['id'] == event.itemId);
+
+        // Update the removed quantity count
+        final currentQuantity = userData['noOfQuantityRemoved'] ?? 0;
+        final newQuantity = currentQuantity + event.itemCount;
+
+        // ✅ Update Firestore document
+        transaction.update(userDocRef, {
+          'kitchenItems': kitchenItems,
+          'noOfQuantityRemoved': newQuantity,
+        });
+      });
+      emit(
+        RemoveItemStateSuccess(
+          insideParentPage: event.inSideParentPage ?? false,
+        ),
       );
-      if (isRemoved) {
-        emit(RemoveItemStateSuccess());
-      } else {
-        emit(RemoveItemStateError(errorMessage: "You can't remove this Item."));
-      }
     } catch (e) {
+      log("Error removing item: $e");
       emit(RemoveItemStateError(errorMessage: e.toString()));
     }
   }

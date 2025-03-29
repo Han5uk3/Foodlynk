@@ -8,38 +8,28 @@ sealed class KitchenManagerEvent extends Equatable {
 }
 
 class AddNewItemEvent extends KitchenManagerEvent {
-  final String itemName;
-  final String category;
-  final String unitName;
-  final int quantity;
-  final DateTime expiredDate;
-
-  const AddNewItemEvent({
-    required this.itemName,
-    required this.category,
-    required this.unitName,
-    required this.quantity,
-    required this.expiredDate,
-  });
+  final Items item;
+  const AddNewItemEvent({required this.item});
   @override
-  List<Object> get props => [
-    itemName,
-    category,
-    unitName,
-    quantity,
-    expiredDate,
-  ];
+  List<Object> get props => [item];
 }
 
 class RemoveItemEvent extends KitchenManagerEvent {
   final String itemId;
   final bool beforeExpiry;
   final int itemCount;
+  final bool? inSideParentPage;
   const RemoveItemEvent({
     required this.itemId,
     required this.beforeExpiry,
     required this.itemCount,
+    this.inSideParentPage,
   });
   @override
-  List<Object> get props => [itemId, beforeExpiry, itemCount];
+  List<Object> get props => [
+    itemId,
+    beforeExpiry,
+    itemCount,
+    inSideParentPage ?? false,
+  ];
 }

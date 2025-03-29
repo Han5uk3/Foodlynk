@@ -32,7 +32,12 @@ final class RemoveItemStateLoading extends KitchenManagerState {
   List<Object> get props => [isLoading];
 }
 
-final class RemoveItemStateSuccess extends KitchenManagerState {}
+final class RemoveItemStateSuccess extends KitchenManagerState {
+  final bool insideParentPage;
+  const RemoveItemStateSuccess({required this.insideParentPage});
+  @override
+  List<Object> get props => [insideParentPage];
+}
 
 final class RemoveItemStateError extends KitchenManagerState {
   final String errorMessage;

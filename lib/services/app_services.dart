@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
 import 'package:saver_bbk_main/models/food_swap_model.dart';
+import 'package:saver_bbk_main/models/smart_shopping_model.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
 
 class Services {
@@ -145,6 +147,55 @@ class Services {
       if (kDebugMode) {
         print('Error updating FCM token: $e');
       }
+    }
+  }
+
+  static Stream<List<SmartShoppingModel>> getSmartList() {
+    return Collections.smartShopping
+        .where("uid", isEqualTo: uid)
+        .snapshots()
+        .map((query) {
+          return query.docs.map((doc) {
+            return SmartShoppingModel.fromMap(
+              doc.data() as Map<String, dynamic>,
+            );
+          }).toList();
+        });
+  }
+
+  static Stream<List<SmartShoppingModel>> fetchSmartListAllItems(
+    String listId,
+  ) {
+    return Collections.smartShopping
+        .where("listId", isEqualTo: listId)
+        .snapshots()
+        .map((query) {
+          return query.docs.map((doc) {
+            return SmartShoppingModel.fromMap(
+              doc.data() as Map<String, dynamic>,
+            );
+          }).toList();
+        });
+  }
+
+  static Future<void> addNotification(RemoteMessage message) async {
+    try {
+      print('UID: $uid');
+
+      final notificationId = Collections.notifications.doc().id;
+      print('Saving to Firestore with ID: $notificationId');
+
+      await Collections.notifications.doc(notificationId).set({
+        'uid': uid,
+        'notificationId': notificationId,
+        'title': message.notification?.title ?? 'No Title',
+        'body': message.notification?.body ?? 'No Body',
+        'timestamp': DateTime.now().toUtc().millisecondsSinceEpoch,
+      });
+
+      print('Notification saved successfully!');
+    } catch (e) {
+      print('Error adding notification: $e');
     }
   }
 }

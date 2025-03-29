@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:developer';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,10 +35,12 @@ class _KitchenManagerState extends State<KitchenManager> {
   final FocusNode searchFocusNode = FocusNode();
   UserModel? userData;
   double percentage = 0.0;
+  StreamSubscription? _userDataSubscription;
+  
   @override
   void initState() {
     super.initState();
-    _fetchUserData();
+    _setupUserDataStream();
     searchController.addListener(_onSearchChanged);
     searchFocusNode.addListener(_onSearchFocusChange);
   }
@@ -60,31 +64,38 @@ class _KitchenManagerState extends State<KitchenManager> {
     });
   }
 
-  void _fetchUserData() async {
-    try {
-      final snapshot = await Services.getUserDetails().first;
-      if (snapshot.docs.isNotEmpty) {
-        userData = snapshot.docs.first.data();
+  void _setupUserDataStream() {
+    setState(() {
+      isLoading = true;
+    });
+    
+    _userDataSubscription = Services.getUserDetails(uid: Services.uid).listen(
+      (snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          setState(() {
+            userData = snapshot.docs.first.data();
+            kitchenItems = userData?.kitchenItems ?? [];
+            double addedCount =
+                userData?.monthlyItemQuantityAddedCount?.toDouble() ?? 0.0;
+            double removedCount =
+                userData?.monthlyItemQuantityRemovedCount?.toDouble() ?? 1.0;
+            percentage =
+                (removedCount != 0) ? (addedCount / removedCount) * 100 : 0.0;
+            isLoading = false;
+          });
+        } else {
+          setState(() {
+            kitchenItems = [];
+            isLoading = false;
+          });
+        }
+      },
+      onError: (e) {
         setState(() {
-          kitchenItems = userData?.kitchenItems ?? [];
-          double addedCount =
-              userData?.monthlyItemQuantityAddedCount?.toDouble() ?? 0.0;
-          double removedCount =
-              userData?.monthlyItemQuantityRemovedCount?.toDouble() ?? 1.0;
-          percentage =
-              (removedCount != 0) ? (addedCount / removedCount) * 100 : 0.0;
           isLoading = false;
         });
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-    }
+      },
+    );
   }
 
   @override
@@ -94,16 +105,22 @@ class _KitchenManagerState extends State<KitchenManager> {
     searchController.dispose();
     searchFocusNode.removeListener(_onSearchFocusChange);
     searchFocusNode.dispose();
+    _userDataSubscription?.cancel();
     super.dispose();
   }
 
   List<Items> filterItems(List<Items> items) {
     return items.where((item) {
       bool matchesFilter = true;
-      int days = getDateDifferenceNumber(
-        "${item.expiredDate?.day}/${item.expiredDate?.month}/${item.expiredDate?.year}",
-      );
-
+      DateTime expiredDate;
+      if (item.expiredDate is Timestamp) {
+        expiredDate = (item.expiredDate as Timestamp).toDate();
+      } else if (item.expiredDate is DateTime) {
+        expiredDate = item.expiredDate as DateTime;
+      } else {
+        return false;
+      }
+      int days = expiredDate.difference(DateTime.now()).inDays;
       if (selectedFilter.isNotEmpty) {
         if (selectedFilter == "Expired") {
           matchesFilter = days < 0;
@@ -113,10 +130,9 @@ class _KitchenManagerState extends State<KitchenManager> {
           matchesFilter = days >= 3;
         }
       }
-
       bool matchesSearch =
-          searchQuery.isEmpty || item.name!.toLowerCase().contains(searchQuery);
-
+          searchQuery.isEmpty ||
+          item.name!.toLowerCase().contains(searchQuery.toLowerCase());
       return matchesFilter && matchesSearch;
     }).toList();
   }
@@ -129,15 +145,12 @@ class _KitchenManagerState extends State<KitchenManager> {
         backgroundColor: AppColor.primaryColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         onPressed: () {
-          Navigator.of(context)
-              .push(
-                MaterialPageRoute(
-                  builder: (context) => AddItem(isEdit: false),
-
-                  settings: RouteSettings(name: 'AddItem'),
-                ),
-              )
-              .then((_) => _fetchUserData());
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AddItem(isEdit: false),
+              settings: RouteSettings(name: 'AddItem'),
+            ),
+          );
         },
         child: Icon(Icons.add, color: AppColor.white, size: 32),
       ),
@@ -161,6 +174,10 @@ class _KitchenManagerState extends State<KitchenManager> {
     return BlocListener<KitchenManagerBloc, KitchenManagerState>(
       listener: (context, state) {
         if (state is RemoveItemStateSuccess) {
+          if (state.insideParentPage) {
+            log("INSIDE");
+            Navigator.pop(context);
+          }
           SaverSnackBar.show(
             context: context,
             message: "Item removed",
@@ -252,7 +269,6 @@ class _KitchenManagerState extends State<KitchenManager> {
 
   Widget _buildFilterButtonsRow() {
     return Row(
-      spacing: 10,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
@@ -300,38 +316,31 @@ class _KitchenManagerState extends State<KitchenManager> {
   }
 
   Widget _buildItemsList(List<Items> filteredItems) {
-    return StreamBuilder(
-      stream: Services.getUserDetails(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return SaverLoader();
-        }
-        if (snapshot.hasError) {
-          return const Center(child: Text("Error loading data"));
-        }
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return EmptyList();
-        }
-
-        final List<Items> filteredItems = filterItems(kitchenItems);
-
-        return filteredItems.isEmpty
-            ? EmptyList()
-            : ListView.builder(
-              itemCount: filteredItems.length,
-              itemBuilder: (context, index) {
-                final item = filteredItems[index];
-                return _buildItemCard(item);
-              },
-            );
+    if (filteredItems.isEmpty) {
+      return EmptyList();
+    }
+    
+    return ListView.builder(
+      itemCount: filteredItems.length,
+      itemBuilder: (context, index) {
+        final item = filteredItems[index];
+        return _buildItemCard(item);
       },
     );
   }
 
   Widget _buildItemCard(Items item) {
-    int days = getDateDifferenceNumber(
-      "${item.expiredDate?.day}/${item.expiredDate?.month}/${item.expiredDate?.year}",
-    );
+    DateTime expDate;
+    if (item.expiredDate is Timestamp) {
+      expDate = (item.expiredDate as Timestamp).toDate();
+    } else if (item.expiredDate is DateTime) {
+      expDate = item.expiredDate as DateTime;
+    } else {
+      expDate = DateTime.now();
+    }
+
+    String dateString = "${expDate.day}/${expDate.month}/${expDate.year}";
+    int days = getDateDifferenceNumber(dateString);
     int daysLeft = days.abs();
 
     return Padding(
@@ -384,8 +393,8 @@ class _KitchenManagerState extends State<KitchenManager> {
           ),
         ),
         onDismissed: (direction) {
-          kitchenItems.removeWhere((i) => i.id == item.id);
           if (direction == DismissDirection.startToEnd) {
+            // Handle shopping list logic
           } else {
             context.read<KitchenManagerBloc>().add(
               RemoveItemEvent(
@@ -397,19 +406,15 @@ class _KitchenManagerState extends State<KitchenManager> {
           }
         },
         child: GestureDetector(
-          onTap:
-              () => Navigator.of(context)
-                  .push(
-                    MaterialPageRoute(
-                      builder:
-                          (context) => AddItem(
-                            isEdit: true,
-                            dateString:
-                                "${item.expiredDate?.day}/${item.expiredDate?.month}/${item.expiredDate?.year}",
-                          ),
-                    ),
-                  )
-                  .then((_) => _fetchUserData()),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AddItem(
+                isEdit: true,
+                item: item,
+                dateString: dateString,
+              ),
+            ),
+          ),
           child: _buildItemCardContent(item, days, daysLeft),
         ),
       ),
@@ -523,6 +528,15 @@ class _KitchenManagerState extends State<KitchenManager> {
   }
 
   Widget _buildDateRow(Items item) {
+    DateTime expDate;
+    if (item.expiredDate is Timestamp) {
+      expDate = (item.expiredDate as Timestamp).toDate();
+    } else if (item.expiredDate is DateTime) {
+      expDate = item.expiredDate as DateTime;
+    } else {
+      expDate = DateTime.now(); // Fallback
+    }
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -532,7 +546,7 @@ class _KitchenManagerState extends State<KitchenManager> {
           child: loadsvg("assets/icons/expiry.svg"),
         ),
         Text(
-          " Expiry Date: ${item.expiredDate?.day}/${item.expiredDate?.month}/${item.expiredDate?.year}",
+          " Expiry Date: ${expDate.day}/${expDate.month}/${expDate.year}",
           style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
         ),
       ],
@@ -624,10 +638,18 @@ class _KitchenManagerState extends State<KitchenManager> {
   }
 }
 
-itemRemovedBeforeExpiry(item) {
-  final dayum = getDateDifferenceNumber(
-    "${item.expiredDate.day}/${item.expiredDate.month}/${item.expiredDate.year}",
-  );
+itemRemovedBeforeExpiry(Items item) {
+  DateTime expDate;
+  if (item.expiredDate is Timestamp) {
+    expDate = (item.expiredDate as Timestamp).toDate();
+  } else if (item.expiredDate is DateTime) {
+    expDate = item.expiredDate as DateTime;
+  } else {
+    expDate = DateTime.now();
+  }
+
+  final dateString = "${expDate.day}/${expDate.month}/${expDate.year}";
+  final dayum = getDateDifferenceNumber(dateString);
 
   if (dayum >= 0) {
     return true;
