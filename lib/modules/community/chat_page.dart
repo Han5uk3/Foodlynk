@@ -255,24 +255,7 @@ class _ChatPageState extends State<ChatPage> {
                             ),
                         icon: Icon(Icons.send, color: Colors.grey.shade800),
                       )
-                      : Row(
-                        children: [
-                          IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.photo_camera_outlined,
-                              color: Colors.grey.shade800,
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.attach_file_outlined,
-                              color: Colors.grey.shade800,
-                            ),
-                          ),
-                        ],
-                      );
+                      : SizedBox();
                 },
               ),
             ],

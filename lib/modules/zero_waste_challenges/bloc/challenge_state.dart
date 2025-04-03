@@ -1,26 +1,77 @@
 part of 'challenge_bloc.dart';
 
-sealed class ChallengeState extends Equatable {
+abstract class ChallengeState extends Equatable {
   const ChallengeState();
-
+  
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
-final class ChallengeInitial extends ChallengeState {}
+class ChallengeInitial extends ChallengeState {}
 
-final class BeforeUploadImageLoadingState extends ChallengeState {}
+// Before Image States
+class BeforeUploadImageLoadingState extends ChallengeState {}
 
-final class BeforeUploadImageSuccessState extends ChallengeState {
+class BeforeUploadImageSuccessState extends ChallengeState {
   final File image;
+  
   const BeforeUploadImageSuccessState({required this.image});
+  
   @override
   List<Object> get props => [image];
 }
 
-final class BeforeUploadImageErrorState extends ChallengeState {
+class BeforeUploadImageErrorState extends ChallengeState {
   final String errorMessage;
+  
   const BeforeUploadImageErrorState({required this.errorMessage});
+  
+  @override
+  List<Object> get props => [errorMessage];
+}
+
+// After Image States
+class AfterUploadImageLoadingState extends ChallengeState {}
+
+class AfterUploadImageSuccessState extends ChallengeState {
+  final File beforeImage;
+  final File afterImage;
+  
+  const AfterUploadImageSuccessState({
+    required this.beforeImage,
+    required this.afterImage,
+  });
+  
+  @override
+  List<Object> get props => [beforeImage, afterImage];
+}
+
+class AfterUploadImageErrorState extends ChallengeState {
+  final String errorMessage;
+  
+  const AfterUploadImageErrorState({required this.errorMessage});
+  
+  @override
+  List<Object> get props => [errorMessage];
+}
+
+// Challenge Submission States
+class ChallengeSubmissionLoadingState extends ChallengeState {}
+
+class ChallengeSubmissionSuccessState extends ChallengeState {
+  final int points;
+  
+  const ChallengeSubmissionSuccessState({required this.points});
+  
+  @override
+  List<Object> get props => [points];
+}
+
+class ChallengeSubmissionErrorState extends ChallengeState {
+  final String errorMessage;
+  
+  const ChallengeSubmissionErrorState({required this.errorMessage});
+  
   @override
   List<Object> get props => [errorMessage];
 }

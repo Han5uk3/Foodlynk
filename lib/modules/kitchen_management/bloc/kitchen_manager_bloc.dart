@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/kitchen_manager.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
+import 'package:saver_bbk_main/services/storage_services.dart';
 
 part 'kitchen_manager_event.dart';
 part 'kitchen_manager_state.dart';
@@ -19,6 +22,7 @@ class KitchenManagerBloc
     AddNewItemEvent event,
     Emitter<KitchenManagerState> emit,
   ) async {
+    String? imageUrl;
     try {
       emit(AddNewStateLoading(isLoading: true));
 
@@ -26,6 +30,14 @@ class KitchenManagerBloc
           event.item.id?.isNotEmpty == true
               ? event.item.id
               : Items.generateRandomId();
+      if (event.imageFile?.path != null) {
+        imageUrl = await StorageService.uploadFile(
+          mainPath: 'kitchen-images',
+          fileName: 'kitchen-images_$itemId',
+          filePath: event.imageFile?.path ?? "",
+          isDeleted: false,
+        );
+      }
 
       final newItem = {
         'id': itemId,
@@ -33,6 +45,7 @@ class KitchenManagerBloc
         'quantity': event.item.quantity,
         'category': event.item.category,
         'unit': event.item.unit,
+        'item_image': imageUrl ?? "",
         'expiredDate': event.item.expiredDate,
       };
 
@@ -45,9 +58,7 @@ class KitchenManagerBloc
         }
 
         Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
-
         List<dynamic> kitchenItems = userData['kitchenItems'] ?? [];
-
         kitchenItems.add(newItem);
 
         final currentCount = userData['addedItemQuantityCount'] ?? 0;

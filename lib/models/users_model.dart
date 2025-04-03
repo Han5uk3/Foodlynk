@@ -55,7 +55,6 @@ class UserModel {
         try {
           return DateTime.parse(value);
         } catch (e) {
-          print('Invalid date format: $value');
           return null;
         }
       }
@@ -149,7 +148,6 @@ class UserModel {
         try {
           return DateTime.parse(value);
         } catch (e) {
-          print('Invalid date format: $value');
           return null;
         }
       }
@@ -188,6 +186,7 @@ class UserModel {
 class Items {
   final String? id;
   final String? name;
+  final String? image;
   final String? category;
   final int? quantity;
   final String? unit;
@@ -197,6 +196,7 @@ class Items {
   Items({
     this.id,
     this.name,
+    this.image,
     this.category,
     this.quantity,
     this.unit,
@@ -210,6 +210,7 @@ class Items {
     return Items(
       id: map['id'] as String? ?? '',
       name: map['name'] as String? ?? 'Unknown',
+      image: map['item_image'] as String? ?? '',
       category: map['category'] as String? ?? '',
       quantity: (map['quantity'] as num?)?.toInt() ?? 0,
       unit: map['unit'] as String? ?? '',
@@ -222,6 +223,7 @@ class Items {
     return {
       'id': id,
       'name': name,
+      'item_image': image,
       'category': category,
       'quantity': quantity,
       'unit': unit,

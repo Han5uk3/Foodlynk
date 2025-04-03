@@ -11,6 +11,7 @@ import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_b
 import 'package:saver_bbk_main/modules/smart_shopping_list/shopping_list.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'dart:async';
 
 class SmartShoppingHome extends StatefulWidget {
   const SmartShoppingHome({super.key, required this.onBack});
@@ -26,6 +27,61 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
   bool _isLoading = false;
   String searchQuery = "";
   final FocusNode searchFocusNode = FocusNode();
+
+  // Add a timer to debounce search events
+  Timer? _debounce;
+
+  // Stream controller for filtered list data
+  List<SmartShoppingModel>? _allLists;
+  List<SmartShoppingModel> _filteredLists = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // We'll use onChanged instead of a listener
+  }
+
+  @override
+  void dispose() {
+    // Clean up controllers and timer
+    searchController.dispose();
+    listNameController.dispose();
+    searchFocusNode.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  // Debounced search function to avoid excessive refreshes
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      if (query != searchQuery) {
+        setState(() {
+          searchQuery = query.trim().toLowerCase();
+          _filterLists();
+        });
+      }
+    });
+  }
+
+  // Filter lists based on search query
+  void _filterLists() {
+    if (_allLists == null) return;
+
+    if (searchQuery.isEmpty) {
+      _filteredLists = List.from(_allLists!);
+    } else {
+      _filteredLists =
+          _allLists!
+              .where(
+                (list) =>
+                    (list.listName?.toLowerCase() ?? "").contains(searchQuery),
+              )
+              .toList();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,6 +121,7 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
             _isLoading = false;
           });
           Navigator.pop(context);
+          listNameController.clear();
           SaverSnackBar.show(
             context: context,
             message: "Your new list has been created",
@@ -72,7 +129,9 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
           );
         }
         if (state is CreateNewSmartShoppingListFailureState) {
-          _isLoading = false;
+          setState(() {
+            _isLoading = false;
+          });
           SaverSnackBar.show(
             context: context,
             message: "Failed to create new list",
@@ -89,7 +148,7 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
             SizedBox(height: 18),
             _buildTitle(),
             SizedBox(height: 18),
-            _buildListCard(),
+            Expanded(child: _buildListCard()),
           ],
         ),
       ),
@@ -122,18 +181,19 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
                 borderSide: BorderSide(color: AppColor.lightGrey200),
               ),
               suffixIcon:
-                  searchQuery.isNotEmpty
+                  searchController.text.isNotEmpty
                       ? IconButton(
                         icon: Icon(Icons.clear, color: Colors.grey.shade600),
                         onPressed: () {
                           searchController.clear();
+                          _onSearchChanged("");
                         },
                       )
                       : Icon(Icons.search, color: Colors.grey.shade600),
               hintStyle: TextStyle(color: AppColor.lightGrey200),
               hintText: "search list",
             ),
-            onTap: () {},
+            onChanged: _onSearchChanged,
           ),
         ),
       ],
@@ -141,9 +201,19 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
   }
 
   Widget _buildTitle() {
-    return Text(
-      "Shopping Lists",
-      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          "Shopping Lists",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        if (searchQuery.isNotEmpty)
+          Text(
+            "Showing results for \"$searchQuery\"",
+            style: TextStyle(color: AppColor.lightGrey200, fontSize: 12),
+          ),
+      ],
     );
   }
 
@@ -154,26 +224,32 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return SaverLoader();
         }
-        if (snapshot.data?.isEmpty ?? false) {
+
+        if (snapshot.hasError) {
+          return Center(child: Text("Error loading lists"));
+        }
+
+        if (snapshot.data?.isEmpty ?? true) {
           return Center(child: Text("No shopping lists found"));
         }
-        final data = snapshot.data ?? [];
-        List allItems =
-            data
-                .map((i) => i.items?.where((item) => item.status == "AL") ?? [])
-                .expand((i) => i)
-                .toList();
-        List purchasedList =
-            data
-                .map((i) => i.items?.where((item) => item.status == "PR") ?? [])
-                .expand((i) => i)
-                .toList();
+
+        // Store the complete list data once received
+        if (_allLists == null || _allLists!.isEmpty) {
+          _allLists = snapshot.data;
+          _filterLists(); // Apply any existing search filter
+        }
+
+        // Show "No results" message when search returns empty
+        if (_filteredLists.isEmpty && searchQuery.isNotEmpty) {
+          return Center(child: Text("No lists matching \"$searchQuery\""));
+        }
+
         return ListView.builder(
-          itemCount: data.length,
+          itemCount: _filteredLists.length,
           shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const AlwaysScrollableScrollPhysics(),
           itemBuilder: (context, index) {
-            SmartShoppingModel item = data[index];
+            SmartShoppingModel item = _filteredLists[index];
             return Padding(
               padding: const EdgeInsets.only(bottom: 14),
               child: GestureDetector(
@@ -267,6 +343,7 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
     showModalBottomSheet(
       isDismissible: false,
       context: context,
+      isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(12),
@@ -274,60 +351,79 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
         ),
       ),
       builder: (context) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Add Shopping List",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Icon(Icons.close),
-                  ),
-                ],
-              ),
-            ),
-            Divider(color: AppColor.lightGrey, thickness: 1.5, height: 1.5),
-            Padding(
-              padding: const EdgeInsets.only(left: 14, right: 14, top: 14),
-              child: Text("List Name", style: TextStyle(fontSize: 16)),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 14, right: 14, top: 8),
-              child: SaverTextField(
-                hintText: "Enter list name",
-                controller: listNameController,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 50,
-                bottom: 24,
-                left: 14,
-                right: 14,
-              ),
-              child: SaverButton(
-                text: "Save Changes",
-                isLoading: _isLoading,
-                onPressed:
-                    () => context.read<SmartShoppingBloc>().add(
-                      CreateNewSmartShoppingEvent(
-                        listName: listNameController.text.trim(),
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Add Shopping List",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-              ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                ),
+                Divider(color: AppColor.lightGrey, thickness: 1.5, height: 1.5),
+                Padding(
+                  padding: const EdgeInsets.only(left: 14, right: 14, top: 14),
+                  child: Text("List Name", style: TextStyle(fontSize: 16)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 14, right: 14, top: 8),
+                  child: SaverTextField(
+                    hintText: "Enter list name",
+                    controller: listNameController,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: 50,
+                    bottom: 24,
+                    left: 14,
+                    right: 14,
+                  ),
+                  child: SaverButton(
+                    text: "Save Changes",
+                    isLoading: _isLoading,
+                    onPressed: () {
+                      if (listNameController.text.trim().isEmpty) {
+                        SaverSnackBar.show(
+                          context: context,
+                          message: "Please enter a list name",
+                          isTrue: false,
+                        );
+                        return;
+                      }
+                      context.read<SmartShoppingBloc>().add(
+                        CreateNewSmartShoppingEvent(
+                          listName: listNameController.text.trim(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );

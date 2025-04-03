@@ -366,8 +366,7 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
     showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext context) {
-        bool isDonor = true; // Local state within the modal
-
+        bool isDonor = true;
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Column(

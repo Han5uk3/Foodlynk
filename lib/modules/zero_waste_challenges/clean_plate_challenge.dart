@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/image_picker.dart';
-import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
@@ -20,33 +19,17 @@ class CleanPlateChallenge extends StatefulWidget {
 class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
   File? _beforeImageFile;
   File? _afterImageFile;
-  bool _isBeforeImageUploading = false;
-  bool _isAfterImageUploading = false;
-
-  void _setAfterImage(File image) {
-    setState(() {
-      _isAfterImageUploading = true;
-    });
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() {
-        _afterImageFile = image;
-        _isAfterImageUploading = false;
-      });
-    });
-  }
+  bool _isSubmitting = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: saverAppBar("Clean Plate Challenge", context, isneedtopop: true),
-      body: BlocListener<ChallengeBloc, ChallengeState>(
+      body: BlocConsumer<ChallengeBloc, ChallengeState>(
         listener: (context, state) {
-          if (state is BeforeUploadImageLoadingState) {
-            setState(() => _isBeforeImageUploading = true);
-          } else if (state is BeforeUploadImageSuccessState) {
+          if (state is BeforeUploadImageSuccessState) {
             setState(() {
               _beforeImageFile = state.image;
-              _isBeforeImageUploading = false;
             });
             SaverSnackBar.show(
               context: context,
@@ -54,56 +37,102 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
               isTrue: true,
             );
           } else if (state is BeforeUploadImageErrorState) {
-            setState(() => _isBeforeImageUploading = false);
             SaverSnackBar.show(
               context: context,
-              message: "Failed to upload image. Please try again.",
+              message: state.errorMessage,
+              isTrue: false,
+            );
+          } else if (state is AfterUploadImageSuccessState) {
+            setState(() {
+              _beforeImageFile = state.beforeImage;
+              _afterImageFile = state.afterImage;
+            });
+            SaverSnackBar.show(
+              context: context,
+              message: "After image uploaded successfully!",
+              isTrue: true,
+            );
+          } else if (state is AfterUploadImageErrorState) {
+            SaverSnackBar.show(
+              context: context,
+              message: state.errorMessage,
+              isTrue: false,
+            );
+          } else if (state is ChallengeSubmissionSuccessState) {
+            setState(() {
+              _isSubmitting = false;
+            });
+            _showCompletedBottomSheet(context, state.points);
+          } else if (state is ChallengeSubmissionErrorState) {
+            setState(() {
+              _isSubmitting = false;
+            });
+            SaverSnackBar.show(
+              context: context,
+              message: state.errorMessage,
               isTrue: false,
             );
           } else if (state is ChallengeInitial) {
-            // Handle the case when image is removed
             setState(() {
               _beforeImageFile = null;
-              _isBeforeImageUploading = false;
+            });
+          } else if (state is ChallengeSubmissionLoadingState) {
+            setState(() {
+              _isSubmitting = true;
             });
           }
         },
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildChallengeCard(),
-                _buildImageSection(
-                  "Upload before image",
-                  _beforeImageFile,
-                  true,
-                  _isBeforeImageUploading,
-                ),
-                _buildImageSection(
-                  "Upload after image",
-                  _afterImageFile,
-                  false,
-                  _isAfterImageUploading,
-                ),
-              ],
+        builder: (context, state) {
+          bool isBeforeLoading = state is BeforeUploadImageLoadingState;
+          bool isAfterLoading = state is AfterUploadImageLoadingState;
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildChallengeCard(),
+                  _buildImageSection(
+                    "Upload before image",
+                    _beforeImageFile,
+                    true,
+                    isBeforeLoading,
+                  ),
+                  _buildImageSection(
+                    "Upload after image",
+                    _afterImageFile,
+                    false,
+                    isAfterLoading,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(14),
         child: SaverButton(
-          text: "Submit Challenge",
+          text: _isSubmitting ? "Submitting..." : "Submit Challenge",
           color:
               (_beforeImageFile != null &&
                       _afterImageFile != null &&
-                      !_isBeforeImageUploading &&
-                      !_isAfterImageUploading)
+                      !_isSubmitting)
                   ? AppColor.primaryColor
                   : AppColor.lightGrey200,
-          onPressed: () {},
+          onPressed:
+              (_beforeImageFile != null &&
+                      _afterImageFile != null &&
+                      !_isSubmitting)
+                  ? () {
+                    context.read<ChallengeBloc>().add(
+                      SubmitChallengeEvent(
+                        beforeImageFile: _beforeImageFile!,
+                        afterImageFile: _afterImageFile!,
+                      ),
+                    );
+                  }
+                  : () {},
         ),
       ),
     );
@@ -173,7 +202,7 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
     String title,
     File? imageFile,
     bool isBefore,
-    bool isUploading,
+    bool isLoading,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,7 +215,7 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                 title,
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
               ),
-              if (isUploading) ...[
+              if (isLoading) ...[
                 const SizedBox(width: 10),
                 SizedBox(
                   width: 15,
@@ -212,21 +241,32 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
         Row(
           children: [
             if (imageFile != null) _buildImagePreview(imageFile, isBefore),
-            if (isUploading && imageFile == null)
-              _buildLoadingImagePlaceholder(),
+            if (isLoading && imageFile == null) _buildLoadingImagePlaceholder(),
             Visibility(
-              visible: imageFile == null && !isUploading,
+              visible: imageFile == null && !isLoading,
               child: ImagePickerButton(
                 onImageSelected: (File image) {
                   if (isBefore) {
+                    _showCompletedBottomSheet(context, 10);
+                    // context.read<ChallengeBloc>().add(
+                    //   UploadBeforeImageEvent(imageFile: image),
+                    // );
+                  } else if (_beforeImageFile != null) {
                     context.read<ChallengeBloc>().add(
-                      UploadBeforeImageEvent(imageFile: image),
+                      UploadAfterImageEvent(
+                        imageFile: image,
+                        beforeImageFile: _beforeImageFile!,
+                      ),
                     );
                   } else {
-                    _setAfterImage(image);
+                    SaverSnackBar.show(
+                      context: context,
+                      message: "Please upload the before image first",
+                      isTrue: false,
+                    );
                   }
                 },
-                isFood: isBefore,
+                isFood: true,
               ),
             ),
           ],
@@ -284,12 +324,13 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
             child: GestureDetector(
               onTap: () {
                 if (isBefore) {
-                  // Dispatch the remove event to the bloc
                   context.read<ChallengeBloc>().add(RemoveBeforeImageEvent());
                   setState(() {
-                    _beforeImageFile = null;
+                    _afterImageFile =
+                        null; // Reset after image too when before is removed
                   });
                 } else {
+                  context.read<ChallengeBloc>().add(RemoveAfterImageEvent());
                   setState(() {
                     _afterImageFile = null;
                   });
@@ -329,34 +370,17 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
     );
   }
 
-  void _showLoadingDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 16),
-              CircularProgressIndicator(color: AppColor.primaryColor),
-              const SizedBox(height: 16),
-              Text(message),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  _showCompletedBottomSheet(BuildContext context) {
+  _showCompletedBottomSheet(BuildContext context, int points) {
     showModalBottomSheet(
       backgroundColor: AppColor.white,
+      isDismissible: false,
+      enableDrag: false,
+      useSafeArea: true,
       context: context,
       builder:
           (_) => Container(
             padding: const EdgeInsets.all(16),
-            height: MediaQuery.of(context).size.height * 0.55,
+            height: MediaQuery.of(context).size.height * 0.70,
             child: Column(
               children: [
                 Text(
@@ -369,29 +393,26 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                 loadsvg("assets/icons/completed.svg"),
                 const SizedBox(height: 20),
                 Text(
-                  "You earned 10 points on completing your challenge!",
+                  "You earned $points points on completing your challenge!",
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 35),
                 Row(
                   children: [
+                    const SizedBox(width: 10),
                     Expanded(
-                      child: SaverOutlineButton(
-                        text: "Take Again",
+                      child: SaverButton(
+                        text: "Back",
                         onPressed: () {
                           Navigator.pop(context);
+                          context.read<ChallengeBloc>().add(
+                            RemoveBeforeImageEvent(),
+                          );
                           setState(() {
                             _beforeImageFile = null;
                             _afterImageFile = null;
                           });
                         },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: SaverButton(
-                        text: "Back",
-                        onPressed: () => Navigator.pop(context),
                       ),
                     ),
                   ],

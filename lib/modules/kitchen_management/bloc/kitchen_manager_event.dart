@@ -9,9 +9,10 @@ sealed class KitchenManagerEvent extends Equatable {
 
 class AddNewItemEvent extends KitchenManagerEvent {
   final Items item;
-  const AddNewItemEvent({required this.item});
+  final File? imageFile;
+  const AddNewItemEvent({required this.item, this.imageFile});
   @override
-  List<Object> get props => [item];
+  List<Object> get props => [item, imageFile ?? File];
 }
 
 class RemoveItemEvent extends KitchenManagerEvent {

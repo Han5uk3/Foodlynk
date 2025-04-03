@@ -7,9 +7,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
 import 'package:saver_bbk_main/modules/community/chat_page.dart';
+import 'package:saver_bbk_main/modules/food_share/bloc/food_share_bloc.dart';
 import 'package:saver_bbk_main/modules/food_swap/bloc/food_swap_bloc.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/bloc/kitchen_manager_bloc.dart';
 import 'package:saver_bbk_main/firebase_options.dart';
+import 'package:saver_bbk_main/modules/notifications/bloc/notification_bloc.dart';
 import 'package:saver_bbk_main/modules/profile/bloc/profile_bloc.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_bloc.dart';
 import 'package:saver_bbk_main/modules/splash_screen/splash_screen.dart';
@@ -109,6 +111,8 @@ class _MyAppState extends State<MyApp> {
         BlocProvider<SmartShoppingBloc>(
           create: (context) => SmartShoppingBloc(context),
         ),
+        BlocProvider<NotificationBloc>(create: (context) => NotificationBloc()),
+        BlocProvider<FoodShareBloc>(create: (context) => FoodShareBloc()),
       ],
       child: MaterialApp(
         title: 'Saver App',

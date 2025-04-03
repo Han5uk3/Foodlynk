@@ -112,6 +112,19 @@ class _ProfilePageState extends State<ProfilePage> {
                     _showDeleteBottomSheet(context, false);
                   },
                 ),
+                SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Version: v1.0.2",
+                      style: TextStyle(
+                        color: AppColor.lightGrey200,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           );
@@ -173,6 +186,7 @@ class _ProfilePageState extends State<ProfilePage> {
   _showDeleteBottomSheet(BuildContext context, bool toggler) {
     showModalBottomSheet(
       context: context,
+      useSafeArea: true,
       builder: (context) {
         return Column(
           spacing: 15,

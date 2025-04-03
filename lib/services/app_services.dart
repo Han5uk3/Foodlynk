@@ -1,14 +1,17 @@
+import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
-import 'package:saver_bbk_main/helpers/hive_helper.dart';
+import 'package:saver_bbk_main/models/donation_model.dart';
 import 'package:saver_bbk_main/models/food_swap_model.dart';
+import 'package:saver_bbk_main/models/notification_model.dart';
 import 'package:saver_bbk_main/models/smart_shopping_model.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
 
 class Services {
-  static String uid = HiveHelper.getUID();
+  static String? uid;
+  static bool? isGuest;
   static Stream<QuerySnapshot<UserModel>> getUserDetails({String? uid}) {
     return Collections.users
         .where('uid', isEqualTo: uid)
@@ -32,6 +35,7 @@ class Services {
     return Collections.foodSwap.snapshots().map((query) {
       return query.docs
           .where((doc) => doc['uid'] == uid)
+          .where((doc) => doc['status'] != 'A')
           .map(
             (doc) => FoodSwapModel.fromMap(
               doc.data() as Map<String, dynamic>,
@@ -104,7 +108,10 @@ class Services {
   static Future<List<FoodSwapModel>> getUserSwapListFuture() async {
     try {
       QuerySnapshot querySnapshot =
-          await Collections.foodSwap.where('uid', isEqualTo: uid).get();
+          await Collections.foodSwap
+              .where('uid', isEqualTo: uid)
+              .where('status', isEqualTo: 'P')
+              .get();
 
       return querySnapshot.docs
           .map(
@@ -115,7 +122,6 @@ class Services {
           )
           .toList();
     } catch (e) {
-      print('Error: $e');
       return [];
     }
   }
@@ -141,11 +147,15 @@ class Services {
   }
 
   static Future<void> updateFCMToken(String token) async {
-    try {
-      return Collections.users.doc(uid).update({'fcmToken': token});
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error updating FCM token: $e');
+    if (uid!.isEmpty) {
+      return;
+    } else {
+      try {
+        return Collections.users.doc(uid).update({'fcmToken': token});
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error updating FCM token: $e');
+        }
       }
     }
   }
@@ -216,5 +226,67 @@ class Services {
           }
           return listNamesAndId;
         });
+  }
+
+  static Stream<List<NotificationModel>> getUserNotifications() {
+    return Collections.notifications
+        .where("uid", isEqualTo: uid)
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map(
+          (query) =>
+              query.docs.map((doc) {
+                log(doc.data().toString());
+                return NotificationModel.fromMap(
+                  doc.data() as Map<String, dynamic>,
+                );
+              }).toList(),
+        );
+  }
+
+  static Future<void> updateUserPoints(int points) async {
+    try {
+      var userDoc = await Collections.users.doc(uid).get();
+
+      if (userDoc.exists) {
+        Map<String, dynamic>? userData =
+            userDoc.data() as Map<String, dynamic>?;
+
+        int currentPoints = userData?['points'] ?? 0;
+        int updatedPoints = currentPoints + points;
+
+        await Collections.users.doc(uid).update({'points': updatedPoints});
+
+        if (kDebugMode) {
+          print('User points updated successfully: $updatedPoints');
+        }
+      } else {
+        if (kDebugMode) {
+          print('User document not found.');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error updating user points: $e');
+      }
+    }
+  }
+
+  static Stream<List<DonationModel>> getMyDonations(String type) {
+    return Collections.donations
+        .where('raisedBy', isEqualTo: uid)
+        .where('type', isEqualTo: type)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (query) =>
+              query.docs
+                  .map(
+                    (doc) => DonationModel.fromMap(
+                      doc.data() as Map<String, dynamic>,
+                    ),
+                  )
+                  .toList(),
+        );
   }
 }

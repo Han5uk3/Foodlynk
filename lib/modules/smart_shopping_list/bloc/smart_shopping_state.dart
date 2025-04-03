@@ -94,3 +94,14 @@ class ListNameChangedFailureState extends SmartShoppingState {
   @override
   List<Object> get props => [errorMessage];
 }
+
+class RemoveItemFromSmartListLoadingState extends SmartShoppingState {}
+
+class RemoveItemFromSmartListSuccessState extends SmartShoppingState {}
+
+class RemoveItemFromSmartListFailureState extends SmartShoppingState {
+  final String errorMessage;
+  const RemoveItemFromSmartListFailureState({required this.errorMessage});
+  @override
+  List<Object> get props => [errorMessage];
+}

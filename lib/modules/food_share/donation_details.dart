@@ -2,12 +2,18 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/calender.dart';
 import 'package:saver_bbk_main/common_widget/dropdown.dart';
 import 'package:saver_bbk_main/common_widget/image_picker.dart';
+import 'package:saver_bbk_main/common_widget/label.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
+import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/text_field.dart';
+import 'package:saver_bbk_main/models/donation_model.dart';
+import 'package:saver_bbk_main/modules/food_share/bloc/food_share_bloc.dart';
+import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class DonationDetails extends StatefulWidget {
@@ -83,10 +89,47 @@ class _DonationDetailsState extends State<DonationDetails> {
                 ]
                 : [],
       ),
-      body:
-          widget.isDonor
-              ? _buildDonorBody(widget.isView)
-              : _buildBeneficiaryBody(widget.isView),
+      body: BlocListener<FoodShareBloc, FoodShareState>(
+        listener: (context, state) {
+          if (state is NewDonationSuccessState) {
+            Navigator.pop(context);
+            Navigator.pop(context);
+            SaverSnackBar.show(
+              context: context,
+              message: "Donation Added",
+              isTrue: true,
+            );
+          }
+          if (state is NewBenificiarySuccessState) {
+            Navigator.pop(context);
+            Navigator.pop(context);
+            SaverSnackBar.show(
+              context: context,
+              message: "Request Added",
+              isTrue: true,
+            );
+          }
+          if (state is NewBenificiaryFailedState) {
+            SaverSnackBar.show(
+              context: context,
+              message: "Failed to Add Request",
+              isTrue: false,
+            );
+            
+          }
+          if (state is NewDonationFailedState) {
+            SaverSnackBar.show(
+              context: context,
+              message: "Failed to Add Donation",
+              isTrue: false,
+            );
+          }
+        },
+        child:
+            widget.isDonor
+                ? _buildDonorBody(widget.isView)
+                : _buildBeneficiaryBody(widget.isView),
+      ),
       bottomNavigationBar:
           widget.isView
               ? widget.isDonor
@@ -111,25 +154,55 @@ class _DonationDetailsState extends State<DonationDetails> {
                     ),
                   )
                   : null
-              : Padding(
-                padding: const EdgeInsets.only(
-                  top: 14,
-                  left: 14,
-                  right: 14,
-                  bottom: 24,
-                ),
-                child: SaverButton(
-                  text: widget.isDonor ? "Submit Donation" : "Submit Request",
-                  onPressed: () {
-                    widget.isDonor
-                        ? log(
-                          "Donor data :foodName: ${foodNameController.text},foodType: $selectedItem, Serves: ${serveCountController.text}, description: ${descriptionController.text}, expiryDate: $selectedDate, pickupLocation: ${locationNameController.text}, uploadedImage: ${_imageFile!.path} ",
-                        )
-                        : log(
-                          "Beneficiary data: foodType: $selectedItem,pickupLocation: ${locationNameController.text},yourName: ${yourNameController.text},countryCode: $selectedCode, yourPhone: ${yourPhoneController.text}",
-                        );
-                  },
-                ),
+              : BlocBuilder<FoodShareBloc, FoodShareState>(
+                builder: (context, state) {
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      top: 14,
+                      left: 14,
+                      right: 14,
+                      bottom: 24,
+                    ),
+                    child: SaverButton(
+                      text:
+                          widget.isDonor ? "Submit Donation" : "Submit Request",
+                      isLoading:
+                          state is NewDonationLoadingState ||
+                          state is NewBenificiaryLoadingState,
+                      onPressed: () {
+                        widget.isDonor
+                            ? context.read<FoodShareBloc>().add(
+                              AddNewFoodDonationEvent(
+                                model: DonationModel(
+                                  foodName: foodNameController.text,
+                                  foodType: selectedItem,
+                                  discription: descriptionController.text,
+                                  noOfServe: int.parse(
+                                    serveCountController.text,
+                                  ),
+                                  raisedBy: Services.uid,
+                                  image: _imageFile?.path ?? "",
+                                  pickUpLocation: locationNameController.text,
+                                  isAccpected: tcvalue,
+                                  expiredDate: selectedDate,
+                                ),
+                              ),
+                            )
+                            : context.read<FoodShareBloc>().add(
+                              AddNewBaneficiaryEvent(
+                                model: DonationModel(
+                                  foodType: selectedItem,
+                                  pickUpLocation: locationNameController.text,
+                                  contactName: yourNameController.text,
+                                  contactContryCode: selectedCode,
+                                  contactMobile: yourPhoneController.text,
+                                ),
+                              ),
+                            );
+                      },
+                    ),
+                  );
+                },
               ),
     );
   }
@@ -151,26 +224,25 @@ class _DonationDetailsState extends State<DonationDetails> {
                         alignment: Alignment.center,
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          border: Border.all(
-                            color: AppColor.yellow,
-                          ), // change border and text color for after accepted
+                          border: Border.all(color: AppColor.yellow),
                         ),
                         child: Text(
                           textAlign: TextAlign.justify,
-                          "This item is awaiting acceptance from beneficiary", // is already accepted(donated) "This request has been accepted and is awaiting pickup"
+                          "This item is awaiting acceptance from beneficiary",
                           style: TextStyle(color: AppColor.yellow),
                         ),
                       ),
                     ],
                   )
                   : SizedBox.shrink(),
-              Text("Food Name"),
+              Label(text: "Food Name"),
               SaverTextField(
                 hintText: "Enter food name",
                 controller: foodNameController,
+                keyboardType: TextInputType.text,
               ),
               SizedBox(height: 8),
-              Text("Food Type"),
+              Label(text: "Food Type"),
               SaverDropdown(
                 items: items,
                 selectedItem: selectedItem,
@@ -181,15 +253,16 @@ class _DonationDetailsState extends State<DonationDetails> {
                 },
               ),
               SizedBox(height: 8),
-              Text("Number of Serve(s)"),
+              Label(text: "Number of Serve(s)"),
               SaverTextField(
                 hintText: "Enter number of serve(s)",
                 controller: serveCountController,
+                keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               ),
 
               SizedBox(height: 8),
-              Text("Description"),
+              Label(text: "Description"),
               SizedBox(
                 height: 120,
                 child: SaverTextField(
@@ -200,7 +273,7 @@ class _DonationDetailsState extends State<DonationDetails> {
                 ),
               ),
               SizedBox(height: 8),
-              Text("Expiry Date"),
+              Label(text: "Expiry Date"),
               ShowCalendar(
                 isEdit: false,
                 restrictBackDates: true,

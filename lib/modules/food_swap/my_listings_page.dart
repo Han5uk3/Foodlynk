@@ -300,19 +300,31 @@ class _FoodDetailsState extends State<FoodDetails> {
   }
 
   void _saveChanges() {
-    final Items item = Items(
-      id: widget.items.id,
-      name: nameController.text,
-      quantity: numberOfQuantity,
-      unit: selectedUnit ?? "",
-      category: selectedCategory,
-      expiredDate: selectedExpiryDate,
-    );
-
-    if (widget.isEditable) {
-      context.read<FoodSwapBloc>().add(UpdateItemInFoodSwapEvent(item: item));
+    if (nameController.text.isEmpty ||
+        numberOfQuantity < 1 ||
+        (selectedUnit?.isEmpty ?? false) ||
+        selectedExpiryDate == null) {
+      SaverSnackBar.show(
+        context: context,
+        message: "Please fill in all fields",
+        isTrue: false,
+      );
+      return;
     } else {
-      context.read<FoodSwapBloc>().add(AddItemToFoodSwapEvent(item: item));
+      final Items item = Items(
+        id: widget.items.id,
+        name: nameController.text,
+        quantity: numberOfQuantity,
+        unit: selectedUnit ?? "",
+        category: selectedCategory,
+        expiredDate: selectedExpiryDate,
+      );
+
+      if (widget.isEditable) {
+        context.read<FoodSwapBloc>().add(UpdateItemInFoodSwapEvent(item: item));
+      } else {
+        context.read<FoodSwapBloc>().add(AddItemToFoodSwapEvent(item: item));
+      }
     }
   }
 
@@ -471,6 +483,7 @@ class RequestsDetails extends StatefulWidget {
 }
 
 class _RequestsDetailsState extends State<RequestsDetails> {
+  bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -494,7 +507,11 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ChatPage(isFromFoodSwap: true,isFromNotifications: false,),
+                      builder:
+                          (context) => ChatPage(
+                            isFromFoodSwap: true,
+                            isFromNotifications: false,
+                          ),
                     ),
                   );
                 }
@@ -556,6 +573,9 @@ class _RequestsDetailsState extends State<RequestsDetails> {
   Widget _buildRequestItem(BuildContext context, AcceptedSwapItem item) {
     return BlocBuilder<FoodSwapBloc, FoodSwapState>(
       builder: (context, state) {
+        if (state is RequestAcceptedLoadingState) {
+          _isLoading = state.isLoading;
+        }
         return FutureBuilder<DocumentSnapshot>(
           future: Collections.users.doc(item.uid).get(),
           builder: (context, userSnapshot) {
@@ -571,165 +591,163 @@ class _RequestsDetailsState extends State<RequestsDetails> {
             final userName =
                 "${userData?['firstName']} ${userData?['lastName']}";
             final userProfilePic = userData?['profilePicUrl'];
+            final fcmToken = userData?['fcmToken'] ?? "";
 
-            return GestureDetector(
-              onTap: () {},
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 14),
-                decoration: BoxDecoration(
-                  color: AppColor.white,
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: 12,
-                            left: 12,
-                            right: 12,
+            return Container(
+              margin: const EdgeInsets.only(bottom: 14),
+              decoration: BoxDecoration(
+                color: AppColor.white,
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 12,
+                          left: 12,
+                          right: 12,
+                        ),
+                        child: Container(
+                          height: 55,
+                          width: 55,
+                          decoration: BoxDecoration(
+                            color: AppColor.white,
+                            border: Border.all(color: AppColor.lightGrey200),
+                            borderRadius: BorderRadius.circular(50),
                           ),
-                          child: Container(
-                            height: 55,
-                            width: 55,
-                            decoration: BoxDecoration(
-                              color: AppColor.white,
-                              border: Border.all(color: AppColor.lightGrey200),
-                              borderRadius: BorderRadius.circular(50),
-                            ),
-                            child: Center(
-                              child:
-                                  userProfilePic != null
-                                      ? ClipRRect(
-                                        borderRadius: BorderRadius.circular(50),
-                                        child: Image.network(
-                                          userProfilePic,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (
-                                            context,
-                                            error,
-                                            stackTrace,
-                                          ) {
-                                            return Icon(
-                                              Icons.person,
-                                              color: AppColor.lightGrey200,
-                                            );
-                                          },
-                                        ),
-                                      )
-                                      : Icon(
-                                        Icons.person,
-                                        color: AppColor.lightGrey200,
+                          child: Center(
+                            child:
+                                userProfilePic != null
+                                    ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(50),
+                                      child: Image.network(
+                                        userProfilePic,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (
+                                          context,
+                                          error,
+                                          stackTrace,
+                                        ) {
+                                          return Icon(
+                                            Icons.person,
+                                            color: AppColor.lightGrey200,
+                                          );
+                                        },
                                       ),
+                                    )
+                                    : Icon(
+                                      Icons.person,
+                                      color: AppColor.lightGrey200,
+                                    ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  userName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 14),
+                                  child: Icon(
+                                    Icons.messenger_outline,
+                                    color: AppColor.black,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
+                            Text(
+                              "Requested on ${DateFormatHelper.ddmmyyyyString(item.pickupDate ?? "")}",
+                            ),
+                          ],
                         ),
-                        Expanded(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    userName,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 14),
-                                    child: Icon(
-                                      Icons.messenger_outline,
-                                      color: AppColor.black,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                "Requested on ${DateFormatHelper.ddmmyyyyString(item.pickupDate ?? "")}",
-                              ),
-                            ],
-                          ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Divider(
+                        color: Colors.grey.shade200,
+                        thickness: 2,
+                        indent: 12,
+                        endIndent: 12,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 12,
+                          right: 12,
+                          bottom: 8,
                         ),
-                      ],
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Divider(
-                          color: Colors.grey.shade200,
-                          thickness: 2,
-                          indent: 12,
-                          endIndent: 12,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 12,
-                            right: 12,
-                            bottom: 8,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Expanded(
-                                child: SizedBox(
-                                  width: double.infinity,
-                                  child: SaverOutlineButton(
-                                    isLoading:
-                                        state is RequestAcceptedLoadingState,
-                                    text: "Accept",
-                                    onPressed:
-                                        () => context.read<FoodSwapBloc>().add(
-                                          AcceptedFoodSwapRequestEvent(
-                                            swapId: item.swapedItemId ?? "",
-                                            reciverUid: item.uid ?? "",
-                                            communityBloc:
-                                                context.read<CommunityBloc>(),
-                                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: SaverOutlineButton(
+                                  isLoading: _isLoading,
+
+                                  text: "Accept",
+                                  onPressed:
+                                      () => context.read<FoodSwapBloc>().add(
+                                        AcceptedFoodSwapRequestEvent(
+                                          swapId: item.swapedItemId ?? "",
+                                          reciverUid: item.uid ?? "",
+                                          fcmToken: fcmToken,
+                                          communityBloc:
+                                              context.read<CommunityBloc>(),
                                         ),
-                                    borderColor: AppColor.primaryColor,
-                                    textColor: AppColor.primaryColor,
-                                  ),
+                                      ),
+                                  borderColor: AppColor.primaryColor,
+                                  textColor: AppColor.primaryColor,
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: SizedBox(
-                                  width: double.infinity,
-                                  child: SaverOutlineButton(
-                                    isLoading:
-                                        state
-                                            is FoodSwapRequestDeclinedLoadingState,
-                                    text: "Decline",
-                                    onPressed:
-                                        () => context.read<FoodSwapBloc>().add(
-                                          DeclineFoodSwapEvent(
-                                            reqId: item.reqId ?? 0,
-                                            swapId: item.swapedItemId ?? "",
-                                          ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: SaverOutlineButton(
+                                  isLoading:
+                                      state
+                                          is FoodSwapRequestDeclinedLoadingState,
+                                  text: "Decline",
+                                  onPressed:
+                                      () => context.read<FoodSwapBloc>().add(
+                                        DeclineFoodSwapEvent(
+                                          reqId: item.reqId ?? 0,
+                                          swapId: item.swapedItemId ?? "",
                                         ),
-                                    borderColor: AppColor.red,
-                                    textColor: AppColor.red,
-                                  ),
+                                      ),
+                                  borderColor: AppColor.red,
+                                  textColor: AppColor.red,
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             );
           },

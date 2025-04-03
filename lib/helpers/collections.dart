@@ -10,6 +10,7 @@ class Collections {
   static CollectionReference notifications = firestore.collection(
     Paths.notifications,
   );
+  static CollectionReference donations = firestore.collection(Paths.donations);
 }
 
 class Paths {
@@ -17,4 +18,5 @@ class Paths {
   static String foodSwap = "food-swap";
   static String smartShopping = "smart-shopping";
   static String notifications = "notifications";
+  static String donations = "donations";
 }

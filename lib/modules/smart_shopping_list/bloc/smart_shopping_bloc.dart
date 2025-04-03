@@ -17,6 +17,7 @@ class SmartShoppingBloc extends Bloc<SmartShoppingEvent, SmartShoppingState> {
     on<MarkAsPurchasedSmartShoppingEvent>(_markAsPurchasedSmartShoppingList);
     on<MoveFromKitchenToSmartListEvent>(_moveToSmartShoppingList);
     on<UpdateSmartShopingListNameEvent>(_chnageNewListName);
+    on<RemoveItemSmartShoppingEvent>(_removeItemSmartShoppingList);
   }
 
   void _createNewSmartShoppingList(
@@ -154,6 +155,31 @@ class SmartShoppingBloc extends Bloc<SmartShoppingEvent, SmartShoppingState> {
       emit(ListNameChangedSuccessState(listnewName: event.newName));
     } catch (e) {
       emit(ListNameChangedFailureState(errorMessage: e.toString()));
+    }
+  }
+
+  void _removeItemSmartShoppingList(
+    RemoveItemSmartShoppingEvent event,
+    Emitter<SmartShoppingState> emit,
+  ) async {
+    try {
+      emit(RemoveItemFromSmartListLoadingState());
+      var docSnapshot = await Collections.smartShopping.doc(event.listId).get();
+      List<dynamic> currentItems =
+          ((docSnapshot.data() as Map<String, dynamic>?)?['items'] ?? [])
+              as List<dynamic>;
+      for (var i = 0; i < currentItems.length; i++) {
+        if (currentItems[i]['id'] == event.itemId) {
+          currentItems.removeAt(i);
+          break;
+        }
+      }
+      await Collections.smartShopping.doc(event.listId).update({
+        'items': currentItems,
+      });
+      emit(RemoveItemFromSmartListSuccessState());
+    } catch (e) {
+      emit(RemoveItemFromSmartListFailureState(errorMessage: e.toString()));
     }
   }
 }

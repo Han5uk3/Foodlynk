@@ -89,7 +89,11 @@ class AuthServices {
     } catch (e) {
       try {
         Navigator.pop(context);
-      } catch (dialogError) {}
+      } catch (dialogError) {
+        if (kDebugMode) {
+          print(dialogError);
+        }
+      }
 
       SaverSnackBar.show(
         context: context,
@@ -118,7 +122,11 @@ class AuthServices {
           await Collections.users.where('uid', isEqualTo: uid).get();
       try {
         Navigator.pop(context);
-      } catch (e) {}
+      } catch (e) {
+        if (kDebugMode) {
+          print(e);
+        }
+      }
       if (querySnapshot.docs.isNotEmpty) {
         await HiveHelper.putUID(uid);
         await HiveHelper.putisGuest(false);
@@ -155,7 +163,11 @@ class AuthServices {
     } catch (e) {
       try {
         Navigator.pop(context);
-      } catch (dialogError) {}
+      } catch (dialogError) {
+        if (kDebugMode) {
+          print(dialogError);
+        }
+      }
 
       SaverSnackBar.show(
         context: context,

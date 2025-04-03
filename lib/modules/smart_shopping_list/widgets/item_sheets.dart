@@ -111,6 +111,9 @@ class SmartListSheet {
                   isTrue: false,
                 );
               }
+              if (state is RemoveItemFromSmartListSuccessState) {
+                Navigator.pop(context);
+              }
             },
             child: StatefulBuilder(
               builder: (context, setState) {
@@ -273,15 +276,18 @@ class SmartListSheet {
                                       Expanded(
                                         child: SaverButton(
                                           text: "Remove from List",
-                                          onPressed: () {
-                                            // Uncomment when you implement remove functionality
-                                            // context.read<SmartShoppingBloc>().add(
-                                            //   RemoveItemSmartShoppingEvent(
-                                            //     listId: listId ?? "",
-                                            //     itemId: items?.id ?? "",
-                                            //   ),
-                                            // );
-                                          },
+                                          isLoading:
+                                              state
+                                                  is RemoveItemFromSmartListLoadingState,
+                                          onPressed:
+                                              () => context
+                                                  .read<SmartShoppingBloc>()
+                                                  .add(
+                                                    RemoveItemSmartShoppingEvent(
+                                                      listId: listId ?? "",
+                                                      itemId: items?.id ?? "",
+                                                    ),
+                                                  ),
                                           color: AppColor.red,
                                         ),
                                       ),
@@ -442,18 +448,27 @@ class SmartListSheet {
                               SaverButton(
                                 text: "Add to list",
                                 onPressed: () {
-                                  if (selectedListName != null) {
-                                    String? selectedListId =
-                                        listMap[selectedListName];
-                                    SmartListSheet().showEditBottomSheet(
-                                      context,
-                                      true,
-                                      false,
-                                      listId: selectedListId,
-                                      items: item,
-                                      isFromKitchen: true,
-                                      isFromInsideItem: isFromParentSheet,
+                                  if (selectedListName?.isEmpty ?? false) {
+                                    SaverSnackBar.show(
+                                      context: context,
+                                      message: "Please select a list",
+                                      isTrue: false,
                                     );
+                                    return;
+                                  } else {
+                                    if (selectedListName != null) {
+                                      String? selectedListId =
+                                          listMap[selectedListName];
+                                      SmartListSheet().showEditBottomSheet(
+                                        context,
+                                        true,
+                                        false,
+                                        listId: selectedListId,
+                                        items: item,
+                                        isFromKitchen: true,
+                                        isFromInsideItem: isFromParentSheet,
+                                      );
+                                    }
                                   }
                                 },
                               ),

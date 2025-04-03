@@ -484,6 +484,7 @@ class _AddItemState extends State<AddItem> {
                           ? context.read<SmartShoppingBloc>().add(
                             MarkAsPurchasedSmartShoppingEvent(
                               item: Items(
+                                id: widget.item?.id,
                                 name: itemNameController.text,
                                 quantity: numberOfQuantity,
                                 unit: selectedUnit ?? "",
@@ -502,6 +503,7 @@ class _AddItemState extends State<AddItem> {
                                 category: selectedCategory,
                                 expiredDate: selectedExpiryDate,
                               ),
+                              imageFile: _imageFile
                             ),
                           );
                     },

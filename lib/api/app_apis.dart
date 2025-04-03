@@ -1,12 +1,14 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:saver_bbk_main/models/protein_plan_model.dart';
+import 'package:saver_bbk_main/models/smart_recipe_model.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 
 class AppApis {
-  static final String apiUrl = "https://saver-app-functions.onrender.com";
+  static final String apiUrl = "https://saver-app-2ae53.uc.r.appspot.com";
   Future<GenaratedProteinPlanModel> generateProteinPlan(
     String whatareyoucooking,
     String towhomareyoucooking,
@@ -43,6 +45,32 @@ class AppApis {
     }
   }
 
+  Future<GenerateSmartRecipe> generateSmartRecipe(
+    List<String> ingredients,
+  ) async {
+    final url = Uri.parse("$apiUrl/api-features/generate-smart-recipe");
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': dotenv.env['GOOGLE_GEMINI_API_KEY'] ?? "",
+        },
+        body: jsonEncode({"ingredients": ingredients}),
+      );
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        return GenerateSmartRecipe.fromJson(json);
+      } else {
+        throw Exception(
+          'Failed to generate smart recipe: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<bool> sendNotificationToFCM({
     String? token,
     String? title,
@@ -63,6 +91,15 @@ class AppApis {
         'chatRoomId': chatRoomId,
       }),
     );
+    log(
+      {
+        'token': token,
+        'title': title,
+        'body': subTitle,
+        'type': type,
+        'chatRoomId': chatRoomId,
+      }.toString(),
+    );
     if (response.statusCode == 200) {
       await Services.addNotification(
         RemoteMessage(
@@ -73,7 +110,7 @@ class AppApis {
       );
       return true;
     } else {
-      throw Exception('Failed to send notification: ${response.statusCode}');
+      return false;
     }
   }
 
@@ -89,6 +126,24 @@ class AppApis {
       return json['status'];
     } else {
       throw Exception('Failed to compare one plate: ${response.statusCode}');
+    }
+  }
+
+  Future<bool> compareTwoPlates(String beforeImage, String afterImage) async {
+    final url = Uri.parse("$apiUrl/api-features/comparePlate");
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'firstImageUrl': beforeImage,
+        'secondImageUrl': afterImage,
+      }),
+    );
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      return json['status'];
+    } else {
+      throw Exception('Failed to compare two plates: ${response.statusCode}');
     }
   }
 }

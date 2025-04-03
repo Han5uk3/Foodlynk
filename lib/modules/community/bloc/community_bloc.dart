@@ -143,7 +143,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       emit(state.copyWith(status: ChatStatus.loading));
 
       String? chatRoomId;
-      String currentUID = Services.uid;
+      String currentUID = Services.uid ?? '';
       if (event.receiverUid != null) {
         chatRoomId = await ChatServices.getOrCreateChatRoom(
           event.receiverUid ?? "",
@@ -166,7 +166,12 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
           ),
         );
         if (event.isFoodSwapped) {
-          await _sendInitialFoodSwapMessages(chatRoomId, currentUID);
+          await _sendInitialFoodSwapMessages(
+            chatRoomId,
+            currentUID,
+            event.receiverUid ?? "",
+            event.fcmToken ?? '',
+          );
         }
 
         Future.delayed(
@@ -209,14 +214,6 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         'message': event.message.trim(),
         'timestamp': timestamp,
       });
-      await AppApis().sendNotificationToFCM(
-        title: event.reciversName,
-        subTitle: event.message.trim(),
-        token: event.fcmToken,
-        chatRoomId: state.currentChatRoomId,
-        type: 'message',
-        reciversUid: event.reciversUid,
-      );
       await ChatServices.database
           .ref('chats')
           .child(state.currentChatRoomId!)
@@ -227,9 +224,19 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
 
       await ChatServices.incrementUnreadCount(
         state.currentChatRoomId!,
-        Services.uid,
+        Services.uid ?? "",
         state.currentReceiverUid ?? "",
       );
+      if (event.fcmToken != null && event.fcmToken!.isNotEmpty) {
+        await AppApis().sendNotificationToFCM(
+          title: event.reciversName,
+          subTitle: event.message.trim(),
+          token: event.fcmToken!,
+          chatRoomId: state.currentChatRoomId,
+          type: 'message',
+          reciversUid: event.reciversUid,
+        );
+      }
 
       emit(state.copyWith(status: ChatStatus.loaded));
     } catch (e) {
@@ -274,8 +281,15 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
   void _onUpdateMessages(
     UpdateMessagesEvent event,
     Emitter<CommunityState> emit,
-  ) {
+  ) async {
     emit(state.copyWith(messages: event.messages, status: ChatStatus.loaded));
+    if (state.currentChatRoomId != null) {
+      await ChatServices.resetUnreadCount(
+        state.currentChatRoomId!,
+        Services.uid ?? "",
+        state.currentReceiverUid ?? "",
+      );
+    }
   }
 
   @override
@@ -288,9 +302,10 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
   Future<void> _sendInitialFoodSwapMessages(
     String chatRoomId,
     String currentUID,
+    String receiverUID,
+    String token,
   ) async {
     final timestamp = DateTime.now().toIso8601String();
-
     List<Map<String, dynamic>> initialMessages = [
       {'senderUID': currentUID, 'message': 'Hello 👋', 'timestamp': timestamp},
       {
@@ -311,5 +326,21 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       'lastMessage': initialMessages.last['message'],
       'timestamp': timestamp,
     });
+    await ChatServices.incrementUnreadCount(
+      chatRoomId,
+      currentUID,
+      receiverUID,
+    );
+
+    if (token != null && token.isNotEmpty) {
+      await AppApis().sendNotificationToFCM(
+        title: "Food Swap Accepted!",
+        subTitle: initialMessages.last['message'],
+        token: token,
+        chatRoomId: chatRoomId,
+        type: 'message',
+        reciversUid: receiverUID,
+      );
+    }
   }
 }

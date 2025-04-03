@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -453,9 +454,15 @@ class _KitchenManagerState extends State<KitchenManager> {
                 border: Border.all(color: AppColor.lightGrey200),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Center(
-                child: Icon(Icons.image, color: AppColor.lightGrey200),
-              ),
+              child:
+                  item.image == null || item.image == ""
+                      ? Center(
+                        child: Icon(Icons.image, color: AppColor.lightGrey200),
+                      )
+                      : CachedNetworkImage(
+                        imageUrl: item.image ?? "",
+                        placeholder: (context, url) => Icon(Icons.image),
+                      ),
             ),
           ),
           Expanded(

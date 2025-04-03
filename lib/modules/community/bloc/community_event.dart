@@ -24,14 +24,21 @@ class FetchUserDetailsEvent extends CommunityEvent {
 class InitializeChatRoomEvent extends CommunityEvent {
   String? receiverUid;
   String? roomId;
+  String? fcmToken;
   final bool isFoodSwapped;
   InitializeChatRoomEvent({
     this.receiverUid,
     this.roomId,
+    this.fcmToken,
     required this.isFoodSwapped,
   });
   @override
-  List<Object> get props => [receiverUid ?? "", isFoodSwapped, roomId ?? ''];
+  List<Object> get props => [
+    receiverUid ?? "",
+    isFoodSwapped,
+    roomId ?? '',
+    fcmToken ?? '',
+  ];
 }
 
 class LoadMessagesEvent extends CommunityEvent {}
@@ -40,7 +47,7 @@ class SendMessageEvent extends CommunityEvent {
   final String reciversName;
   final String reciversUid;
   final String message;
-  final String fcmToken;
+  final String? fcmToken;
   const SendMessageEvent(
     this.message,
     this.fcmToken,
@@ -49,7 +56,7 @@ class SendMessageEvent extends CommunityEvent {
   );
 
   @override
-  List<Object> get props => [message, reciversName, fcmToken, reciversUid];
+  List<Object> get props => [message, reciversName, fcmToken!, reciversUid];
 }
 
 class UpdateMessagesEvent extends CommunityEvent {

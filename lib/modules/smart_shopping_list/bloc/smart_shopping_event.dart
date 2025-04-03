@@ -61,9 +61,23 @@ class MoveFromKitchenToSmartListEvent extends SmartShoppingEvent {
 }
 
 class UpdateSmartShopingListNameEvent extends SmartShoppingEvent {
-   final String listId;
+  final String listId;
   final String newName;
-  const UpdateSmartShopingListNameEvent({required this.newName, required this.listId});
+  const UpdateSmartShopingListNameEvent({
+    required this.newName,
+    required this.listId,
+  });
   @override
   List<Object> get props => [newName];
+}
+
+class RemoveItemSmartShoppingEvent extends SmartShoppingEvent {
+  final String listId;
+  final String itemId;
+  const RemoveItemSmartShoppingEvent({
+    required this.listId,
+    required this.itemId,
+  });
+  @override
+  List<Object> get props => [listId, itemId];
 }

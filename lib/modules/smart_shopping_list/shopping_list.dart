@@ -299,53 +299,44 @@ class _ShoppingListState extends State<ShoppingList>
         if (items == null) return SizedBox();
         return Padding(
           padding: const EdgeInsets.only(bottom: 14),
-          child: GestureDetector(
-            onTap:
-                () => SmartListSheet().showEditBottomSheet(
-                  context,
-                  true,
-                  true,
-                  items: items,
-                ),
-            child: Container(
-              height: 50,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColor.lightGrey),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text.rich(
-                      TextSpan(
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                        text: items.name,
-                        children: [
-                          WidgetSpan(
-                            child: Transform.translate(
-                              offset: Offset(0, -5),
-                              child: Text(
-                                ' x${items.quantity} ${items.unit}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppColor.lightGrey200,
-                                ),
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColor.lightGrey),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text.rich(
+                    TextSpan(
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                      text: items.name,
+                      children: [
+                        WidgetSpan(
+                          child: Transform.translate(
+                            offset: Offset(0, -5),
+                            child: Text(
+                              ' x${items.quantity} ${items.unit}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColor.lightGrey200,
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                      style: TextStyle(fontSize: 16),
+                        ),
+                      ],
                     ),
-                    Spacer(),
-                    Icon(
-                      Icons.check_circle_outline_outlined,
-                      color: AppColor.primaryColor,
-                    ),
-                  ],
-                ),
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  Spacer(),
+                  Icon(
+                    Icons.check_circle_outline_outlined,
+                    color: AppColor.primaryColor,
+                  ),
+                ],
               ),
             ),
           ),
