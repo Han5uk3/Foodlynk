@@ -5,7 +5,6 @@ import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/loader.dart';
 import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
-import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/models/donation_model.dart';
 import 'package:saver_bbk_main/modules/food_share/donation_details.dart';
 import 'package:saver_bbk_main/modules/food_share/widgets/donnation_cards.dart';
@@ -56,7 +55,6 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
   void dispose() {
     _tabController.removeListener(_handleTabChange);
     _tabController.dispose();
-
     super.dispose();
   }
 
@@ -459,6 +457,8 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
                               (context) => DonationDetails(
                                 isDonor: isDonor,
                                 isView: false,
+                                isFromCard: false,
+                                model: DonationModel(),
                               ),
                         ),
                       );
@@ -479,8 +479,6 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
       padding: const EdgeInsets.all(14),
       child: Column(
         children: [
-          SizedBox(height: 6),
-          _buildBanner(),
           SizedBox(height: 20),
           _buildTabSelector(),
           SizedBox(height: 20),
@@ -508,6 +506,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
         if (snapshot.connectionState == ConnectionState.waiting) {
           return SaverLoader();
         }
+        log(snapshot.hasError.toString());
         if (snapshot.hasError ||
             snapshot.data == null ||
             snapshot.data!.isEmpty) {
@@ -524,6 +523,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
               item: donation,
               tabIndex: _tabController.index,
               isBenificiary: false,
+              itsMy: true,
             );
           },
         );
@@ -554,50 +554,11 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
               item: donation,
               tabIndex: _tabController.index,
               isBenificiary: true,
+              itsMy: true,
             );
           },
         );
       },
-    );
-  }
-
-  _buildBanner() {
-    return Column(
-      children: [
-        Card(
-          shape: RoundedRectangleBorder(
-            side: BorderSide(color: Colors.grey.shade300),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          elevation: 2,
-          child: CustomPaint(
-            painter: DiagonalBackgroundPainter(),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(12)),
-              ),
-              height: 100,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    loadsvg("assets/icons/foodsharebannericon.svg"),
-                    Text(
-                      " You've Donated 5 Times this month!",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 

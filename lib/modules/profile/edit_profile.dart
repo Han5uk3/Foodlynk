@@ -429,7 +429,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     RegExp(r"[a-zA-Z0-9._%+-@]"),
                   ),
                 ],
-                validator: _validateEmail,
               ),
               const SizedBox(height: 24),
               SaverButton(
@@ -498,18 +497,5 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
       ),
     );
-  }
-
-  String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return "Email can't be empty";
-    }
-    final RegExp emailRegExp = RegExp(
-      r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
-    );
-    if (!emailRegExp.hasMatch(value)) {
-      return "Enter a valid email";
-    }
-    return null;
   }
 }

@@ -316,6 +316,7 @@ class _FoodDetailsState extends State<FoodDetails> {
         name: nameController.text,
         quantity: numberOfQuantity,
         unit: selectedUnit ?? "",
+        status: widget.items.status,
         category: selectedCategory,
         expiredDate: selectedExpiryDate,
       );
@@ -509,7 +510,6 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                     MaterialPageRoute(
                       builder:
                           (context) => ChatPage(
-                            isFromFoodSwap: true,
                             isFromNotifications: false,
                           ),
                     ),
@@ -710,6 +710,7 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                                       () => context.read<FoodSwapBloc>().add(
                                         AcceptedFoodSwapRequestEvent(
                                           swapId: item.swapedItemId ?? "",
+                                          acceptedSwapItemId: item.acceptedSwapItemId ?? '',
                                           reciverUid: item.uid ?? "",
                                           fcmToken: fcmToken,
                                           communityBloc:

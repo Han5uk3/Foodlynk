@@ -167,12 +167,14 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
             status: ChatStatus.goToChatPage,
           ),
         );
-        if (event.isFoodSwapped) {
+        if (event.isFoodSwapped || event.isFoodShare) {
           await _sendInitialFoodSwapMessages(
             chatRoomId,
             currentUID,
             event.receiverUid ?? "",
             event.fcmToken ?? '',
+            event.isFoodSwapped,
+            event.isFoodShare,
           );
         }
 
@@ -315,16 +317,38 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     String currentUID,
     String receiverUID,
     String token,
+    bool isFoodSwap,
+    bool isFoodShare,
   ) async {
     final timestamp = DateTime.now().toIso8601String();
-    List<Map<String, dynamic>> initialMessages = [
-      {'senderUID': currentUID, 'message': 'Hello 👋', 'timestamp': timestamp},
-      {
-        'senderUID': currentUID,
-        'message': 'I accept your food swap! 🍲',
-        'timestamp': timestamp,
-      },
-    ];
+    List<Map<String, dynamic>> initialMessages =
+        isFoodSwap
+            ? [
+              {
+                'senderUID': currentUID,
+                'message': 'Hello 👋',
+                'timestamp': timestamp,
+              },
+              {
+                'senderUID': currentUID,
+                'message': 'I accept your food swap! 🍲',
+                'timestamp': timestamp,
+              },
+            ]
+            : isFoodShare
+            ? [
+              {
+                'senderUID': currentUID,
+                'message': 'Hello 👋',
+                'timestamp': timestamp,
+              },
+              {
+                'senderUID': currentUID,
+                'message': 'I want to donate my food with you! 🍲',
+                'timestamp': timestamp,
+              },
+            ]
+            : [];
 
     for (var msg in initialMessages) {
       final messageRef =
@@ -344,7 +368,12 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     });
     if (token != null && token.isNotEmpty) {
       await AppApis().sendNotificationToFCM(
-        title: "Food Swap Accepted!",
+        title:
+            isFoodSwap
+                ? "Food Swap Accepted!"
+                : isFoodShare
+                ? "Food Swap Accepted!"
+                : "",
         subTitle: initialMessages.last['message'],
         token: token,
         chatRoomId: chatRoomId,

@@ -30,3 +30,35 @@ final class NewBenificiaryFailedState extends FoodShareState {
   @override
   List<Object> get props => [errorMessage];
 }
+
+// Update these state classes in your food_share_bloc.dart file
+class RequestAddedSuccessState extends FoodShareState {
+  final bool isIntrested;
+  final String itemId; // Add this field
+
+  const RequestAddedSuccessState({
+    required this.isIntrested,
+    required this.itemId,
+  });
+}
+
+class RequestAddedFailedState extends FoodShareState {
+  final String errorMessage;
+  final String itemId; // Add this field
+
+  const RequestAddedFailedState({
+    required this.errorMessage,
+    required this.itemId,
+  });
+}
+
+final class AcceptRequestLoadingState extends FoodShareState {}
+
+final class AcceptRequestSuccessState extends FoodShareState {}
+
+final class AcceptRequestFailedState extends FoodShareState {
+  final String errorMessage;
+  const AcceptRequestFailedState({required this.errorMessage});
+  @override
+  List<Object> get props => [errorMessage];
+}

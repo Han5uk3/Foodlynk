@@ -1,139 +1,328 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/helpers/date_format.dart';
 import 'package:saver_bbk_main/models/donation_model.dart';
+import 'package:saver_bbk_main/modules/food_share/bloc/food_share_bloc.dart';
+import 'package:saver_bbk_main/modules/food_share/donation_details.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
-class DonnationCards extends StatelessWidget {
+class DonnationCards extends StatefulWidget {
   final DonationModel item;
   final int tabIndex;
   final bool isBenificiary;
+  final bool itsMy;
+  final Function(bool, String, String)? onInterestToggled;
+
   const DonnationCards({
     super.key,
     required this.item,
     required this.tabIndex,
     required this.isBenificiary,
+    this.onInterestToggled,
+    required this.itsMy,
   });
+
+  @override
+  State<DonnationCards> createState() => _DonnationCardsState();
+}
+
+class _DonnationCardsState extends State<DonnationCards> {
+  bool isInterested = false;
+
+  @override
+  void initState() {
+    super.initState();
+    isInterested = widget.item.isUserInterested;
+  }
+
+  @override
+  void didUpdateWidget(DonnationCards oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.item.isUserInterested != widget.item.isUserInterested) {
+      setState(() {
+        isInterested = widget.item.isUserInterested;
+      });
+    }
+  }
+
+  void _showAlreadyInterestedAlert() {
+    SaverSnackBar.show(
+      context: context,
+      message:
+          "You are already in queue. Please wait until your interest is accepted.",
+      isTrue: true,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder:
-        //         (context) => DonationDetails(isDonor: isDonor, isView: true),
-        //   ),
-        // );
-      },
+      onTap:
+          !widget.itsMy || widget.item.status == "A"
+              ? null
+              : () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => DonationDetails(
+                          isDonor: false,
+                          isView: true,
+                          isFromCard: true,
+                          model: widget.item,
+                        ),
+                  ),
+                );
+              },
       child: Card(
         color: Colors.white,
         shape: RoundedRectangleBorder(
-          side: BorderSide(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(6),
+          side: BorderSide(color: Colors.grey.shade200),
+          borderRadius: BorderRadius.circular(12),
         ),
-        elevation: 2,
+        elevation: 3,
+        shadowColor: Colors.black.withOpacity(0.1),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(12.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  isBenificiary
-                      ? SizedBox()
-                      : Container(
+                  if (!widget.isBenificiary)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
                         height: 90,
                         width: 90,
                         decoration: BoxDecoration(
+                          color: AppColor.greenshade.withOpacity(0.3),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: CachedNetworkImage(
-                          imageUrl: item.image ?? "",
-                          placeholder: (context, url) => Icon(Icons.image),
+                          imageUrl: widget.item.image ?? "",
+                          fit: BoxFit.cover,
+                          placeholder:
+                              (context, url) => Center(
+                                child: Icon(
+                                  Icons.restaurant,
+                                  color: AppColor.primaryColor.withOpacity(0.5),
+                                  size: 32,
+                                ),
+                              ),
                           errorWidget:
-                              (context, url, error) => Icon(Icons.image),
+                              (context, url, error) => Center(
+                                child: Icon(
+                                  Icons.restaurant,
+                                  color: AppColor.primaryColor.withOpacity(0.5),
+                                  size: 32,
+                                ),
+                              ),
                         ),
                       ),
-                  SizedBox(width: 15),
+                    ),
+                  SizedBox(width: !widget.isBenificiary ? 15 : 0),
                   Expanded(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisSize: MainAxisSize.max,
                           children: [
-                            isBenificiary
-                                ? SizedBox()
-                                : Expanded(
-                                  child: Text(
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    softWrap: true,
-                                    item.foodName ?? "NO",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
-                                    ),
+                            if (!widget.isBenificiary)
+                              Expanded(
+                                child: Text(
+                                  widget.item.foodName ?? "Food Item",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                    color: Colors.black87,
                                   ),
                                 ),
-
-                            Container(
-                              margin: EdgeInsets.only(right: 12),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 5,
                               ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color:
-                                    item.status == "P"
-                                        ? AppColor.lightYellow
-                                        : AppColor.lightGreen,
+                            if (widget.isBenificiary)
+                              Expanded(
+                                child: Text(
+                                  widget.isBenificiary
+                                      ? widget.item.foodType ?? "General"
+                                      : widget.item.foodName ?? "Food Item",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                    color: Colors.black87,
+                                  ),
+                                ),
                               ),
-                              height: 27,
-                              child: Center(
-                                child:
-                                    item.status == "P"
-                                        ? Text(
-                                          "pending",
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: AppColor.yellow,
-                                          ),
-                                        )
-                                        : Text(
-                                          "Picked",
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: AppColor.primaryColor,
-                                          ),
-                                        ),
-                              ),
-                            ),
+                            _buildStatusBadge(),
                           ],
                         ),
-                        SizedBox(height: 5),
-                        tabIndex == 0
+
+                        SizedBox(height: 8),
+
+                        widget.tabIndex == 0
                             ? _buildDonatedDateRow()
                             : _buildReceivedOnDateRow(),
-                        SizedBox(height: 5),
-                        tabIndex == 0
+
+                        SizedBox(height: 8),
+
+                        widget.tabIndex == 0
                             ? _buildServesRow()
                             : _buildDonatedByRow(),
+
+                        if (widget.isBenificiary &&
+                            widget.item.contactName != null &&
+                            widget.item.contactName!.isNotEmpty)
+                          Column(
+                            children: [
+                              SizedBox(height: 8),
+                              _buildContactInfoRow(),
+                            ],
+                          ),
                       ],
                     ),
                   ),
                 ],
               ),
+              SizedBox(height: 12),
+              if (!widget.itsMy) _buildInterestButtonRow(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+ Widget _buildInterestButtonRow() {
+  return BlocConsumer<FoodShareBloc, FoodShareState>(
+    listener: (context, state) {
+      
+      if (state is RequestAddedSuccessState &&
+          state.itemId == widget.item.id) {
+        setState(() {
+          isInterested = state.isIntrested;
+        });
+
+        SaverSnackBar.show(
+          context: context,
+          message: isInterested ? "Request Sent" : "Request Withdrawn",
+          isTrue: true,
+        );
+        return;
+      }
+
+      if (state is RequestAddedFailedState &&
+          state.itemId == widget.item.id) {
+        SaverSnackBar.show(
+          context: context,
+          message: "Failed: ${state.errorMessage}",
+          isTrue: false,
+        );
+      }
+    },
+    builder: (context, state) {
+      
+      return SizedBox(
+        width: double.infinity,
+        child: ElevatedButton.icon(
+          onPressed: isInterested
+              ? _showAlreadyInterestedAlert
+              : () {
+                  
+                  setState(() {
+                    isInterested = true;
+                  });
+                  
+                  
+                  if (widget.onInterestToggled != null) {
+                    widget.onInterestToggled!(
+                      true,
+                      widget.item.id ?? "",
+                      widget.item.type ?? "",
+                    );
+                  } else {
+                    
+                    context.read<FoodShareBloc>().add(IntrestedFoodShareEvent(
+                          id: widget.item.id ?? "",
+                          type: widget.item.type ?? "",
+                          isInterested: true,
+                        ));
+                  }
+                },
+          icon: Icon(
+            isInterested ? Icons.favorite : Icons.favorite_border,
+            color: isInterested ? Colors.red : AppColor.blue,
+            size: 18,
+          ),
+          label: Text(
+            isInterested ? "Interested" : "I'm Interested",
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              color: isInterested ? Colors.white : AppColor.blue,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: isInterested ? AppColor.primaryColor : Colors.white,
+            foregroundColor: isInterested ? Colors.white : AppColor.blue,
+            elevation: isInterested ? 0 : 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide(
+                color: isInterested
+                    ? Colors.transparent
+                    : AppColor.blue.withOpacity(0.5),
+                width: 1,
+              ),
+            ),
+            padding: EdgeInsets.symmetric(vertical: 10),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+  Widget _buildStatusBadge() {
+    final bool isPending = widget.item.status == "P";
+    return Row(
+      children: [
+        if (widget.item.foodType != null && widget.item.foodType!.isNotEmpty)
+          _buildFoodTypeChip(),
+        Container(
+          margin: EdgeInsets.only(left: 8),
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: isPending ? AppColor.lightYellow : AppColor.lightGreen,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isPending ? Icons.schedule : Icons.check_circle_outline,
+                size: 12,
+                color: isPending ? AppColor.yellow : AppColor.primaryColor,
+              ),
+              SizedBox(width: 4),
+              Text(
+                isPending ? "Pending" : "Picked",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: isPending ? AppColor.yellow : AppColor.primaryColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -146,9 +335,12 @@ class DonnationCards extends StatelessWidget {
           backgroundColor: AppColor.greenshade,
           child: loadsvg("assets/icons/expiry.svg"),
         ),
-        Text(
-          " Donated On: ${DateFormatHelper.ddmmyyyy(DateTime.now())}",
-          style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
+        SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            "Donated On: ${DateFormatHelper.ddmmyyyy(widget.item.createdAt ?? DateTime.now())}",
+            style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
+          ),
         ),
       ],
     );
@@ -163,9 +355,12 @@ class DonnationCards extends StatelessWidget {
           backgroundColor: AppColor.greenshade,
           child: loadsvg("assets/icons/expiry.svg"),
         ),
-        Text(
-          " Recieved On: ${DateFormatHelper.ddmmyyyy(item.createdAt ?? DateTime.now())}",
-          style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
+        SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            "Received On: ${DateFormatHelper.ddmmyyyy(widget.item.createdAt ?? DateTime.now())}",
+            style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
+          ),
         ),
       ],
     );
@@ -180,8 +375,9 @@ class DonnationCards extends StatelessWidget {
           backgroundColor: AppColor.lightblue,
           child: Icon(Icons.group_outlined, size: 14, color: AppColor.blue),
         ),
+        SizedBox(width: 6),
         Text(
-          " Serves: ${item.noOfServe}",
+          "Serves: ${widget.item.noOfServe ?? 0}",
           style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
         ),
       ],
@@ -201,11 +397,52 @@ class DonnationCards extends StatelessWidget {
             color: AppColor.blue,
           ),
         ),
+        SizedBox(width: 6),
         Text(
-          "Donated By: 2",
+          "Donated By: ${widget.item.contactName ?? "Anonymous"}",
           style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
         ),
       ],
+    );
+  }
+
+  Widget _buildContactInfoRow() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        CircleAvatar(
+          radius: 12,
+          backgroundColor: Colors.amber.withOpacity(0.2),
+          child: Icon(Icons.phone_outlined, size: 14, color: Colors.orange),
+        ),
+        SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            "Contact: ${widget.item.contactName ?? ""} ${widget.item.contactMobile != null ? '(${widget.item.contactContryCode ?? ""}${widget.item.contactMobile})' : ''}",
+            style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFoodTypeChip() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColor.primaryColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text(
+        widget.item.foodType ?? "General",
+        style: TextStyle(
+          color: AppColor.primaryColor,
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
 }

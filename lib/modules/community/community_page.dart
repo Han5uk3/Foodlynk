@@ -23,7 +23,6 @@ class CommunityPage extends StatelessWidget {
               MaterialPageRoute(
                 builder:
                     (context) => ChatPage(
-                      isFromFoodSwap: false,
                       isFromNotifications: false,
                     ),
               ),
@@ -83,6 +82,7 @@ class CommunityPage extends StatelessWidget {
                   InitializeChatRoomEvent(
                     roomId: room['roomId'],
                     isFoodSwapped: false,
+                    isFoodShare: false,
                   ),
                 ),
             child: Container(

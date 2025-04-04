@@ -1,35 +1,47 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/calender.dart';
 import 'package:saver_bbk_main/common_widget/dropdown.dart';
+import 'package:saver_bbk_main/common_widget/empty_list.dart';
 import 'package:saver_bbk_main/common_widget/image_picker.dart';
 import 'package:saver_bbk_main/common_widget/label.dart';
+import 'package:saver_bbk_main/common_widget/loader.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/text_field.dart';
+import 'package:saver_bbk_main/helpers/date_format.dart';
 import 'package:saver_bbk_main/models/donation_model.dart';
+import 'package:saver_bbk_main/models/users_model.dart';
+import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
+import 'package:saver_bbk_main/modules/community/chat_page.dart';
 import 'package:saver_bbk_main/modules/food_share/bloc/food_share_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class DonationDetails extends StatefulWidget {
+  final DonationModel model;
+  final bool isDonor;
+  final bool isFromCard;
+  final bool isView;
   const DonationDetails({
     super.key,
     required this.isDonor,
     required this.isView,
+    required this.model,
+    required this.isFromCard,
   });
 
-  final bool isDonor;
-  final bool isView;
   @override
   State<DonationDetails> createState() => _DonationDetailsState();
 }
 
-class _DonationDetailsState extends State<DonationDetails> {
+class _DonationDetailsState extends State<DonationDetails>
+    with SingleTickerProviderStateMixin {
   TextEditingController foodNameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController locationNameController = TextEditingController();
@@ -63,22 +75,53 @@ class _DonationDetailsState extends State<DonationDetails> {
     "+98",
     "+968",
   ];
+
+  // Tab controller for managing the tabs
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    if (widget.isFromCard) {
+      _tabController = TabController(length: 2, vsync: this);
+      selectedDate = widget.model.expiredDate ?? DateTime.now();
+      foodNameController.text = widget.model.foodName ?? "";
+      descriptionController.text = widget.model.discription ?? "";
+      locationNameController.text = widget.model.pickUpLocation ?? "";
+      yourNameController.text = widget.model.contactName ?? "";
+      yourPhoneController.text = widget.model.contactMobile ?? "";
+      serveCountController.text = widget.model.noOfServe.toString();
+      tcvalue = widget.model.isAccpected ?? false;
+      // _imageFile = widget.model.imageFile ?? null;
+      selectedItem = widget.model.foodType ?? "";
+      selectedCode = widget.model.contactContryCode ?? "+91";
+
+      selectedItem = widget.model.foodType ?? "";
+    }
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    if (widget.isFromCard) {
+      _tabController.dispose();
+    }
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: saverAppBar(
-        widget.isDonor
-            ? widget.isView
-                ? "Donation Details"
-                : "Add Donation"
-            : widget.isView
+        widget.isFromCard
             ? "Request Details"
-            : "New Request",
+            : widget.isDonor
+            ? "Add Donation"
+            : "Add Benificary",
         context,
         isneedtopop: true,
         iswhite: true,
         actions:
-            widget.isView
+            widget.isFromCard
                 ? [
                   IconButton(
                     onPressed: () {
@@ -88,6 +131,19 @@ class _DonationDetailsState extends State<DonationDetails> {
                   ),
                 ]
                 : [],
+        bottom:
+            widget.isFromCard
+                ? TabBar(
+                  controller: _tabController,
+                  labelColor: AppColor.primaryColor,
+                  unselectedLabelColor: Colors.grey,
+                  indicatorColor: AppColor.primaryColor,
+                  tabs: const [
+                    Tab(text: "Incoming Requests"),
+                    Tab(text: "Details"),
+                  ],
+                )
+                : null,
       ),
       body: BlocListener<FoodShareBloc, FoodShareState>(
         listener: (context, state) {
@@ -115,7 +171,6 @@ class _DonationDetailsState extends State<DonationDetails> {
               message: "Failed to Add Request",
               isTrue: false,
             );
-            
           }
           if (state is NewDonationFailedState) {
             SaverSnackBar.show(
@@ -126,35 +181,21 @@ class _DonationDetailsState extends State<DonationDetails> {
           }
         },
         child:
-            widget.isDonor
+            widget.isFromCard
+                ? TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildIncomingRequestsTab(),
+                    _buildDonorBody(widget.isView),
+                  ],
+                )
+                : widget.isDonor
                 ? _buildDonorBody(widget.isView)
                 : _buildBeneficiaryBody(widget.isView),
       ),
       bottomNavigationBar:
-          widget.isView
-              ? widget.isDonor
-                  ? Padding(
-                    padding: const EdgeInsets.only(
-                      top: 14,
-                      left: 14,
-                      right: 14,
-                      bottom: 24,
-                    ),
-                    child: SaverButton(
-                      text: "Donate",
-                      onPressed: () {
-                        widget.isDonor
-                            ? log(
-                              "Donor data :foodName: ${foodNameController.text},foodType: $selectedItem, Serves: ${serveCountController.text}, description: ${descriptionController.text}, expiryDate: $selectedDate, pickupLocation: ${locationNameController.text}, uploadedImage: ${_imageFile!.path} ",
-                            )
-                            : log(
-                              "Beneficiary data: foodType: $selectedItem,pickupLocation: ${locationNameController.text},yourName: ${yourNameController.text},countryCode: $selectedCode, yourPhone: ${yourPhoneController.text}",
-                            );
-                      },
-                    ),
-                  )
-                  : null
-              : BlocBuilder<FoodShareBloc, FoodShareState>(
+          widget.isDonor || !widget.isFromCard
+              ? BlocBuilder<FoodShareBloc, FoodShareState>(
                 builder: (context, state) {
                   return Padding(
                     padding: const EdgeInsets.only(
@@ -164,8 +205,7 @@ class _DonationDetailsState extends State<DonationDetails> {
                       bottom: 24,
                     ),
                     child: SaverButton(
-                      text:
-                          widget.isDonor ? "Submit Donation" : "Submit Request",
+                      text: "Submit Request",
                       isLoading:
                           state is NewDonationLoadingState ||
                           state is NewBenificiaryLoadingState,
@@ -203,7 +243,170 @@ class _DonationDetailsState extends State<DonationDetails> {
                     ),
                   );
                 },
-              ),
+              )
+              : null,
+    );
+  }
+
+  Widget _buildIncomingRequestsTab() {
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<CommunityBloc, CommunityState>(
+          listener: (context, state) {
+            if (state.status == ChatStatus.goToChatPage) {
+              if (mounted) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => ChatPage(
+                          isFromNotifications: false,
+                        ),
+                  ),
+                );
+              }
+            }
+
+            if (state.status == ChatStatus.error) {
+              SaverSnackBar.show(
+                context: context,
+                message: state.errorMessage ?? 'An error occurred',
+                isTrue: false,
+              );
+            }
+          },
+        ),
+      ],
+      child: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: Services.getFoodShareRequest(widget.model.id ?? ""),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return SaverLoader();
+          }
+          if (snapshot.hasError) {
+            log(snapshot.error.toString());
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
+          final incomingRequests = snapshot.data;
+          log(snapshot.data.toString());
+          if (incomingRequests?.isEmpty ?? false) {
+            return EmptyList(message: "No requests available");
+          }
+
+          return ListView.builder(
+            padding: EdgeInsets.all(14),
+            itemCount: incomingRequests?.length,
+            itemBuilder: (context, index) {
+              final request = incomingRequests?[index];
+              final String raisedUid = request?['raisedUid'] ?? "";
+
+              return Card(
+                elevation: 2,
+                margin: EdgeInsets.only(bottom: 12),
+                child: StreamBuilder<QuerySnapshot<UserModel>>(
+                  stream: Services.getUserDetails(uid: raisedUid),
+                  builder: (context, userSnapshot) {
+                    if (userSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return Padding(
+                        padding: EdgeInsets.all(12),
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    if (userSnapshot.hasError ||
+                        userSnapshot.data == null ||
+                        userSnapshot.data!.docs.isEmpty) {
+                      return Padding(
+                        padding: EdgeInsets.all(12),
+                        child: Text("User info not available"),
+                      );
+                    }
+
+                    final user = userSnapshot.data!.docs.first.data();
+
+                    return Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Request from ${user.firstName ?? "Unknown"} ${user.lastName ?? ""}",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          _infoRow(Icons.email, "Email", user.email ?? "N/A"),
+                          _infoRow(
+                            Icons.phone,
+                            "Phone",
+                            user.phoneNumber ?? "N/A",
+                          ),
+                          _infoRow(
+                            Icons.access_time,
+                            "Requested At",
+                            DateFormatHelper.ddmmyyyyString(
+                              request?['timestamp'],
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: SaverButton(
+                                  text: "Decline",
+                                  color: Colors.grey,
+                                  onPressed: () {},
+                                ),
+                              ),
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: SaverButton(
+                                  text: "Accept",
+                                  onPressed:
+                                      () => context.read<FoodShareBloc>().add(
+                                        AcceptFoodShareRequest(
+                                          reqId: widget.model.id ?? '',
+                                          fcmToken: user.fcmToken ?? "",
+                                          reciverUid: raisedUid,
+
+                                          communityBloc:
+                                              context.read<CommunityBloc>(),
+                                        ),
+                                      ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _infoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: Colors.grey),
+          SizedBox(width: 8),
+          Text(
+            "$label: ",
+            style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500),
+          ),
+          Text(value, style: TextStyle(fontWeight: FontWeight.w500)),
+        ],
+      ),
     );
   }
 
@@ -214,28 +417,11 @@ class _DonationDetailsState extends State<DonationDetails> {
         child: IgnorePointer(
           ignoring: isView,
           child: Column(
-            spacing: 8,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              isView
-                  ? Column(
-                    children: [
-                      Container(
-                        alignment: Alignment.center,
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppColor.yellow),
-                        ),
-                        child: Text(
-                          textAlign: TextAlign.justify,
-                          "This item is awaiting acceptance from beneficiary",
-                          style: TextStyle(color: AppColor.yellow),
-                        ),
-                      ),
-                    ],
-                  )
-                  : SizedBox.shrink(),
+              SizedBox(height: 8),
               Label(text: "Food Name"),
+              SizedBox(height: 5),
               SaverTextField(
                 hintText: "Enter food name",
                 controller: foodNameController,
@@ -243,6 +429,7 @@ class _DonationDetailsState extends State<DonationDetails> {
               ),
               SizedBox(height: 8),
               Label(text: "Food Type"),
+              SizedBox(height: 5),
               SaverDropdown(
                 items: items,
                 selectedItem: selectedItem,
@@ -254,6 +441,7 @@ class _DonationDetailsState extends State<DonationDetails> {
               ),
               SizedBox(height: 8),
               Label(text: "Number of Serve(s)"),
+              SizedBox(height: 5),
               SaverTextField(
                 hintText: "Enter number of serve(s)",
                 controller: serveCountController,
@@ -263,6 +451,7 @@ class _DonationDetailsState extends State<DonationDetails> {
 
               SizedBox(height: 8),
               Label(text: "Description"),
+              SizedBox(height: 5),
               SizedBox(
                 height: 120,
                 child: SaverTextField(
@@ -274,6 +463,7 @@ class _DonationDetailsState extends State<DonationDetails> {
               ),
               SizedBox(height: 8),
               Label(text: "Expiry Date"),
+              SizedBox(height: 5),
               ShowCalendar(
                 isEdit: false,
                 restrictBackDates: true,
@@ -282,6 +472,7 @@ class _DonationDetailsState extends State<DonationDetails> {
               ),
               SizedBox(height: 8),
               Text("Pickup Location"),
+              SizedBox(height: 5),
               SaverTextField(
                 hintText: "Enter pickup location",
                 controller: locationNameController,
@@ -289,65 +480,67 @@ class _DonationDetailsState extends State<DonationDetails> {
                 suffixIconColor: Colors.black,
               ),
               SizedBox(height: 8),
-              Text(isView ? "Uploaded Image" : "Upload Image"),
-              Row(
-                children: [
-                  if (_imageFile != null)
-                    Stack(
-                      children: [
-                        SizedBox(
-                          height: 100,
-                          width: 100,
-                          child: Center(
-                            child: Container(
-                              height: 90,
-                              width: 90,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                image: DecorationImage(
-                                  image: FileImage(_imageFile!),
-                                  fit: BoxFit.cover,
+              if (!widget.isFromCard) Text("Upload Image"),
+              if (!widget.isFromCard) SizedBox(height: 5),
+              if (!widget.isFromCard)
+                Row(
+                  children: [
+                    if (_imageFile != null)
+                      Stack(
+                        children: [
+                          SizedBox(
+                            height: 100,
+                            width: 100,
+                            child: Center(
+                              child: Container(
+                                height: 90,
+                                width: 90,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  image: DecorationImage(
+                                    image: FileImage(_imageFile!),
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        Positioned(
-                          child: SizedBox(
-                            width: 100,
-                            child: Align(
-                              alignment: Alignment.topRight,
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _imageFile = null;
-                                  });
-                                },
-                                child: CircleAvatar(
-                                  radius: 10,
-                                  backgroundColor: Colors.white70,
-                                  child: Center(
-                                    child: Icon(
-                                      Icons.close,
-                                      color: AppColor.black,
-                                      size: 15,
+                          Positioned(
+                            child: SizedBox(
+                              width: 100,
+                              child: Align(
+                                alignment: Alignment.topRight,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _imageFile = null;
+                                    });
+                                  },
+                                  child: CircleAvatar(
+                                    radius: 10,
+                                    backgroundColor: Colors.white70,
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.close,
+                                        color: AppColor.black,
+                                        size: 15,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  _imageFile == null
-                      ? ImagePickerButton(
-                        isFood: false,
-                        onImageSelected: _setImage,
-                      )
-                      : SizedBox(),
-                ],
-              ),
+                        ],
+                      ),
+                    _imageFile == null
+                        ? ImagePickerButton(
+                          isFood: false,
+                          onImageSelected: _setImage,
+                        )
+                        : SizedBox(),
+                  ],
+                ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -406,7 +599,6 @@ class _DonationDetailsState extends State<DonationDetails> {
           ignoring: isView,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 8,
             children: [
               Text("Food Type Required"),
               SaverDropdown(
@@ -499,7 +691,6 @@ class _DonationDetailsState extends State<DonationDetails> {
           ),
           actions: [
             Row(
-              spacing: 20,
               children: [
                 Expanded(
                   child: SaverButton(
@@ -509,6 +700,7 @@ class _DonationDetailsState extends State<DonationDetails> {
                     },
                   ),
                 ),
+                SizedBox(width: 20),
                 Expanded(
                   child: SaverButton(
                     color: AppColor.red,

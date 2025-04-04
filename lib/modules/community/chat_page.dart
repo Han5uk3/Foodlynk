@@ -9,14 +9,12 @@ import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class ChatPage extends StatefulWidget {
-  final bool isFromFoodSwap;
   final bool isFromNotifications;
   final String? chatRoomId;
-  
+
   const ChatPage({
     super.key,
     this.chatRoomId,
-    required this.isFromFoodSwap,
     required this.isFromNotifications,
   });
 
@@ -33,19 +31,20 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     _communityBloc = context.read<CommunityBloc>();
-    
+
     if (widget.isFromNotifications) {
       _communityBloc.add(
         InitializeChatRoomEvent(
           isFoodSwapped: false,
+          isFoodShare: false,
           roomId: widget.chatRoomId,
         ),
       );
     }
-    
+
     _messageController.addListener(_handleTextChange);
   }
-  
+
   @override
   void dispose() {
     _messageController.removeListener(_handleTextChange);
@@ -53,23 +52,26 @@ class _ChatPageState extends State<ChatPage> {
     _chatTextNotifier.dispose();
     super.dispose();
   }
-  
+
   void _handleTextChange() {
     _chatTextNotifier.value = _messageController.text.isNotEmpty;
   }
 
   void _navigateToMainScreen() {
-    final String? roomId = widget.chatRoomId ?? _communityBloc.state.currentChatRoomId;
+    final String? roomId =
+        widget.chatRoomId ?? _communityBloc.state.currentChatRoomId;
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(
-        builder: (context) => MainScreen(currentIndex: 1),
-      ),
+      MaterialPageRoute(builder: (context) => MainScreen(currentIndex: 1)),
       (route) => false,
     );
   }
-  
-  void _sendMessage(String? fcmToken, String? receiverName, String? receiverUid) {
+
+  void _sendMessage(
+    String? fcmToken,
+    String? receiverName,
+    String? receiverUid,
+  ) {
     final message = _messageController.text.trim();
     if (message.isNotEmpty) {
       _communityBloc.add(
@@ -101,16 +103,19 @@ class _ChatPageState extends State<ChatPage> {
           onpop: _navigateToMainScreen,
         ),
         body: BlocBuilder<CommunityBloc, CommunityState>(
-          buildWhen: (previous, current) => 
-              previous.status != current.status ||
-              previous.errorMessage != current.errorMessage,
+          buildWhen:
+              (previous, current) =>
+                  previous.status != current.status ||
+                  previous.errorMessage != current.errorMessage,
           builder: (context, state) {
             if (state.status == ChatStatus.loading) {
               return const Center(child: SaverLoader());
             }
             if (state.status == ChatStatus.error) {
               return Center(
-                child: Text(state.errorMessage ?? 'An unexpected error occurred'),
+                child: Text(
+                  state.errorMessage ?? 'An unexpected error occurred',
+                ),
               );
             }
             return Column(
@@ -121,10 +126,11 @@ class _ChatPageState extends State<ChatPage> {
                   controller: _messageController,
                   textNotifier: _chatTextNotifier,
                   onSend: () {
-                    final userMap = _communityBloc.state.userDetails.isNotEmpty 
-                        ? _communityBloc.state.userDetails.values.first 
-                        : {};
-                    
+                    final userMap =
+                        _communityBloc.state.userDetails.isNotEmpty
+                            ? _communityBloc.state.userDetails.values.first
+                            : {};
+
                     _sendMessage(
                       userMap['fcmToken'],
                       "${userMap['firstName'] ?? 'N/A'} ${userMap['lastName'] ?? ''}",
@@ -145,13 +151,14 @@ class _ChatHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CommunityBloc, CommunityState>(
-      buildWhen: (previous, current) => previous.userDetails != current.userDetails,
+      buildWhen:
+          (previous, current) => previous.userDetails != current.userDetails,
       builder: (context, state) {
-        final userMap = state.userDetails.isNotEmpty 
-            ? state.userDetails.values.first 
-            : {};
-        
-        final receiverName = "${userMap['firstName'] ?? 'N/A'} ${userMap['lastName'] ?? ''}";
+        final userMap =
+            state.userDetails.isNotEmpty ? state.userDetails.values.first : {};
+
+        final receiverName =
+            "${userMap['firstName'] ?? 'N/A'} ${userMap['lastName'] ?? ''}";
         final phoneNumber = userMap['phoneNumber'] ?? 'N/A';
 
         return Container(
@@ -203,18 +210,17 @@ class _MessagesBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CommunityBloc, CommunityState>(
-      buildWhen: (previous, current) => 
-          previous.messages != current.messages ||
-          previous.status != current.status,
+      buildWhen:
+          (previous, current) =>
+              previous.messages != current.messages ||
+              previous.status != current.status,
       builder: (context, state) {
         if (state.status == ChatStatus.loading) {
           return const Expanded(child: Center(child: SaverLoader()));
         }
 
         if (state.messages.isEmpty && state.status == ChatStatus.loaded) {
-          return const Expanded(
-            child: Center(child: Text("No messages yet")),
-          );
+          return const Expanded(child: Center(child: Text("No messages yet")));
         }
 
         return Expanded(
@@ -227,30 +233,43 @@ class _MessagesBody extends StatelessWidget {
               final time = DateFormat.jm().format(msg.timestamp);
 
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 14,
+                ),
                 child: Align(
-                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment:
+                      isMe ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
                     constraints: BoxConstraints(
                       maxWidth: MediaQuery.of(context).size.width * 0.75,
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: isMe ? Colors.blue : Colors.grey.shade100,
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(16),
                         topRight: const Radius.circular(16),
-                        bottomLeft: isMe ? const Radius.circular(16) : Radius.zero,
-                        bottomRight: isMe ? Radius.zero : const Radius.circular(16),
+                        bottomLeft:
+                            isMe ? const Radius.circular(16) : Radius.zero,
+                        bottomRight:
+                            isMe ? Radius.zero : const Radius.circular(16),
                       ),
                     ),
                     child: Column(
                       crossAxisAlignment:
-                          isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                          isMe
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
                       children: [
                         Text(
                           msg.message,
-                          style: TextStyle(color: isMe ? Colors.white : Colors.black),
+                          style: TextStyle(
+                            color: isMe ? Colors.white : Colors.black,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -307,7 +326,9 @@ class _ChatFooter extends StatelessWidget {
                   decoration: InputDecoration(
                     hintText: "Type a message...",
                     hintStyle: TextStyle(color: AppColor.lightGrey200),
-                    border: const OutlineInputBorder(borderSide: BorderSide.none),
+                    border: const OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
               ),
@@ -316,9 +337,9 @@ class _ChatFooter extends StatelessWidget {
                 builder: (context, hasText, child) {
                   return hasText
                       ? IconButton(
-                          onPressed: onSend,
-                          icon: Icon(Icons.send, color: Colors.grey.shade800),
-                        )
+                        onPressed: onSend,
+                        icon: Icon(Icons.send, color: Colors.grey.shade800),
+                      )
                       : const SizedBox();
                 },
               ),

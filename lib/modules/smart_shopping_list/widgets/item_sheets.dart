@@ -361,126 +361,140 @@ class SmartListSheet {
   }
 
   showListSelector(context, Items item, {bool isFromParentSheet = false}) {
+    bool showAlert = false;
     showModalBottomSheet(
       isScrollControlled: true,
       backgroundColor: Colors.white,
       context: context,
       isDismissible: false,
       builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: StreamBuilder<List<Map<String, String>>>(
-            stream: Services.getUserSmartList(),
-            builder: (context, snapshot) {
-              List<String> listNames =
-                  snapshot.data
-                      ?.map((item) => item['listName'] ?? '')
-                      .toList() ??
-                  [];
-              Map<String, String> listMap = {
-                for (var item in snapshot.data ?? [])
-                  item['listName'] ?? "": item['listId'] ?? "",
-              };
-              String? selectedListName =
-                  listNames.isNotEmpty ? listNames.first : null;
-              return StatefulBuilder(
-                builder:
-                    (context, insidesetState) => Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: StreamBuilder<List<Map<String, String>>>(
+                stream: Services.getUserSmartList(),
+                builder: (context, snapshot) {
+                  List<String> listNames =
+                      snapshot.data
+                          ?.map((item) => item['listName'] ?? '')
+                          .toList() ??
+                      [];
+                  Map<String, String> listMap = {
+                    for (var item in snapshot.data ?? [])
+                      item['listName'] ?? "": item['listId'] ?? "",
+                  };
+                  String? selectedListName =
+                      listNames.isNotEmpty ? listNames.first : null;
+                  return StatefulBuilder(
+                    builder:
+                        (context, insidesetState) => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    left: 12,
+                                    right: 12,
+                                    bottom: 6,
+                                    top: 12,
+                                  ),
+                                  child: Text(
+                                    item.name!,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.close),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
+                            ),
+                            Divider(color: AppColor.lightGrey, thickness: 2),
+                            SizedBox(height: 10),
                             Padding(
-                              padding: EdgeInsets.only(
+                              padding: const EdgeInsets.only(
                                 left: 12,
                                 right: 12,
-                                bottom: 6,
-                                top: 12,
                               ),
-                              child: Text(
-                                item.name!,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    child: Text(
+                                      "Select a list",
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  SaverDropdown(
+                                    items: listNames,
+                                    selectedItem: selectedListName ?? "",
+                                    isLoading:
+                                        snapshot.connectionState ==
+                                        ConnectionState.waiting,
+                                    onChanged: (value) {
+                                      insidesetState(() {
+                                        selectedListName = value!;
+                                      });
+                                    },
+                                  ),
+                                  if (showAlert)
+                                    Text(
+                                      "Please select a list",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  SizedBox(height: 15),
+                                  SaverButton(
+                                    text: "Add to list",
+                                    onPressed: () {
+                                      if ((selectedListName?.isEmpty ??
+                                              false) ||
+                                          (selectedListName == "") ||
+                                          selectedListName == null) {
+                                        setState(() => showAlert = true);
+                                      } else {
+                                        if (selectedListName != null) {
+                                          String? selectedListId =
+                                              listMap[selectedListName];
+                                          setState(() => showAlert = false);
+                                          SmartListSheet().showEditBottomSheet(
+                                            context,
+                                            true,
+                                            false,
+                                            listId: selectedListId,
+                                            items: item,
+                                            isFromKitchen: true,
+                                            isFromInsideItem: isFromParentSheet,
+                                          );
+                                        }
+                                      }
+                                    },
+                                  ),
+                                  SizedBox(height: 30),
+                                ],
                               ),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.close),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
                             ),
                           ],
                         ),
-                        Divider(color: AppColor.lightGrey, thickness: 2),
-                        SizedBox(height: 10),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 12, right: 12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 12),
-                                child: Text(
-                                  "Select a list",
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                              ),
-                              SizedBox(height: 10),
-                              SaverDropdown(
-                                items: listNames,
-                                selectedItem: selectedListName ?? "",
-                                isLoading:
-                                    snapshot.connectionState ==
-                                    ConnectionState.waiting,
-                                onChanged: (value) {
-                                  insidesetState(() {
-                                    selectedListName = value!;
-                                  });
-                                },
-                              ),
-                              SizedBox(height: 15),
-                              SaverButton(
-                                text: "Add to list",
-                                onPressed: () {
-                                  if (selectedListName?.isEmpty ?? false) {
-                                    SaverSnackBar.show(
-                                      context: context,
-                                      message: "Please select a list",
-                                      isTrue: false,
-                                    );
-                                    return;
-                                  } else {
-                                    if (selectedListName != null) {
-                                      String? selectedListId =
-                                          listMap[selectedListName];
-                                      SmartListSheet().showEditBottomSheet(
-                                        context,
-                                        true,
-                                        false,
-                                        listId: selectedListId,
-                                        items: item,
-                                        isFromKitchen: true,
-                                        isFromInsideItem: isFromParentSheet,
-                                      );
-                                    }
-                                  }
-                                },
-                              ),
-                              SizedBox(height: 30),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-              );
-            },
-          ),
+                  );
+                },
+              ),
+            );
+          },
         );
       },
     );
