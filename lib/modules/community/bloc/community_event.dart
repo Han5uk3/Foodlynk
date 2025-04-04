@@ -66,3 +66,5 @@ class UpdateMessagesEvent extends CommunityEvent {
   @override
   List<Object> get props => [messages];
 }
+
+class ClearCommunityStateEvent extends CommunityEvent {}

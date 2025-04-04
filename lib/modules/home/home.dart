@@ -1,8 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saver_bbk_main/common_widget/guest_pop_up.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
+import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
 import 'package:saver_bbk_main/modules/community/community_page.dart';
 import 'package:saver_bbk_main/modules/food_share/food_share_all_page.dart';
 import 'package:saver_bbk_main/modules/food_swap/food_swap_page.dart';
@@ -35,7 +35,6 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     Services.isGuest = HiveHelper.getIsGuest();
     Services.uid = HiveHelper.getUID();
-    log("_MainScreenState :${Services.isGuest} && ${Services.uid}");
     if (Services.isGuest == true || Services.uid == null) {
       return;
     } else {
@@ -43,6 +42,7 @@ class _MainScreenState extends State<MainScreen> {
     }
     _currentIndex = widget.currentIndex;
     _activeGridPage = null;
+    context.read<CommunityBloc>().add(LoadChatRoomsEvent());
     super.initState();
   }
 

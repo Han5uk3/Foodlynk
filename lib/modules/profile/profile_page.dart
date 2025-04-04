@@ -6,6 +6,7 @@ import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
+import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
 import 'package:saver_bbk_main/modules/login/login.dart';
 import 'package:saver_bbk_main/modules/profile/bloc/profile_bloc.dart';
 
@@ -117,7 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Version: v1.0.2",
+                      "Version: v1.0.3",
                       style: TextStyle(
                         color: AppColor.lightGrey200,
                         fontSize: 13,
@@ -237,7 +238,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           toggler
                               ? () {}
                               : () => context.read<ProfileBloc>().add(
-                                LogoutEvent(),
+                                LogoutEvent(
+                                  communityBloc: context.read<CommunityBloc>(),
+                                ),
                               ),
                       color: AppColor.red,
                       textColor: AppColor.white,
@@ -257,9 +260,8 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
       backgroundColor: AppColor.white,
-      // isScrollControlled: true,
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.27,
+        maxHeight: MediaQuery.of(context).size.height * 0.34,
       ),
       clipBehavior: Clip.antiAliasWithSaveLayer,
       barrierColor: Colors.black26,

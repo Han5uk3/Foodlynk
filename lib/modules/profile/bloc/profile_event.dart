@@ -6,7 +6,11 @@ sealed class ProfileEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LogoutEvent extends ProfileEvent {}
+class LogoutEvent extends ProfileEvent {
+   final CommunityBloc communityBloc;
+  LogoutEvent({required this.communityBloc});
+  
+}
 
 class CreateProfileEvent extends ProfileEvent {
   final String title;

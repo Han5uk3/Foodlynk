@@ -247,10 +247,9 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
               child: ImagePickerButton(
                 onImageSelected: (File image) {
                   if (isBefore) {
-                    _showCompletedBottomSheet(context, 10);
-                    // context.read<ChallengeBloc>().add(
-                    //   UploadBeforeImageEvent(imageFile: image),
-                    // );
+                    context.read<ChallengeBloc>().add(
+                      UploadBeforeImageEvent(imageFile: image),
+                    );
                   } else if (_beforeImageFile != null) {
                     context.read<ChallengeBloc>().add(
                       UploadAfterImageEvent(

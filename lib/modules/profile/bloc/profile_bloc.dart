@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
+import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 
 part 'profile_event.dart';
@@ -25,6 +26,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       Services.uid = "";
       await HiveHelper.removeUID();
       await HiveHelper.removeIsGuest();
+      // event.communityBloc.add(ClearCommunityStateEvent());
       emit(LogoutStateSuccess());
     } catch (e) {
       emit(LogoutStateError(errorMessage: e.toString()));

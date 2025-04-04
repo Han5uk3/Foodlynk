@@ -5,7 +5,7 @@
  <uses-permission android:name="android.permission.VIBRATE"/>
  <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <application
-        android:label="saver_bbk_main"
+        android:label="Saver App"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
