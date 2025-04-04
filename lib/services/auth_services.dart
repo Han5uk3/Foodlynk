@@ -11,15 +11,12 @@ import 'package:saver_bbk_main/modules/profile/edit_profile.dart';
 class AuthServices {
   static String verId = "";
   static final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-
   static void verifyPhoneNumber(BuildContext context, String number) async {
     showLoadingDialog(context, 'Sending OTP...');
-
     await _firebaseAuth.verifyPhoneNumber(
       phoneNumber: '+91 $number',
       verificationCompleted: (PhoneAuthCredential credential) {
         Navigator.pop(context);
-
         signInWithPhoneNumber(
           context,
           credential.verificationId!,
@@ -29,7 +26,6 @@ class AuthServices {
       },
       verificationFailed: (FirebaseAuthException e) {
         Navigator.pop(context);
-
         if (e.code == 'invalid-phone-number') {
           SaverSnackBar.show(
             context: context,
@@ -46,7 +42,6 @@ class AuthServices {
       },
       codeSent: (String verificationId, int? resendToken) {
         Navigator.pop(context);
-
         verId = verificationId;
         Navigator.push(
           context,
@@ -60,9 +55,13 @@ class AuthServices {
       codeAutoRetrievalTimeout: (String verificationId) {
         try {
           Navigator.pop(context);
-        } catch (e) {}
+        } catch (e) {
+          if (kDebugMode) {
+            print(e);
+          }
+        }
       },
-      timeout: const Duration(seconds: 60),
+      timeout: const Duration(seconds: 30),
     );
   }
 
@@ -90,7 +89,11 @@ class AuthServices {
     } catch (e) {
       try {
         Navigator.pop(context);
-      } catch (dialogError) {}
+      } catch (dialogError) {
+        if (kDebugMode) {
+          print(dialogError);
+        }
+      }
 
       SaverSnackBar.show(
         context: context,
@@ -119,8 +122,11 @@ class AuthServices {
           await Collections.users.where('uid', isEqualTo: uid).get();
       try {
         Navigator.pop(context);
-      } catch (e) {}
-
+      } catch (e) {
+        if (kDebugMode) {
+          print(e);
+        }
+      }
       if (querySnapshot.docs.isNotEmpty) {
         await HiveHelper.putUID(uid);
         await HiveHelper.putisGuest(false);
@@ -157,7 +163,11 @@ class AuthServices {
     } catch (e) {
       try {
         Navigator.pop(context);
-      } catch (dialogError) {}
+      } catch (dialogError) {
+        if (kDebugMode) {
+          print(dialogError);
+        }
+      }
 
       SaverSnackBar.show(
         context: context,

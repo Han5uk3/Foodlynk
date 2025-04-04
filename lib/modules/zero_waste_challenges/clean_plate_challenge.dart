@@ -1,13 +1,12 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:saver_bbk_main/api/compare_plates.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/image_picker.dart';
-import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
+import 'package:saver_bbk_main/modules/zero_waste_challenges/bloc/challenge_bloc.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class CleanPlateChallenge extends StatefulWidget {
@@ -20,325 +19,348 @@ class CleanPlateChallenge extends StatefulWidget {
 class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
   File? _beforeImageFile;
   File? _afterImageFile;
-
-  void _setBeforeImage(File image) {
-    setState(() {
-      _beforeImageFile = image;
-    });
-  }
-
-  void _setAfterImage(File image) {
-    setState(() {
-      _afterImageFile = image;
-    });
-  }
+  bool _isSubmitting = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: saverAppBar("Clean Plate Challenge", context, isneedtopop: true),
+      body: BlocConsumer<ChallengeBloc, ChallengeState>(
+        listener: (context, state) {
+          if (state is BeforeUploadImageSuccessState) {
+            setState(() {
+              _beforeImageFile = state.image;
+            });
+            SaverSnackBar.show(
+              context: context,
+              message: "Before image uploaded successfully!",
+              isTrue: true,
+            );
+          } else if (state is BeforeUploadImageErrorState) {
+            SaverSnackBar.show(
+              context: context,
+              message: state.errorMessage,
+              isTrue: false,
+            );
+          } else if (state is AfterUploadImageSuccessState) {
+            setState(() {
+              _beforeImageFile = state.beforeImage;
+              _afterImageFile = state.afterImage;
+            });
+            SaverSnackBar.show(
+              context: context,
+              message: "After image uploaded successfully!",
+              isTrue: true,
+            );
+          } else if (state is AfterUploadImageErrorState) {
+            SaverSnackBar.show(
+              context: context,
+              message: state.errorMessage,
+              isTrue: false,
+            );
+          } else if (state is ChallengeSubmissionSuccessState) {
+            setState(() {
+              _isSubmitting = false;
+            });
+            _showCompletedBottomSheet(context, state.points);
+          } else if (state is ChallengeSubmissionErrorState) {
+            setState(() {
+              _isSubmitting = false;
+            });
+            SaverSnackBar.show(
+              context: context,
+              message: state.errorMessage,
+              isTrue: false,
+            );
+          } else if (state is ChallengeInitial) {
+            setState(() {
+              _beforeImageFile = null;
+            });
+          } else if (state is ChallengeSubmissionLoadingState) {
+            setState(() {
+              _isSubmitting = true;
+            });
+          }
+        },
+        builder: (context, state) {
+          bool isBeforeLoading = state is BeforeUploadImageLoadingState;
+          bool isAfterLoading = state is AfterUploadImageLoadingState;
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildChallengeCard(),
+                  _buildImageSection(
+                    "Upload before image",
+                    _beforeImageFile,
+                    true,
+                    isBeforeLoading,
+                  ),
+                  _buildImageSection(
+                    "Upload after image",
+                    _afterImageFile,
+                    false,
+                    isAfterLoading,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(14),
-        child:
-            (_beforeImageFile != null && _afterImageFile != null)
-                ? SaverButton(
-                  text: "Submit Challenge",
-                  onPressed: () async {
-                    final bool isPlateEmpty = await comparePlates(
-                      _beforeImageFile!,
-                      _afterImageFile!,
+        child: SaverButton(
+          text: _isSubmitting ? "Submitting..." : "Submit Challenge",
+          color:
+              (_beforeImageFile != null &&
+                      _afterImageFile != null &&
+                      !_isSubmitting)
+                  ? AppColor.primaryColor
+                  : AppColor.lightGrey200,
+          onPressed:
+              (_beforeImageFile != null &&
+                      _afterImageFile != null &&
+                      !_isSubmitting)
+                  ? () {
+                    context.read<ChallengeBloc>().add(
+                      SubmitChallengeEvent(
+                        beforeImageFile: _beforeImageFile!,
+                        afterImageFile: _afterImageFile!,
+                      ),
                     );
-                    isPlateEmpty
-                        ? _showCompletedBottomSheet(context)
-                        : SaverSnackBar.show(
-                          context: context,
-                          message:
-                              "Finish your meal and clean your plate before uploading image",
-                          isTrue: false,
-                        );
-                  },
-                )
-                : SaverButton(
-                  text: "Submit Challenge",
-                  color: AppColor.lightGrey200,
-                  onPressed: () {
-                    showSnackBar(context, "Please select both images");
-                  },
-                ), // Empty space when condition is false
+                  }
+                  : () {},
+        ),
       ),
-      body: SingleChildScrollView(
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    );
+  }
+
+  Widget _buildChallengeCard() {
+    return Card(
+      color: AppColor.white,
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
               children: [
-                IntrinsicHeight(
-                  child: Card(
-                    color: AppColor.white,
-                    elevation: 3,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Stack(
-                          children: [
-                            Center(
-                              child: SizedBox(
-                                height: 150,
-                                width: 150,
-                                child: loadsvg("assets/icons/cleanplate.svg"),
-                              ),
-                            ),
-
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: IntrinsicWidth(
-                                child: Container(
-                                  margin: EdgeInsets.only(right: 12, top: 15),
-                                  height: 25,
-
-                                  padding: EdgeInsets.symmetric(horizontal: 7),
-                                  decoration: BoxDecoration(
-                                    color: AppColor.pointColor,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "+10 points",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: AppColor.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Divider(
-                          color: Colors.grey.shade200,
-                          thickness: 2,
-                          endIndent: 12,
-                          indent: 12,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Text(
-                            "Finish your entire meal without leftovers and upload a before & after photo.",
-                            style: TextStyle(color: Colors.grey.shade600),
-                          ),
-                        ),
-
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 12,
-                            right: 12,
-                            bottom: 12,
-                          ),
-                          child: Text(
-                            "Steps to Complete",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                        bulletText(
-                          "Take a \"before\" photo of your full plate. ",
-                        ),
-                        bulletText("Enjoy your meal!"),
-                        bulletText(
-                          "Take an \"after\" photo of your clean plate .",
-                        ),
-                        bulletText("Submit for verification!"),
-                        SizedBox(height: 9.5),
-                      ],
+                Center(
+                  child: SizedBox(
+                    height: 150,
+                    width: 150,
+                    child: loadsvg("assets/icons/cleanplate.svg"),
+                  ),
+                ),
+                Positioned(
+                  top: 15,
+                  right: 12,
+                  child: Container(
+                    height: 25,
+                    padding: const EdgeInsets.symmetric(horizontal: 7),
+                    decoration: BoxDecoration(
+                      color: AppColor.pointColor,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 3,
-                    vertical: 12,
-                  ),
-                  child: Text(
-                    "Upload before image",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 12, bottom: 12),
-                  child: Row(
-                    children: [
-                      if (_beforeImageFile != null)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 12),
-                          child: IntrinsicWidth(
-                            child: IntrinsicHeight(
-                              child: Stack(
-                                children: [
-                                  SizedBox(
-                                    height: 100,
-                                    width: 100,
-                                    child: Center(
-                                      child: Container(
-                                        height: 90,
-                                        width: 90,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          image: DecorationImage(
-                                            image: FileImage(_beforeImageFile!),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    child: SizedBox(
-                                      width: 100,
-                                      child: Align(
-                                        alignment: Alignment.topRight,
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              _beforeImageFile = null;
-                                            });
-                                          },
-                                          child: CircleAvatar(
-                                            radius: 10,
-                                            backgroundColor: Colors.white70,
-                                            child: Center(
-                                              child: Icon(
-                                                Icons.close,
-                                                color: AppColor.black,
-                                                size: 15,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      _beforeImageFile == null
-                          ? ImagePickerButton(
-                            onImageSelected: _setBeforeImage,
-                            isFood: true,
-                          )
-                          : SizedBox(),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 3,
-                    vertical: 12,
-                  ),
-                  child: Text(
-                    "Upload after image",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 12, bottom: 12),
-                  child: Row(
-                    children: [
-                      if (_afterImageFile != null)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 12),
-                          child: IntrinsicWidth(
-                            child: IntrinsicHeight(
-                              child: Stack(
-                                children: [
-                                  SizedBox(
-                                    height: 100,
-                                    width: 100,
-                                    child: Center(
-                                      child: Container(
-                                        height: 90,
-                                        width: 90,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          image: DecorationImage(
-                                            image: FileImage(_afterImageFile!),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    child: SizedBox(
-                                      width: 100,
-                                      child: Align(
-                                        alignment: Alignment.topRight,
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              _afterImageFile = null;
-                                            });
-                                          },
-                                          child: CircleAvatar(
-                                            radius: 10,
-                                            backgroundColor: Colors.white70,
-                                            child: Center(
-                                              child: Icon(
-                                                Icons.close,
-                                                color: AppColor.black,
-                                                size: 15,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      _afterImageFile == null
-                          ? ImagePickerButton(
-                            onImageSelected: _setAfterImage,
-                            isFood: false,
-                          )
-                          : SizedBox(),
-                    ],
+                    child: Center(
+                      child: Text(
+                        "+10 points",
+                        style: TextStyle(fontSize: 12, color: AppColor.white),
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
+            Divider(color: Colors.grey.shade200, thickness: 2),
+            Text(
+              "Finish your entire meal without leftovers and upload a before & after photo.",
+              style: TextStyle(color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "Steps to Complete",
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            bulletText("Take a \"before\" photo of your full plate."),
+            bulletText("Enjoy your meal!"),
+            bulletText("Take an \"after\" photo of your clean plate."),
+            bulletText("Submit for verification!"),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageSection(
+    String title,
+    File? imageFile,
+    bool isBefore,
+    bool isLoading,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            children: [
+              Text(
+                title,
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              ),
+              if (isLoading) ...[
+                const SizedBox(width: 10),
+                SizedBox(
+                  width: 15,
+                  height: 15,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColor.primaryColor,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "Uploading...",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColor.primaryColor,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
+        Row(
+          children: [
+            if (imageFile != null) _buildImagePreview(imageFile, isBefore),
+            if (isLoading && imageFile == null) _buildLoadingImagePlaceholder(),
+            Visibility(
+              visible: imageFile == null && !isLoading,
+              child: ImagePickerButton(
+                onImageSelected: (File image) {
+                  if (isBefore) {
+                    context.read<ChallengeBloc>().add(
+                      UploadBeforeImageEvent(imageFile: image),
+                    );
+                  } else if (_beforeImageFile != null) {
+                    context.read<ChallengeBloc>().add(
+                      UploadAfterImageEvent(
+                        imageFile: image,
+                        beforeImageFile: _beforeImageFile!,
+                      ),
+                    );
+                  } else {
+                    SaverSnackBar.show(
+                      context: context,
+                      message: "Please upload the before image first",
+                      isTrue: false,
+                    );
+                  }
+                },
+                isFood: true,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoadingImagePlaceholder() {
+    return Container(
+      height: 100,
+      width: 100,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.grey.shade200,
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(
+              color: AppColor.primaryColor,
+              strokeWidth: 3,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Processing",
+              style: TextStyle(fontSize: 12, color: AppColor.primaryColor),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImagePreview(File imageFile, bool isBefore) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 12),
+      child: Stack(
+        children: [
+          Container(
+            height: 100,
+            width: 100,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              image: DecorationImage(
+                image: FileImage(imageFile),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: GestureDetector(
+              onTap: () {
+                if (isBefore) {
+                  context.read<ChallengeBloc>().add(RemoveBeforeImageEvent());
+                  setState(() {
+                    _afterImageFile =
+                        null; // Reset after image too when before is removed
+                  });
+                } else {
+                  context.read<ChallengeBloc>().add(RemoveAfterImageEvent());
+                  setState(() {
+                    _afterImageFile = null;
+                  });
+                }
+              },
+              child: CircleAvatar(
+                radius: 12,
+                backgroundColor: Colors.white70,
+                child: Icon(Icons.close, color: AppColor.black, size: 15),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget bulletText(String text) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2.5),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        spacing: 5,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CircleAvatar(
-            radius: 3,
-            backgroundColor: Colors.grey.shade600,
-          ), // Bullet point
+          Container(
+            height: 8,
+            width: 8,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade600,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(text, style: TextStyle(color: Colors.grey.shade600)),
           ),
@@ -347,84 +369,56 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
     );
   }
 
-  _showCompletedBottomSheet(context) {
+  _showCompletedBottomSheet(BuildContext context, int points) {
     showModalBottomSheet(
       backgroundColor: AppColor.white,
       isDismissible: false,
       enableDrag: false,
-      barrierColor: Colors.black26,
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.55,
-      ),
+      useSafeArea: true,
       context: context,
-      builder: (BuildContext context) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
+      builder:
+          (_) => Container(
+            padding: const EdgeInsets.all(16),
+            height: MediaQuery.of(context).size.height * 0.70,
+            child: Column(
+              children: [
+                Text(
+                  "Congratulations!",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                Divider(thickness: 2, color: Colors.grey.shade200),
+                const SizedBox(height: 18),
+                loadsvg("assets/icons/completed.svg"),
+                const SizedBox(height: 20),
+                Text(
+                  "You earned $points points on completing your challenge!",
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 35),
+                Row(
+                  children: [
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: SaverButton(
+                        text: "Back",
+                        onPressed: () {
+                          Navigator.pop(context);
+                          context.read<ChallengeBloc>().add(
+                            RemoveBeforeImageEvent(),
+                          );
+                          setState(() {
+                            _beforeImageFile = null;
+                            _afterImageFile = null;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-          padding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 20,
-            bottom: 16,
-          ),
-          child: Column(
-            children: [
-              Text(
-                "Congratulations",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: AppColor.black,
-                ),
-              ),
-              SizedBox(height: 12),
-              Divider(thickness: 2, color: Colors.grey.shade200),
-              SizedBox(height: 18),
-              loadsvg("assets/icons/completed.svg"),
-              SizedBox(height: 20),
-              Text(
-                "You earned 10 Points on completing your Clean Plate Challenge!",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 35),
-              Row(
-                spacing: 12,
-                children: [
-                  Expanded(
-                    child: SaverOutlineButton(
-                      text: "Take Again",
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    child: SaverButton(
-                      text: "Back To Challenges",
-
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
     );
-  }
-
-  showSnackBar(context, String message) {
-    final snackBar = SnackBar(content: Text(message));
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

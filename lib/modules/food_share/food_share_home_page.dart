@@ -1,16 +1,20 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
+import 'package:saver_bbk_main/common_widget/loader.dart';
 import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
-import 'package:saver_bbk_main/helpers/date_format.dart';
+import 'package:saver_bbk_main/models/donation_model.dart';
 import 'package:saver_bbk_main/modules/food_share/donation_details.dart';
+import 'package:saver_bbk_main/modules/food_share/widgets/donnation_cards.dart';
+import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class FoodShareHomePage extends StatefulWidget {
-  const FoodShareHomePage({super.key, required this.onBack});
+  const FoodShareHomePage({super.key});
 
-  final VoidCallback onBack;
   @override
   State<FoodShareHomePage> createState() => _FoodShareHomePageState();
 }
@@ -70,13 +74,11 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: saverAppBar(
-        "Food Share",
+        "My Donations & Requests",
         context,
-        iswhite: false,
-        textColor: AppColor.white,
-        iconColor: AppColor.white,
+        iswhite: true,
+
         isneedtopop: true,
-        onpop: widget.onBack,
       ),
       body: _buildBody(),
     );
@@ -86,11 +88,10 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
     showModalBottomSheet(
       isDismissible: false,
       context: context,
-      isScrollControlled: true, // Allows the sheet to be taller
+      isScrollControlled: true,
       backgroundColor: AppColor.white,
       builder: (context) {
         return StatefulBuilder(
-          // Allows state updates within the bottom sheet
           builder: (context, setState) {
             return Padding(
               padding: const EdgeInsets.all(12.0),
@@ -265,7 +266,6 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
                                         return ListTile(
                                           onTap: () {
                                             setState(() {
-                                              // Now state updates correctly
                                               selectedFilter = index;
                                             });
                                           },
@@ -302,7 +302,6 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
                                         return ListTile(
                                           onTap: () {
                                             setState(() {
-                                              // Now state updates correctly
                                               selectedFilter = index;
                                             });
                                           },
@@ -373,7 +372,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
     showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext context) {
-        bool isDonor = true; // Local state within the modal
+        bool isDonor = true;
 
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
@@ -457,7 +456,10 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
                         context,
                         MaterialPageRoute(
                           builder:
-                              (context) => DonationDetails(isDonor: isDonor),
+                              (context) => DonationDetails(
+                                isDonor: isDonor,
+                                isView: false,
+                              ),
                         ),
                       );
                     },
@@ -494,201 +496,68 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
     return Expanded(
       child: IndexedStack(
         index: _tabController.index,
-        children: [_buildDonationsTab(), _buildRecievedTab()],
+        children: [_buildDonationsTab(true), _buildRecievedTab(false)],
       ),
     );
   }
 
-  _buildDonationsTab() {
-    return ListView.separated(
-      itemCount: 3,
-      separatorBuilder: (context, index) => SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        return donationCard("P");
+  _buildDonationsTab(bool isDonor) {
+    return StreamBuilder<List<DonationModel>>(
+      stream: Services.getMyDonations('DONR'),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return SaverLoader();
+        }
+        if (snapshot.hasError ||
+            snapshot.data == null ||
+            snapshot.data!.isEmpty) {
+          return Center(child: Text("No Donations found"));
+        }
+        final donations = snapshot.data!;
+        return ListView.separated(
+          padding: const EdgeInsets.all(5),
+          itemCount: donations.length,
+          separatorBuilder: (context, index) => SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final donation = donations[index];
+            return DonnationCards(
+              item: donation,
+              tabIndex: _tabController.index,
+              isBenificiary: false,
+            );
+          },
+        );
       },
     );
   }
 
-  _buildRecievedTab() {
-    return ListView.separated(
-      itemCount: 2,
-      separatorBuilder: (context, index) => SizedBox(height: 12),
-      itemBuilder: (context, index) {
-        return donationCard("R");
+  _buildRecievedTab(bool isDonor) {
+    return StreamBuilder<List<DonationModel>>(
+      stream: Services.getMyDonations('BENF'),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return SaverLoader();
+        }
+        if (snapshot.hasError ||
+            snapshot.data == null ||
+            snapshot.data!.isEmpty) {
+          return Center(child: Text("No Benificiary found"));
+        }
+        final benificiary = snapshot.data!;
+
+        return ListView.separated(
+          itemCount: benificiary.length,
+          separatorBuilder: (context, index) => SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final donation = benificiary[index];
+            return DonnationCards(
+              item: donation,
+              tabIndex: _tabController.index,
+              isBenificiary: true,
+            );
+          },
+        );
       },
-    );
-  }
-
-  donationCard(String status) {
-    return Card(
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Container(
-                  height: 90,
-                  width: 90,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.blue,
-                  ),
-                ),
-                SizedBox(width: 5),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-
-                        children: [
-                          Expanded(
-                            child: Text(
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: true,
-                              "dfggggggxxftfdxgzdfgzzfgdfzghfghdrxfbgxghtnhdg",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-
-                          Container(
-                            margin: EdgeInsets.only(right: 12),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 5,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              color:
-                                  status == "P"
-                                      ? AppColor.lightYellow
-                                      : AppColor.lightGreen,
-                            ),
-                            height: 27,
-                            child: Center(
-                              child:
-                                  status == "P"
-                                      ? Text(
-                                        "pending",
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: AppColor.yellow,
-                                        ),
-                                      )
-                                      : Text(
-                                        "Picked",
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: AppColor.primaryColor,
-                                        ),
-                                      ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 5),
-                      _tabController.index == 0
-                          ? _buildDonatedDateRow()
-                          : _buildReceivedOnDateRow(),
-                      SizedBox(height: 5),
-                      _tabController.index == 0
-                          ? _buildServesRow()
-                          : _buildDonatedByRow(),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDonatedDateRow() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        CircleAvatar(
-          radius: 12,
-          backgroundColor: AppColor.greenshade,
-          child: loadsvg("assets/icons/expiry.svg"),
-        ),
-        Text(
-          " Donated On: ${DateFormatHelper.ddmmyyyy(DateTime.now())}",
-          style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildReceivedOnDateRow() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        CircleAvatar(
-          radius: 12,
-          backgroundColor: AppColor.greenshade,
-          child: loadsvg("assets/icons/expiry.svg"),
-        ),
-        Text(
-          " Recieved On: ${DateFormatHelper.ddmmyyyy(DateTime.now())}",
-          style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildServesRow() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        CircleAvatar(
-          radius: 12,
-          backgroundColor: AppColor.lightblue,
-          child: Icon(Icons.group_outlined, size: 14, color: AppColor.blue),
-        ),
-        Text(
-          " Serves: 2",
-          style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDonatedByRow() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        CircleAvatar(
-          radius: 12,
-          backgroundColor: AppColor.lightblue,
-          child: Icon(
-            Icons.person_outline_outlined,
-            size: 14,
-            color: AppColor.blue,
-          ),
-        ),
-        Text(
-          " Donated By: 2",
-          style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
-        ),
-      ],
     );
   }
 
@@ -743,7 +612,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
         children: [
           Expanded(
             child: _buildTabButton(
-              "Donations Made",
+              "Donor",
               AppColor.appbarColor,
               AppColor.lightAppbarColor,
               0,
@@ -751,7 +620,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
           ),
           Expanded(
             child: _buildTabButton(
-              "Food Recieved",
+              "Beneficiary",
               AppColor.green500,
               AppColor.lightGreen100,
               1,
@@ -767,7 +636,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          _tabController.index == 0 ? "Donations Made" : "Food Recieved",
+          _tabController.index == 0 ? "Donor" : "Beneficiary",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         GestureDetector(

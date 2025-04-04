@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel {
@@ -9,6 +11,7 @@ class UserModel {
   final String? phoneNumber;
   final String? address;
   final String? gender;
+  final String? fcmToken;
   final Timestamp? dob;
   final String? nationality;
   final String? country;
@@ -25,6 +28,7 @@ class UserModel {
     this.uid,
     this.title,
     this.firstName,
+    this.fcmToken,
     this.lastName,
     this.email,
     this.phoneNumber,
@@ -51,7 +55,6 @@ class UserModel {
         try {
           return DateTime.parse(value);
         } catch (e) {
-          print('Invalid date format: $value');
           return null;
         }
       }
@@ -62,6 +65,7 @@ class UserModel {
       uid: data['uid'] ?? '',
       title: data['title'] ?? '',
       firstName: data['firstName'] ?? '',
+      fcmToken: data['fcmToken'] ?? '',
       lastName: data['lastName'] ?? '',
       email: data['email'] ?? '',
       phoneNumber: data['phoneNumber'] ?? '',
@@ -90,6 +94,7 @@ class UserModel {
       'uid': uid,
       'title': title,
       'firstName': firstName,
+      'fcmToken': fcmToken,
       'lastName': lastName,
       'email': email,
       'phoneNumber': phoneNumber,
@@ -117,6 +122,7 @@ class UserModel {
       'uid': uid,
       'title': title,
       'firstName': firstName,
+      'fcmToken': fcmToken,
       'lastName': lastName,
       'email': email,
       'phoneNumber': phoneNumber,
@@ -130,7 +136,7 @@ class UserModel {
       'zipCode': zipCode,
       'points': points,
       'kitchenItems': kitchenItems?.map((item) => item).toList() ?? [],
-     'addedItemQuantityCount': monthlyItemQuantityAddedCount,
+      'addedItemQuantityCount': monthlyItemQuantityAddedCount,
       'noOfQuantityRemoved': monthlyItemQuantityRemovedCount,
       'createdAt': createdAt?.toIso8601String(),
     };
@@ -142,7 +148,6 @@ class UserModel {
         try {
           return DateTime.parse(value);
         } catch (e) {
-          print('Invalid date format: $value');
           return null;
         }
       }
@@ -153,6 +158,7 @@ class UserModel {
       uid: json['uid'] ?? '',
       title: json['title'] ?? '',
       firstName: json['firstName'] ?? '',
+      fcmToken: json['fcmToken'] ?? '',
       lastName: json['lastName'] ?? '',
       email: json['email'] ?? '',
       phoneNumber: json['phoneNumber'] ?? '',
@@ -180,31 +186,36 @@ class UserModel {
 class Items {
   final String? id;
   final String? name;
+  final String? image;
   final String? category;
   final int? quantity;
   final String? unit;
-  final DateTime? expiredDate;
+  final String? status;
+  final dynamic expiredDate;
 
   Items({
     this.id,
     this.name,
+    this.image,
     this.category,
     this.quantity,
     this.unit,
+    this.status,
     this.expiredDate,
   });
 
   /// ✅ Renamed `fromJson` to `fromMap`
   factory Items.fromMap(Map<String, dynamic> map) {
+    dynamic expDate = map['expiredDate'];
     return Items(
       id: map['id'] as String? ?? '',
       name: map['name'] as String? ?? 'Unknown',
+      image: map['item_image'] as String? ?? '',
       category: map['category'] as String? ?? '',
       quantity: (map['quantity'] as num?)?.toInt() ?? 0,
       unit: map['unit'] as String? ?? '',
-      expiredDate: map['expiredDate'] is Timestamp
-          ? (map['expiredDate'] as Timestamp).toDate() 
-          : DateTime.tryParse(map['expiredDate'] ?? '') ?? DateTime.now(),
+      status: map['status'] as String? ?? '',
+      expiredDate: expDate,
     );
   }
 
@@ -212,10 +223,21 @@ class Items {
     return {
       'id': id,
       'name': name,
+      'item_image': image,
       'category': category,
       'quantity': quantity,
       'unit': unit,
+      'status': status,
       'expiredDate': Timestamp.fromDate(expiredDate ?? DateTime.now()),
     };
+  }
+
+  static String generateRandomId() {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    final random = Random();
+    return List.generate(
+      10,
+      (index) => chars[random.nextInt(chars.length)],
+    ).join();
   }
 }

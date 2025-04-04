@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,13 +13,28 @@ import 'package:saver_bbk_main/common_widget/label.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/text_field.dart';
+import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/bloc/kitchen_manager_bloc.dart';
+import 'package:saver_bbk_main/modules/kitchen_management/kitchen_manager.dart';
+import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_bloc.dart';
+import 'package:saver_bbk_main/modules/smart_shopping_list/widgets/item_sheets.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class AddItem extends StatefulWidget {
-  const AddItem({super.key, required this.isEdit, this.dateString});
   final String? dateString;
   final bool isEdit;
+  final Items? item;
+  final String? listId;
+  final bool? isFromSmartList;
+  const AddItem({
+    super.key,
+    required this.isEdit,
+    this.dateString,
+    this.item,
+    this.isFromSmartList,
+    this.listId,
+  });
+
   @override
   State<AddItem> createState() => _AddItemState();
 }
@@ -53,6 +69,34 @@ class _AddItemState extends State<AddItem> {
     setState(() {
       _imageFile = image;
     });
+  }
+
+  @override
+  void initState() {
+    if (widget.isEdit) {
+      itemNameController.text = widget.item!.name ?? "";
+      selectedUnit = widget.item!.unit ?? "";
+      numberOfQuantity = widget.item!.quantity ?? 0;
+      selectedCategory = widget.item!.category ?? "";
+      if (widget.item!.expiredDate != null) {
+        if (widget.item!.expiredDate is Timestamp) {
+          selectedExpiryDate = (widget.item!.expiredDate as Timestamp).toDate();
+        } else if (widget.item!.expiredDate is DateTime) {
+          selectedExpiryDate = widget.item!.expiredDate;
+        } else if (widget.item!.expiredDate is String) {
+          try {
+            selectedExpiryDate = DateTime.parse(widget.item!.expiredDate);
+          } catch (e) {
+            selectedExpiryDate = DateTime.now();
+          }
+        }
+      }
+    } else if (widget.isFromSmartList ?? false) {
+      itemNameController.text = widget.item!.name ?? "";
+      selectedUnit = widget.item!.unit;
+      numberOfQuantity = widget.item!.quantity ?? 0;
+    }
+    super.initState();
   }
 
   @override
@@ -378,7 +422,7 @@ class _AddItemState extends State<AddItem> {
                   horizontal: 14,
                   vertical: 20,
                 ),
-                child: _editItemButton(),
+                child: _editItemButton(widget.item!),
               )
               : Padding(
                 padding: const EdgeInsets.symmetric(
@@ -436,17 +480,32 @@ class _AddItemState extends State<AddItem> {
                         return;
                       }
 
-                      // Show loading inside the button
-
-                      context.read<KitchenManagerBloc>().add(
-                        AddNewItemEvent(
-                          itemName: itemNameController.text,
-                          category: selectedCategory,
-                          unitName: selectedUnit ?? "",
-                          quantity: numberOfQuantity,
-                          expiredDate: selectedExpiryDate,
-                        ),
-                      );
+                      (widget.isFromSmartList ?? false)
+                          ? context.read<SmartShoppingBloc>().add(
+                            MarkAsPurchasedSmartShoppingEvent(
+                              item: Items(
+                                id: widget.item?.id,
+                                name: itemNameController.text,
+                                quantity: numberOfQuantity,
+                                unit: selectedUnit ?? "",
+                                category: selectedCategory,
+                                expiredDate: selectedExpiryDate,
+                              ),
+                              listId: widget.listId ?? "",
+                            ),
+                          )
+                          : context.read<KitchenManagerBloc>().add(
+                            AddNewItemEvent(
+                              item: Items(
+                                name: itemNameController.text,
+                                quantity: numberOfQuantity,
+                                unit: selectedUnit ?? "",
+                                category: selectedCategory,
+                                expiredDate: selectedExpiryDate,
+                              ),
+                              imageFile: _imageFile
+                            ),
+                          );
                     },
                   ),
                 ),
@@ -454,17 +513,33 @@ class _AddItemState extends State<AddItem> {
     );
   }
 
-  Widget _editItemButton() {
+  Widget _editItemButton(Items item) {
     return Row(
       spacing: 20,
       children: [
         Expanded(
-          child: SaverButton(text: "Move to Shopping List", onPressed: () {}),
+          child: SaverButton(
+            text: "Move to Shopping List",
+            onPressed:
+                () => SmartListSheet().showListSelector(
+                  context,
+                  item,
+                  isFromParentSheet: true,
+                ),
+          ),
         ),
         Expanded(
           child: SaverButton(
             text: "Remove from list",
-            onPressed: () {},
+            onPressed:
+                () => context.read<KitchenManagerBloc>().add(
+                  RemoveItemEvent(
+                    itemId: widget.item?.id ?? "",
+                    beforeExpiry: !itemRemovedBeforeExpiry(widget.item!),
+                    itemCount: widget.item?.quantity ?? 0,
+                    inSideParentPage: true,
+                  ),
+                ),
             color: AppColor.red,
           ),
         ),

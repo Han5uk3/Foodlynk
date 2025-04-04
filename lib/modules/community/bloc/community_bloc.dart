@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
+import 'package:saver_bbk_main/api/app_apis.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/models/chat_model.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
@@ -21,6 +23,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     on<SendMessageEvent>(_onSendMessage);
     on<LoadMessagesEvent>(_onLoadMessages);
     on<UpdateMessagesEvent>(_onUpdateMessages);
+    on<ClearCommunityStateEvent>(_onClearCommunityStateEvent);
     add(LoadChatRoomsEvent());
   }
 
@@ -28,11 +31,15 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     LoadChatRoomsEvent event,
     Emitter<CommunityState> emit,
   ) async {
-    emit(state.copyWith(status: ChatStatus.loading));
-
+    emit(
+      state.copyWith(
+        status: ChatStatus.loading,
+        userDetails: {},
+        chatRooms: [],
+      ),
+    );
     try {
       await _chatRoomsSubscription?.cancel();
-
       _chatRoomsSubscription = ChatServices.database
           .ref('chats')
           .onValue
@@ -63,9 +70,10 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
                           'receiverUID': otherUserUID,
                           'lastMessage': value['lastMessage'] ?? '',
                           'timestamp': value['timestamp'] ?? '',
-                          'unreadCount': value['unreadCount'] ?? 0,
+                          'unreadCount':
+                              value['unread_count']?[Services.uid] ?? 0,
+                          'isSeen': value['seen_by']?[Services.uid] ?? false,
                           'lastSenderUID': value['lastSenderUID'] ?? '',
-                          'seen': value['seen'] ?? false,
                         });
 
                         receiverUIDs.add(otherUserUID);
@@ -78,7 +86,6 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
                   (a, b) =>
                       (b['timestamp'] ?? '').compareTo(a['timestamp'] ?? ''),
                 );
-
                 Map<String, Map<String, dynamic>> userDetails = {};
                 try {
                   if (receiverUIDs.isNotEmpty) {
@@ -142,7 +149,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       emit(state.copyWith(status: ChatStatus.loading));
 
       String? chatRoomId;
-      String currentUID = Services.uid;
+      String currentUID = Services.uid ?? '';
       if (event.receiverUid != null) {
         chatRoomId = await ChatServices.getOrCreateChatRoom(
           event.receiverUid ?? "",
@@ -152,11 +159,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       }
 
       if (chatRoomId != null) {
-        await ChatServices.resetUnreadCount(
-          chatRoomId,
-          currentUID,
-          event.receiverUid ?? "",
-        );
+        await ChatServices.resetUnreadCount(chatRoomId, currentUID);
 
         emit(
           state.copyWith(
@@ -165,7 +168,12 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
           ),
         );
         if (event.isFoodSwapped) {
-          await _sendInitialFoodSwapMessages(chatRoomId, currentUID);
+          await _sendInitialFoodSwapMessages(
+            chatRoomId,
+            currentUID,
+            event.receiverUid ?? "",
+            event.fcmToken ?? '',
+          );
         }
 
         Future.delayed(
@@ -213,17 +221,27 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
           .child(state.currentChatRoomId!)
           .update({
             'lastMessage': event.message.trim(),
+            'lastSenderUID': Services.uid,
+            'seen_by/${Services.uid}': true,
+            'seen_by/${event.reciversUid}': false,
+            'unread_count/${Services.uid}': 0,
+            'unread_count/${event.reciversUid}': ServerValue.increment(1),
             'timestamp': timestamp,
           });
-
-      await ChatServices.incrementUnreadCount(
-        state.currentChatRoomId!,
-        Services.uid,
-        state.currentReceiverUid ?? "",
-      );
+      if (event.fcmToken != null && event.fcmToken!.isNotEmpty) {
+        await AppApis().sendNotificationToFCM(
+          title: event.reciversName,
+          subTitle: event.message.trim(),
+          token: event.fcmToken!,
+          chatRoomId: state.currentChatRoomId,
+          type: 'message',
+          reciversUid: event.reciversUid,
+        );
+      }
 
       emit(state.copyWith(status: ChatStatus.loaded));
     } catch (e) {
+      log('Error sending message: $e');
       emit(
         state.copyWith(
           status: ChatStatus.error,
@@ -265,8 +283,24 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
   void _onUpdateMessages(
     UpdateMessagesEvent event,
     Emitter<CommunityState> emit,
-  ) {
+  ) async {
     emit(state.copyWith(messages: event.messages, status: ChatStatus.loaded));
+    if (state.currentChatRoomId != null) {
+      await ChatServices.resetUnreadCount(
+        state.currentChatRoomId!,
+        Services.uid ?? "",
+      );
+    }
+  }
+
+  void _onClearCommunityStateEvent(
+    ClearCommunityStateEvent event,
+    Emitter<CommunityState> emit,
+  ) async {
+    await _chatRoomsSubscription?.cancel();
+    await _messagesSubscription?.cancel();
+
+    emit(const CommunityState());
   }
 
   @override
@@ -279,9 +313,10 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
   Future<void> _sendInitialFoodSwapMessages(
     String chatRoomId,
     String currentUID,
+    String receiverUID,
+    String token,
   ) async {
     final timestamp = DateTime.now().toIso8601String();
-
     List<Map<String, dynamic>> initialMessages = [
       {'senderUID': currentUID, 'message': 'Hello 👋', 'timestamp': timestamp},
       {
@@ -300,7 +335,22 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
 
     await ChatServices.database.ref('chats/$chatRoomId').update({
       'lastMessage': initialMessages.last['message'],
+      'lastSenderUID': Services.uid,
+      'seen_by/${Services.uid}': true,
+      'seen_by/$receiverUID': false,
+      'unread_count/${Services.uid}': 0,
+      'unread_count/$receiverUID': 2,
       'timestamp': timestamp,
     });
+    if (token != null && token.isNotEmpty) {
+      await AppApis().sendNotificationToFCM(
+        title: "Food Swap Accepted!",
+        subTitle: initialMessages.last['message'],
+        token: token,
+        chatRoomId: chatRoomId,
+        type: 'message',
+        reciversUid: receiverUID,
+      );
+    }
   }
 }

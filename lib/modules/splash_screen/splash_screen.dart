@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
 import 'package:saver_bbk_main/modules/home/home.dart';
 import 'package:saver_bbk_main/modules/login/login.dart';
+import 'package:saver_bbk_main/services/initilize_notification.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,7 +17,9 @@ class _SplashScreenState extends State<SplashScreen> {
   bool? isGuest = false;
   @override
   void initState() {
-    Future.delayed(Duration(milliseconds: 500)).then((value) => _checkUserStatus());
+    Future.delayed(
+      Duration(milliseconds: 500),
+    ).then((value) => _checkUserStatus());
     super.initState();
   }
 
@@ -42,6 +45,9 @@ class _SplashScreenState extends State<SplashScreen> {
         CupertinoModalPopupRoute(builder: (context) => LoginPage()),
         (route) => false,
       );
+    }
+     if (uid != null && isGuest == false) {
+      InitilizeNotification.initializeFCM();
     }
   }
 

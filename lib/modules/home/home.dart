@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:saver_bbk_main/common_widget/guest_pop_up.dart';
+import 'package:saver_bbk_main/helpers/hive_helper.dart';
+import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
 import 'package:saver_bbk_main/modules/community/community_page.dart';
-import 'package:saver_bbk_main/modules/food_share/food_share_home_page.dart';
+import 'package:saver_bbk_main/modules/food_share/food_share_all_page.dart';
 import 'package:saver_bbk_main/modules/food_swap/food_swap_page.dart';
 import 'package:saver_bbk_main/modules/home/home_page.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/kitchen_manager.dart';
 import 'package:saver_bbk_main/modules/notifications/notifications_page.dart';
 import 'package:saver_bbk_main/modules/profile/profile_page.dart';
+import 'package:saver_bbk_main/modules/smart_recipes/smart_recipe.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/smart_shopping_list_home.dart';
 import 'package:saver_bbk_main/modules/zero_waste_challenges/zero_waste_challenges.dart';
 import 'package:saver_bbk_main/modules/zero_waste_cooking/zero_waste_cooking_page.dart';
+import 'package:saver_bbk_main/services/app_services.dart';
+import 'package:saver_bbk_main/services/initilize_notification.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class MainScreen extends StatefulWidget {
@@ -26,12 +33,24 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void initState() {
-    super.initState();
+    Services.isGuest = HiveHelper.getIsGuest();
+    Services.uid = HiveHelper.getUID();
+    if (Services.isGuest == true || Services.uid == null) {
+      return;
+    } else {
+      InitilizeNotification.initializeFCM();
+    }
     _currentIndex = widget.currentIndex;
     _activeGridPage = null;
+    context.read<CommunityBloc>().add(LoadChatRoomsEvent());
+    super.initState();
   }
 
   void onGridTap(int index) {
+    if (Services.isGuest ?? false) {
+      GuestPopUp.showGuestFeaturePopup(context);
+      return;
+    }
     setState(() {
       _activeGridPage = index;
     });
@@ -55,11 +74,11 @@ class _MainScreenState extends State<MainScreen> {
         case 2:
           return SmartShoppingHome(onBack: goBack);
         case 3:
-          return FoodShareHomePage(onBack: goBack);
+          return FoodShareAllPage(onBack: goBack);
         case 4:
           return FoodSwapPage(onBack: goBack);
         case 5:
-          return Page6(onBack: goBack);
+          return GenerateRecipePage(onBack: goBack);
         case 6:
           return ZeroWasteCookingPage(onBack: goBack);
         default:
@@ -150,15 +169,6 @@ class _MainScreenState extends State<MainScreen> {
       icon: Icon(_currentIndex == index ? selectedIcon : unselectedIcon),
       label: title,
     );
-  }
-}
-
-class CommunityScreen extends StatelessWidget {
-  const CommunityScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: Text('Welcome to Community'));
   }
 }
 

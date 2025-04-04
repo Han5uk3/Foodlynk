@@ -19,8 +19,6 @@ class ChatServices {
           'receiverUID': receiverUID,
           'lastMessage': '',
           'timestamp': DateTime.now().toIso8601String(),
-          'unreadCount': 0,
-          'seen': false,
         });
       }
     } catch (e) {
@@ -31,35 +29,26 @@ class ChatServices {
     return chatRoomId;
   }
 
-  static Future<void> incrementUnreadCount(
-    String chatRoomId,
-    String senderUid,
-    String receiverUid,
-  ) async {
-    if (senderUid == receiverUid) return;
-
-    DatabaseReference chatRef = database.ref('chats').child(chatRoomId);
-
-    DatabaseEvent snapshot = await chatRef.once();
-    if (snapshot.snapshot.exists) {
-      Map<dynamic, dynamic> chatData = snapshot.snapshot.value as Map;
-
-      int unreadCount = (chatData['unreadCount'] ?? 0) + 1;
-
-      await chatRef.update({
-        'unreadCount': unreadCount,
-        'seen': false,
-        'lastSenderUID': senderUid,
-      });
-    }
-  }
-
   static Future<void> resetUnreadCount(
     String chatRoomId,
     String currentUserUid,
-    String receiverUid,
   ) async {
     DatabaseReference chatRef = database.ref('chats').child(chatRoomId);
-    await chatRef.update({'unreadCount': 0, 'seen': true});
+    await chatRef.update({
+      'seen_by/$currentUserUid': true,
+      'unread_count/$currentUserUid': 0,
+    });
+  }
+
+  static Future<void> resetUnreadCountForCurrentUser(
+    String chatRoomId,
+    String currentUID,
+  ) async {
+    final chatRef = database.ref('chats').child(chatRoomId);
+
+    await chatRef.update({
+      'unreadCount_$currentUID': 0,
+      'seen_$currentUID': true,
+    });
   }
 }

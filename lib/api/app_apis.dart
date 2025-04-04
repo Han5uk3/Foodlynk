@@ -1,53 +1,14 @@
 import 'dart:convert';
+import 'dart:developer';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:saver_bbk_main/models/protein_plan_model.dart';
+import 'package:saver_bbk_main/models/smart_recipe_model.dart';
+import 'package:saver_bbk_main/services/app_services.dart';
 
 class AppApis {
-  static final String apiUrl =
-      'https://bc54-2409-40f3-109b-241f-20f1-dd0a-665a-c722.ngrok-free.app';
-  // 'https://api-ab2ifjorfa-uc.a.run.app';
-
-  Future<bool> createNewItem(Map<String, dynamic> newItem, String uid) async {
-    String url = '$apiUrl/addKitchenItem';
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({"uid": uid, "item": newItem}),
-    );
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return json['success'];
-    } else {
-      throw Exception('Failed to create item: ${response.statusCode}');
-    }
-  }
-
-  Future<bool> removeItem(
-    String uid,
-    String itemId,
-    bool isBeforeExpiry,
-    int itemCount,
-  ) async {
-    String url = '$apiUrl/deleteKitchenItem';
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        "uid": uid,
-        "itemId": itemId,
-        "isExpaired": isBeforeExpiry,
-        "noOfQuantity": itemCount,
-      }),
-    );
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return json['success'];
-    } else {
-      throw Exception('Failed to delete item: ${response.statusCode}');
-    }
-  }
-
+  static final String apiUrl = "https://saver-app-2ae53.uc.r.appspot.com";
   Future<GenaratedProteinPlanModel> generateProteinPlan(
     String whatareyoucooking,
     String towhomareyoucooking,
@@ -55,7 +16,7 @@ class AppApis {
     List<String> dietaryPreferences,
     List<String> ingredients,
   ) async {
-    final url = Uri.parse("$apiUrl/generate-protein-plan");
+    final url = Uri.parse("$apiUrl/api-features/generate-protein-plan");
     try {
       final response = await http.post(
         url,
@@ -81,6 +42,108 @@ class AppApis {
       }
     } catch (e) {
       rethrow;
+    }
+  }
+
+  Future<GenerateSmartRecipe> generateSmartRecipe(
+    List<String> ingredients,
+  ) async {
+    final url = Uri.parse("$apiUrl/api-features/generate-smart-recipe");
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': dotenv.env['GOOGLE_GEMINI_API_KEY'] ?? "",
+        },
+        body: jsonEncode({"ingredients": ingredients}),
+      );
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        return GenerateSmartRecipe.fromJson(json);
+      } else {
+        throw Exception(
+          'Failed to generate smart recipe: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool> sendNotificationToFCM({
+    String? token,
+    String? title,
+    String? subTitle,
+    String? type,
+    String? chatRoomId,
+    String? reciversUid,
+  }) async {
+    final url = Uri.parse("$apiUrl/api-features/sendNotification");
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'token': token,
+        'title': title,
+        'body': subTitle,
+        'type': type,
+        'chatRoomId': chatRoomId,
+      }),
+    );
+    log(
+      {
+        'token': token,
+        'title': title,
+        'body': subTitle,
+        'type': type,
+        'chatRoomId': chatRoomId,
+      }.toString(),
+    );
+    if (response.statusCode == 200) {
+      await Services.addNotification(
+        RemoteMessage(
+          data: {'type': type},
+          notification: RemoteNotification(title: title, body: subTitle),
+        ),
+        reciversUid ?? "",
+      );
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> comapreOnePlate(String beforeImage) async {
+    final url = Uri.parse("$apiUrl/api-features/compareOnePlate");
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'imageUrl': beforeImage}),
+    );
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      return json['status'];
+    } else {
+      throw Exception('Failed to compare one plate: ${response.statusCode}');
+    }
+  }
+
+  Future<bool> compareTwoPlates(String beforeImage, String afterImage) async {
+    final url = Uri.parse("$apiUrl/api-features/comparePlate");
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'firstImageUrl': beforeImage,
+        'secondImageUrl': afterImage,
+      }),
+    );
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      return json['status'];
+    } else {
+      throw Exception('Failed to compare two plates: ${response.statusCode}');
     }
   }
 }

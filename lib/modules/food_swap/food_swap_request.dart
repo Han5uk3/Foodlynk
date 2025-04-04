@@ -58,7 +58,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
       appBar: saverAppBar(
         "Food Swap Request",
         context,
-        isneedchat: true,
+
         isneedtopop: true,
         iswhite: true,
       ),
@@ -151,8 +151,19 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
             child: SaverButton(
               text: "Submit Swap Request",
               isLoading: state is RequestFoodSwapLoadingState,
-              onPressed:
-                  () => context.read<FoodSwapBloc>().add(
+              onPressed: () {
+                if (selectedItem == null ||
+                    locationController.text.isEmpty ||
+                    selectedDate == null ||
+                    selectedTime == null) {
+                  SaverSnackBar.show(
+                    context: context,
+                    message: "Please fill in all fields",
+                    isTrue: false,
+                  );
+                  return;
+                } else {
+                  context.read<FoodSwapBloc>().add(
                     RequestFoodSwapEvent(
                       uid: Services.uid,
                       acceptedSwapItem: selectedItem,
@@ -161,7 +172,9 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                       pickupTime: selectedTime,
                       swapId: widget.items.id,
                     ),
-                  ),
+                  );
+                }
+              },
             ),
           );
         },

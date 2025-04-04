@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:number_selector/number_selector.dart';
-import 'package:saver_bbk_main/common_widget/button.dart';
-import 'package:saver_bbk_main/common_widget/dropdown.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:saver_bbk_main/common_widget/loader.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
-import 'package:saver_bbk_main/common_widget/text_field.dart';
-import 'package:saver_bbk_main/modules/kitchen_management/add_item.dart';
+import 'package:saver_bbk_main/models/smart_shopping_model.dart';
+import 'package:saver_bbk_main/models/users_model.dart';
+import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_bloc.dart';
+import 'package:saver_bbk_main/modules/smart_shopping_list/widgets/item_sheets.dart';
+import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class ShoppingList extends StatefulWidget {
-  const ShoppingList({super.key, required this.name});
-  final String name;
+  final String listId;
+  String? listName;
+  ShoppingList({super.key, required this.listId, this.listName = ""});
   @override
   State<ShoppingList> createState() => _ShoppingListState();
 }
@@ -17,20 +20,10 @@ class ShoppingList extends StatefulWidget {
 class _ShoppingListState extends State<ShoppingList>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  int quantity = 0;
-  List<Map<String, String>> listItems = [
-    {"name": "Mushroom", "quantity": "2 nos", "status": "true"},
-    {"name": "Mutton", "quantity": "1 Kg", "status": "false"},
-    {"name": "Onion", "quantity": "2 Kg", "status": "false"},
-    {"name": "Tomato", "quantity": "1 Kg", "status": "false"},
-    {"name": "Fish", "quantity": "2 Kg", "status": "false"},
-    {"name": "Eggs", "quantity": "20 nos", "status": "false"},
-    {"name": "Olive Oil", "quantity": "1 Ltr", "status": "false"},
-    {"name": "Curd", "quantity": "200 gms", "status": "false"},
-  ];
-  List<String> unit = ["Kg", "Pcs", "ml", "Ltr", "gm", "Nos"];
-  TextEditingController listNameController = TextEditingController();
-  String? selectedUnit;
+
+  List? allItems;
+  List? purchaseItems;
+
   @override
   void initState() {
     super.initState();
@@ -48,44 +41,68 @@ class _ShoppingListState extends State<ShoppingList>
   void dispose() {
     _tabController.removeListener(_handleTabChange);
     _tabController.dispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        elevation: 3,
-        backgroundColor: AppColor.primaryColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-        onPressed: () {
-          _showEditBottomSheet(true, false);
-        },
-        child: Icon(Icons.add, color: AppColor.white, size: 32),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      appBar: saverAppBar(
-        widget.name,
-        context,
-        isneedtopop: true,
-        iswhite: true,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.edit_outlined),
-            onPressed: () {
-              _showEditBottomSheet(false, false);
-            },
+    return BlocBuilder<SmartShoppingBloc, SmartShoppingState>(
+      builder: (context, state) {
+        if (state is ListNameChangedSuccessState) {
+          widget.listName = state.listnewName;
+        }
+        return Scaffold(
+          appBar: saverAppBar(
+            widget.listName ?? "",
+            context,
+            isneedtopop: true,
+            iswhite: true,
+            actions: [
+              IconButton(
+                icon: Icon(Icons.edit_outlined),
+                onPressed: () {
+                  SmartListSheet().showEditBottomSheet(
+                    context,
+                    false,
+                    false,
+                    listId: widget.listId,
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-      body: Padding(padding: const EdgeInsets.all(14), child: _buildBody()),
+          body: Padding(padding: const EdgeInsets.all(14), child: _buildBody()),
+          floatingActionButton: FloatingActionButton(
+            elevation: 3,
+            backgroundColor: AppColor.primaryColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+            onPressed:
+                () => SmartListSheet().showEditBottomSheet(
+                  context,
+                  true,
+                  false,
+                  listId: widget.listId,
+                ),
+            child: Icon(Icons.add, color: AppColor.white, size: 32),
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        );
+      },
     );
   }
 
   Widget _buildBody() {
-    return Column(
-      children: [_buildTabSelector(), SizedBox(height: 20), _buildTabContent()],
+    return BlocListener<SmartShoppingBloc, SmartShoppingState>(
+      listener: (context, state) {},
+      child: Column(
+        children: [
+          _buildTabSelector(),
+          SizedBox(height: 20),
+          _buildTabContent(),
+        ],
+      ),
     );
   }
 
@@ -164,323 +181,165 @@ class _ShoppingListState extends State<ShoppingList>
   }
 
   Widget _buildAllListItems() {
-    return ListView.builder(
-      itemCount: listItems.length,
-      shrinkWrap: true,
-      itemBuilder: (context, index) {
-        if (listItems[index]["status"] == "true") {
-          return SizedBox(height: 0);
+    return StreamBuilder<List<SmartShoppingModel>>(
+      stream: Services.fetchSmartListAllItems(widget.listId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return SaverLoader();
         }
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 14),
-          child: GestureDetector(
-            onTap: () {
-              _showEditBottomSheet(true, true);
-            },
-            child: Container(
-              height: 50,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColor.lightGrey),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text.rich(
-                      TextSpan(
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                        text: listItems[index]["name"],
-                        children: [
-                          WidgetSpan(
-                            child: Transform.translate(
-                              offset: Offset(0, -5),
-                              child: Text(
-                                ' x${listItems[index]["quantity"]}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppColor.lightGrey200,
+        if (snapshot.data?.isEmpty ?? false) {
+          return Center(
+            child: Text("No items found", style: TextStyle(fontSize: 16)),
+          );
+        }
+        allItems =
+            snapshot.data!
+                .expand(
+                  (model) =>
+                      model.items
+                          ?.where((i) => i.status == "AL")
+                          .where((item) => item != null) ??
+                      [],
+                )
+                .toList();
+        purchaseItems =
+            snapshot.data!
+                .expand(
+                  (model) =>
+                      model.items
+                          ?.where((i) => i.status == "PR")
+                          .where((item) => item != null) ??
+                      [],
+                )
+                .toList();
+
+        if (allItems == null || allItems!.isEmpty) {
+          return Center(
+            child: Text("No items in the list", style: TextStyle(fontSize: 16)),
+          );
+        }
+
+        return ListView.builder(
+          itemCount: allItems?.length,
+          shrinkWrap: true,
+          itemBuilder: (context, index) {
+            Items items = allItems?[index];
+            if (items == null) return SizedBox();
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: GestureDetector(
+                onTap:
+                    () => SmartListSheet().showEditBottomSheet(
+                      context,
+                      true,
+                      true,
+                      items: items,
+                      listId: widget.listId,
+                    ),
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColor.lightGrey),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text.rich(
+                          TextSpan(
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                            text: items.name,
+                            children: [
+                              WidgetSpan(
+                                child: Transform.translate(
+                                  offset: Offset(0, -5),
+                                  child: Text(
+                                    ' x${items.quantity} ${items.unit}',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColor.lightGrey200,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
-                      style: TextStyle(fontSize: 16),
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        Spacer(),
+                        Icon(
+                          Icons.drag_indicator_outlined,
+                          color: AppColor.lightGrey200,
+                        ),
+                      ],
                     ),
-                    Spacer(),
-                    Icon(
-                      Icons.drag_indicator_outlined,
-                      color: AppColor.lightGrey200,
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
   }
 
   Widget _buildPurchasedListItems() {
+    if (purchaseItems == null || purchaseItems!.isEmpty) {
+      return Center(
+        child: Text("No purchased items", style: TextStyle(fontSize: 16)),
+      );
+    }
     return ListView.builder(
-      itemCount: listItems.length,
+      itemCount: purchaseItems?.length,
       shrinkWrap: true,
       itemBuilder: (context, index) {
-        if (listItems[index]["status"] == "false") {
-          return SizedBox(height: 0);
-        }
+        Items items = purchaseItems?[index];
+        if (items == null) return SizedBox();
         return Padding(
           padding: const EdgeInsets.only(bottom: 14),
-          child: GestureDetector(
-            onTap: () {
-              _showEditBottomSheet(true, true);
-            },
-            child: Container(
-              height: 50,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColor.lightGrey),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text.rich(
-                      TextSpan(
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                        text: listItems[index]["name"],
-                        children: [
-                          WidgetSpan(
-                            child: Transform.translate(
-                              offset: Offset(0, -5),
-                              child: Text(
-                                ' x${listItems[index]["quantity"]}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppColor.lightGrey200,
-                                ),
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColor.lightGrey),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text.rich(
+                    TextSpan(
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                      text: items.name,
+                      children: [
+                        WidgetSpan(
+                          child: Transform.translate(
+                            offset: Offset(0, -5),
+                            child: Text(
+                              ' x${items.quantity} ${items.unit}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColor.lightGrey200,
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                      style: TextStyle(fontSize: 16),
+                        ),
+                      ],
                     ),
-                    Spacer(),
-                    Icon(
-                      Icons.check_circle_outline_outlined,
-                      color: AppColor.primaryColor,
-                    ),
-                  ],
-                ),
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  Spacer(),
+                  Icon(
+                    Icons.check_circle_outline_outlined,
+                    color: AppColor.primaryColor,
+                  ),
+                ],
               ),
             ),
           ),
-        );
-      },
-    );
-  }
-
-  _showEditBottomSheet(bool isItem, bool isView) {
-    showModalBottomSheet(
-      backgroundColor: Colors.white,
-      isDismissible: false,
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(12),
-          topRight: Radius.circular(12),
-        ),
-      ),
-      builder: (context) {
-        return StreamBuilder<Object>(
-          stream: null,
-          builder: (context, snapshot) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        isItem
-                            ? isView
-                                ? "Mushroom"
-                                : "Add New Item"
-                            : "Edit Shopping List",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Icon(Icons.close),
-                      ),
-                    ],
-                  ),
-                ),
-                Divider(color: AppColor.lightGrey, thickness: 1.5, height: 1.5),
-                Padding(
-                  padding: const EdgeInsets.only(left: 14, right: 14, top: 14),
-                  child: Text(
-                    isItem ? "Item Name" : "List Name",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-                IgnorePointer(
-                  ignoring: isView,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 14, right: 14, top: 8),
-                    child: SaverTextField(
-                      hintText:
-                          isItem
-                              ? isView
-                                  ? "Mushroom"
-                                  : "Enter Item Name"
-                              : "Weekly Grocery",
-                      controller: listNameController,
-                    ),
-                  ),
-                ),
-                isItem
-                    ? Padding(
-                      padding: const EdgeInsets.only(
-                        left: 14,
-                        right: 14,
-                        top: 14,
-                      ),
-                      child: Text("Quantity", style: TextStyle(fontSize: 16)),
-                    )
-                    : SizedBox.shrink(),
-                isItem
-                    ? IgnorePointer(
-                      ignoring: isView,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          left: 14,
-                          right: 14,
-                          top: 8,
-                        ),
-                        child: Row(
-                          spacing: 30,
-                          children: [
-                            IntrinsicWidth(
-                              child: SaverDropdown(
-                                items: unit,
-                                selectedItem: selectedUnit ?? "",
-                                hint: "Choose",
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectedUnit = value!;
-                                  });
-                                },
-                              ),
-                            ),
-
-                            Expanded(
-                              child: NumberSelector.plain(
-                                hasBorder: true,
-                                showMinMax: false,
-                                min: 1,
-                                iconColor: Colors.grey.shade500,
-                                borderRadius: 6,
-                                borderColor: Colors.grey.shade300,
-                                backgroundColor: AppColor.white,
-                                current: quantity,
-                                onUpdate: (newValue) {
-                                  setState(() {
-                                    quantity = newValue;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                    : SizedBox.shrink(),
-                isView
-                    ? Padding(
-                      padding: const EdgeInsets.only(
-                        top: 14,
-                        left: 14,
-                        right: 14,
-                      ),
-                      child: Text(
-                        maxLines: 2,
-                        softWrap: true,
-                        textAlign: TextAlign.justify,
-                        "Note: When an item is Purchased, it will be moved to kitchen manager for tracking!",
-                        style: TextStyle(color: AppColor.primaryColor),
-                      ),
-                    )
-                    : SizedBox.shrink(),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: 30,
-                    bottom: 24,
-                    left: 14,
-                    right: 14,
-                  ),
-                  child:
-                      isItem
-                          ? isView
-                              ? Row(
-                                children: [
-                                  Expanded(
-                                    child: SaverButton(
-                                      text: "Purchased",
-                                      onPressed: () {
-                                        // purchased item implementation
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder:
-                                                (context) =>
-                                                    AddItem(isEdit: false),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(width: 12),
-                                  Expanded(
-                                    child: SaverButton(
-                                      text: "Remove from List",
-                                      onPressed: () {
-                                        // remove from shopping list implementation
-                                      },
-                                      color: AppColor.red,
-                                    ),
-                                  ),
-                                ],
-                              )
-                              : SaverButton(
-                                text: "Add Item",
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                              )
-                          : SaverButton(
-                            text: "Save Changes",
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                ),
-              ],
-            );
-          },
         );
       },
     );

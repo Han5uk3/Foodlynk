@@ -99,6 +99,7 @@ class FoodSwapBloc extends Bloc<FoodSwapEvent, FoodSwapState> {
           event.communityBloc?.add(
             InitializeChatRoomEvent(
               receiverUid: event.reciverUid,
+              fcmToken: event.fcmToken,
               isFoodSwapped: true,
             ),
           );

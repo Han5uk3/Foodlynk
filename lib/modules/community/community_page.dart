@@ -21,7 +21,11 @@ class CommunityPage extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ChatPage(isFromFoodSwap: false),
+                builder:
+                    (context) => ChatPage(
+                      isFromFoodSwap: false,
+                      isFromNotifications: false,
+                    ),
               ),
             );
           }
@@ -60,7 +64,6 @@ class CommunityPage extends StatelessWidget {
     if (rooms.isEmpty) {
       return const Center(child: Text("No chat rooms found"));
     }
-
     return ListView.builder(
       itemCount: rooms.length,
       itemBuilder: (context, index) {
@@ -70,6 +73,8 @@ class CommunityPage extends StatelessWidget {
             room['timestamp'] != ''
                 ? DateFormat.jm().format(DateTime.parse(room['timestamp']))
                 : 'N/A';
+        bool isUnread = room['isSeen'] == false;
+        String lastMessage = room['lastMessage'];
         return Padding(
           padding: const EdgeInsets.only(top: 14, left: 14, right: 14),
           child: GestureDetector(
@@ -84,6 +89,7 @@ class CommunityPage extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColor.lightGrey),
+                color: isUnread ? Colors.blue.withOpacity(0.05) : null,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(10),
@@ -125,12 +131,19 @@ class CommunityPage extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: Text(
+                                    lastMessage,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     softWrap: true,
-                                    "${room["lastMessage"]}",
-                                    style: const TextStyle(
-                                      color: AppColor.lightGrey200,
+                                    style: TextStyle(
+                                      color:
+                                          isUnread
+                                              ? Colors.black87
+                                              : AppColor.lightGrey200,
+                                      fontWeight:
+                                          isUnread
+                                              ? FontWeight.w500
+                                              : FontWeight.normal,
                                     ),
                                   ),
                                 ),
@@ -138,19 +151,20 @@ class CommunityPage extends StatelessWidget {
                                     room["unreadCount"] > 0 &&
                                     room["lastSenderUID"] != Services.uid)
                                   Container(
-                                    margin: const EdgeInsets.only(left: 50),
-                                    width: 18,
+                                    margin: const EdgeInsets.only(left: 8),
+                                    width: 24,
                                     height: 24,
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
+                                      borderRadius: BorderRadius.circular(12),
                                       color: Colors.blue,
                                     ),
                                     child: Center(
                                       child: Text(
                                         "${room["unreadCount"]}",
                                         style: const TextStyle(
-                                          fontSize: 10,
+                                          fontSize: 12,
                                           color: Colors.white,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ),

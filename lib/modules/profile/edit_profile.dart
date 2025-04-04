@@ -75,8 +75,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> _fetchUserProfile() async {
     try {
-      final snapshot = await Services.getUserDetails().first;
-
+      final snapshot =
+          await Services.getUserDetails(uid: HiveHelper.getUID()).first;
       if (snapshot.docs.isNotEmpty) {
         final userDoc = snapshot.docs.first;
         final userData = userDoc.data();

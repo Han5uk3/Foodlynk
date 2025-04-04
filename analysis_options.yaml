@@ -15,7 +15,9 @@ analyzer:
     unnecessary_type_check: ignore
     unused_local_variable: ignore
     avoid_init_to_null: ignore
-    must_be_immutable: ignore ignore ignore
+    must_be_immutable: ignore
+    unnecessary_null_comparison: ignore
+    deprecated_member_use: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:

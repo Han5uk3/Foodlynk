@@ -57,10 +57,12 @@ class RequestFoodSwapEvent extends FoodSwapEvent {
 class AcceptedFoodSwapRequestEvent extends FoodSwapEvent {
   final String swapId;
   final String reciverUid;
+  final String fcmToken;
   final CommunityBloc? communityBloc;
   const AcceptedFoodSwapRequestEvent({
     required this.swapId,
     required this.reciverUid,
+    required this.fcmToken,
     required this.communityBloc,
   });
   @override
