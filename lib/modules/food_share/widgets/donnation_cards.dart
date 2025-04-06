@@ -7,6 +7,7 @@ import 'package:saver_bbk_main/helpers/date_format.dart';
 import 'package:saver_bbk_main/models/donation_model.dart';
 import 'package:saver_bbk_main/modules/food_share/bloc/food_share_bloc.dart';
 import 'package:saver_bbk_main/modules/food_share/donation_details.dart';
+import 'package:saver_bbk_main/modules/food_share/widgets/sheet.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class DonnationCards extends StatefulWidget {
@@ -14,6 +15,7 @@ class DonnationCards extends StatefulWidget {
   final int tabIndex;
   final bool isBenificiary;
   final bool itsMy;
+  final bool isFromHomePage;
   final Function(bool, String, String)? onInterestToggled;
 
   const DonnationCards({
@@ -23,6 +25,7 @@ class DonnationCards extends StatefulWidget {
     required this.isBenificiary,
     this.onInterestToggled,
     required this.itsMy,
+    this.isFromHomePage = false,
   });
 
   @override
@@ -58,11 +61,35 @@ class _DonnationCardsState extends State<DonnationCards> {
     );
   }
 
+  void _showDetailBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (context) => DraggableScrollableSheet(
+            initialChildSize: 0.7,
+            minChildSize: 0.5,
+            maxChildSize: 0.9,
+            builder: (_, scrollController) {
+              return FoodShareDetailBottomSheet(
+                item: widget.item,
+                isBenificiary: widget.isBenificiary,
+                itsMy: widget.itsMy,
+                onInterestToggled: widget.onInterestToggled,
+              );
+            },
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap:
-          !widget.itsMy || widget.item.status == "A"
+          widget.isFromHomePage
+              ? _showDetailBottomSheet
+              : !widget.itsMy || widget.item.status == "A"
               ? null
               : () {
                 Navigator.push(
@@ -192,7 +219,12 @@ class _DonnationCardsState extends State<DonnationCards> {
                 ],
               ),
               SizedBox(height: 12),
-              if (!widget.itsMy) _buildInterestButtonRow(),
+              if (widget.item.status == "A")
+                SizedBox()
+              else if (!widget.itsMy)
+                _buildInterestButtonRow(),
+              if (widget.itsMy && widget.item.status != "A")
+                _showCountOfRequests(),
             ],
           ),
         ),
@@ -200,94 +232,94 @@ class _DonnationCardsState extends State<DonnationCards> {
     );
   }
 
- Widget _buildInterestButtonRow() {
-  return BlocConsumer<FoodShareBloc, FoodShareState>(
-    listener: (context, state) {
-      
-      if (state is RequestAddedSuccessState &&
-          state.itemId == widget.item.id) {
-        setState(() {
-          isInterested = state.isIntrested;
-        });
+  Widget _buildInterestButtonRow() {
+    return BlocConsumer<FoodShareBloc, FoodShareState>(
+      listener: (context, state) {
+        if (state is RequestAddedSuccessState &&
+            state.itemId == widget.item.id) {
+          setState(() {
+            isInterested = state.isIntrested;
+          });
 
-        SaverSnackBar.show(
-          context: context,
-          message: isInterested ? "Request Sent" : "Request Withdrawn",
-          isTrue: true,
-        );
-        return;
-      }
+          SaverSnackBar.show(
+            context: context,
+            message: isInterested ? "Request Sent" : "Request Withdrawn",
+            isTrue: true,
+          );
+          return;
+        }
 
-      if (state is RequestAddedFailedState &&
-          state.itemId == widget.item.id) {
-        SaverSnackBar.show(
-          context: context,
-          message: "Failed: ${state.errorMessage}",
-          isTrue: false,
-        );
-      }
-    },
-    builder: (context, state) {
-      
-      return SizedBox(
-        width: double.infinity,
-        child: ElevatedButton.icon(
-          onPressed: isInterested
-              ? _showAlreadyInterestedAlert
-              : () {
-                  
-                  setState(() {
-                    isInterested = true;
-                  });
-                  
-                  
-                  if (widget.onInterestToggled != null) {
-                    widget.onInterestToggled!(
-                      true,
-                      widget.item.id ?? "",
-                      widget.item.type ?? "",
-                    );
-                  } else {
-                    
-                    context.read<FoodShareBloc>().add(IntrestedFoodShareEvent(
-                          id: widget.item.id ?? "",
-                          type: widget.item.type ?? "",
-                          isInterested: true,
-                        ));
-                  }
-                },
-          icon: Icon(
-            isInterested ? Icons.favorite : Icons.favorite_border,
-            color: isInterested ? Colors.red : AppColor.blue,
-            size: 18,
-          ),
-          label: Text(
-            isInterested ? "Interested" : "I'm Interested",
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              color: isInterested ? Colors.white : AppColor.blue,
+        if (state is RequestAddedFailedState &&
+            state.itemId == widget.item.id) {
+          SaverSnackBar.show(
+            context: context,
+            message: "Failed: ${state.errorMessage}",
+            isTrue: false,
+          );
+        }
+      },
+      builder: (context, state) {
+        return SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed:
+                isInterested
+                    ? _showAlreadyInterestedAlert
+                    : () {
+                      setState(() {
+                        isInterested = true;
+                      });
+
+                      if (widget.onInterestToggled != null) {
+                        widget.onInterestToggled!(
+                          true,
+                          widget.item.id ?? "",
+                          widget.item.type ?? "",
+                        );
+                      } else {
+                        context.read<FoodShareBloc>().add(
+                          IntrestedFoodShareEvent(
+                            id: widget.item.id ?? "",
+                            type: widget.item.type ?? "",
+                            isInterested: true,
+                          ),
+                        );
+                      }
+                    },
+            icon: Icon(
+              isInterested ? Icons.favorite : Icons.favorite_border,
+              color: isInterested ? Colors.red : AppColor.blue,
+              size: 18,
             ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: isInterested ? AppColor.primaryColor : Colors.white,
-            foregroundColor: isInterested ? Colors.white : AppColor.blue,
-            elevation: isInterested ? 0 : 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: BorderSide(
-                color: isInterested
-                    ? Colors.transparent
-                    : AppColor.blue.withOpacity(0.5),
-                width: 1,
+            label: Text(
+              isInterested ? "Interested" : "I'm Interested",
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: isInterested ? Colors.white : AppColor.blue,
               ),
             ),
-            padding: EdgeInsets.symmetric(vertical: 10),
+            style: ElevatedButton.styleFrom(
+              backgroundColor:
+                  isInterested ? AppColor.primaryColor : Colors.white,
+              foregroundColor: isInterested ? Colors.white : AppColor.blue,
+              elevation: isInterested ? 0 : 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: BorderSide(
+                  color:
+                      isInterested
+                          ? Colors.transparent
+                          : AppColor.blue.withOpacity(0.5),
+                  width: 1,
+                ),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 10),
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
   Widget _buildStatusBadge() {
     final bool isPending = widget.item.status == "P";
@@ -442,6 +474,44 @@ class _DonnationCardsState extends State<DonnationCards> {
           fontSize: 11,
           fontWeight: FontWeight.w500,
         ),
+      ),
+    );
+  }
+
+  Widget _showCountOfRequests() {
+    int count = widget.item.request?.length ?? 0;
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Icon(Icons.notifications_active, color: Colors.blue, size: 20),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              "You have $count pending request${count == 1 ? '' : 's'}",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

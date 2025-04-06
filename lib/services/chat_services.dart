@@ -14,12 +14,22 @@ class ChatServices {
     DataSnapshot snapshot = await chatRef.get();
     try {
       if (!snapshot.exists) {
-        await chatRef.set({
-          'senderUID': currentUserUID,
-          'receiverUID': receiverUID,
-          'lastMessage': '',
-          'timestamp': DateTime.now().toIso8601String(),
-        });
+        final now = ServerValue.timestamp;
+        final Map<String, dynamic> chatData = {
+          "participants": {currentUserUID: true, receiverUID: true},
+          "lastMessage": {"text": "", "timestamp": now, "senderId": ""},
+        };
+
+        await chatRef.set(chatData);
+        final userChatsRef = database.ref().child('userChats');
+        for (String uid in ids) {
+          await userChatsRef.child(uid).child(chatRoomId).set({
+            "unreadCount": 0,
+            "lastSeen": ServerValue.timestamp,
+            "chatWith": uid == currentUserUID ? receiverUID : currentUserUID,
+            "lastMessage": {"text": "", "timestamp": now, "senderId": ""},
+          });
+        }
       }
     } catch (e) {
       if (kDebugMode) {
@@ -33,22 +43,25 @@ class ChatServices {
     String chatRoomId,
     String currentUserUid,
   ) async {
-    DatabaseReference chatRef = database.ref('chats').child(chatRoomId);
+    final chatRef = database.ref('chats').child(chatRoomId);
+    final messagesRef = chatRef.child('messages');
+    final snapshot = await messagesRef.get();
+    if (snapshot.exists) {
+      final updates = <String, dynamic>{};
+      for (final child in snapshot.children) {
+        final msg = child.value as Map?;
+        final senderUID = msg?['senderUID'];
+        if (senderUID != currentUserUid && msg?['seen'] != true) {
+          updates['${child.key}/seen'] = true;
+        }
+      }
+      if (updates.isNotEmpty) {
+        await messagesRef.update(updates);
+      }
+    }
     await chatRef.update({
       'seen_by/$currentUserUid': true,
       'unread_count/$currentUserUid': 0,
-    });
-  }
-
-  static Future<void> resetUnreadCountForCurrentUser(
-    String chatRoomId,
-    String currentUID,
-  ) async {
-    final chatRef = database.ref('chats').child(chatRoomId);
-
-    await chatRef.update({
-      'unreadCount_$currentUID': 0,
-      'seen_$currentUID': true,
     });
   }
 }

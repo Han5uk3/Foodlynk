@@ -62,3 +62,25 @@ final class AcceptRequestFailedState extends FoodShareState {
   @override
   List<Object> get props => [errorMessage];
 }
+
+class DeclineRequestLoadingState extends FoodShareState {}
+
+class DeclineRequestSuccessState extends FoodShareState {}
+
+class DeclineRequestFailedState extends FoodShareState {
+  final String errorMessage;
+  const DeclineRequestFailedState({required this.errorMessage});
+  @override
+  List<Object> get props => [errorMessage];
+}
+
+class DeleteRequestLoadingState extends FoodShareState {}
+
+class DeleteRequestSuccessState extends FoodShareState {}
+
+class DeleteRequestFailedState extends FoodShareState {
+  final String errorMessage;
+  const DeleteRequestFailedState({required this.errorMessage});
+  @override
+  List<Object> get props => [errorMessage];
+}

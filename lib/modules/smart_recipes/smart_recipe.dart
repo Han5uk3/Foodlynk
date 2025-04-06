@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/api/app_apis.dart';
 import 'package:saver_bbk_main/common_widget/loader.dart';
@@ -81,7 +79,6 @@ class _GenerateRecipePageState extends State<GenerateRecipePage> {
         );
       }
     } catch (e) {
-      log('Error generating recipe: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

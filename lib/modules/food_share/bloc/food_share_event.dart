@@ -46,14 +46,27 @@ class AcceptFoodShareRequest extends FoodShareEvent {
   final String reqId;
   final String reciverUid;
   final String fcmToken;
+  final String type;
   final CommunityBloc? communityBloc;
 
   const AcceptFoodShareRequest({
     required this.reqId,
     required this.reciverUid,
     required this.fcmToken,
+    required this.type,
     this.communityBloc,
   });
   @override
   List<Object> get props => [reqId, fcmToken];
+}
+
+class DeclineFoodShareRequest extends FoodShareEvent {
+  final String reqId;
+  final String intrestedId;
+  const DeclineFoodShareRequest({
+    required this.reqId,
+    required this.intrestedId,
+  });
+  @override
+  List<Object> get props => [reqId, intrestedId];
 }

@@ -26,13 +26,15 @@ class InitializeChatRoomEvent extends CommunityEvent {
   String? roomId;
   String? fcmToken;
   final bool isFoodSwapped;
-  final bool isFoodShare;
+  final bool isFromDonations;
+  final bool isFromBeneficiary;
   InitializeChatRoomEvent({
     this.receiverUid,
     this.roomId,
     this.fcmToken,
     required this.isFoodSwapped,
-    required this.isFoodShare,
+    required this.isFromDonations,
+    this.isFromBeneficiary = false,
   });
   @override
   List<Object> get props => [
@@ -40,7 +42,7 @@ class InitializeChatRoomEvent extends CommunityEvent {
     isFoodSwapped,
     roomId ?? '',
     fcmToken ?? '',
-    isFoodShare,
+    isFromDonations,
   ];
 }
 
@@ -71,3 +73,5 @@ class UpdateMessagesEvent extends CommunityEvent {
 }
 
 class ClearCommunityStateEvent extends CommunityEvent {}
+
+class UserLeftChatEvent extends CommunityEvent {}

@@ -1,11 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/label.dart';
 import 'package:saver_bbk_main/common_widget/loader.dart';
-import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/models/donation_model.dart';
 import 'package:saver_bbk_main/modules/food_share/bloc/food_share_bloc.dart';
@@ -26,22 +22,8 @@ class FoodShareAllPage extends StatefulWidget {
 class _FoodShareAllPageState extends State<FoodShareAllPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  List<String> filterOptions = [
-    "1 to 5",
-    "5 to 20",
-    "20 to 50",
-    "More than 50",
-  ];
-  List<String> filterDateOptions = [
-    "Today",
-    "Last 3 days",
-    "Last 1 week",
-    "More than a week ago",
-  ];
 
   int? selectedFilter;
-  bool _isLocationSelected = false;
-  bool _isExpireDateSelected = false;
   bool _hasShownRoleDialog = false;
 
   @override
@@ -78,9 +60,7 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
       builder: (BuildContext context) {
         return RoleSelectionDialog(
           onRoleSelected: (isDonor) {
-            setState(() {
-              _tabController.animateTo(isDonor ? 0 : 1);
-            });
+            _tabController.animateTo(isDonor ? 0 : 1);
           },
         );
       },
@@ -117,285 +97,6 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
     );
   }
 
-  void _showFilterDialog() {
-    showModalBottomSheet(
-      isDismissible: false,
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColor.white,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 12),
-                          child: Text(
-                            "Filter by ",
-                            style: TextStyle(
-                              fontSize: 20,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade400),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _isLocationSelected = !_isLocationSelected;
-                                    _isExpireDateSelected = false;
-                                  });
-                                },
-                                child: Container(
-                                  alignment: Alignment.centerLeft,
-                                  height: 40,
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(),
-                                  child:
-                                      _isLocationSelected
-                                          ? Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Container(
-                                                height: 40,
-                                                width: 5,
-                                                color: AppColor.primaryColor,
-                                              ),
-                                              Expanded(
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        left: 9,
-                                                      ),
-                                                  child: Text("Serves"),
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                          : Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Expanded(
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        left: 12,
-                                                      ),
-                                                  child: Text("Serves"),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _isExpireDateSelected =
-                                        !_isExpireDateSelected;
-                                    _isLocationSelected = false;
-                                  });
-                                },
-                                child: Container(
-                                  alignment: Alignment.centerLeft,
-                                  height: 40,
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    border: Border.symmetric(
-                                      horizontal: BorderSide(
-                                        color: Colors.grey.shade300,
-                                      ),
-                                    ),
-                                  ),
-                                  child:
-                                      _isExpireDateSelected
-                                          ? Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Container(
-                                                height: 40,
-                                                width: 5,
-                                                color: AppColor.primaryColor,
-                                              ),
-                                              Expanded(
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        left: 9,
-                                                      ),
-                                                  child: Text("Period"),
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                          : Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Expanded(
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        left: 12,
-                                                      ),
-                                                  child: Text("Period"),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child:
-                              _isLocationSelected
-                                  ? Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade100,
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: List.generate(4, (index) {
-                                        return ListTile(
-                                          onTap: () {
-                                            setState(() {
-                                              selectedFilter = index;
-                                            });
-                                          },
-                                          title: Text(
-                                            filterOptions[index],
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          trailing: Radio<int>(
-                                            value: index,
-                                            activeColor: AppColor.primaryColor,
-                                            groupValue: selectedFilter,
-                                            fillColor: MaterialStatePropertyAll(
-                                              AppColor.primaryColor,
-                                            ),
-                                            onChanged: (int? value) {
-                                              setState(() {
-                                                selectedFilter = value!;
-                                              });
-                                            },
-                                          ),
-                                        );
-                                      }),
-                                    ),
-                                  )
-                                  : Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade100,
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: List.generate(4, (index) {
-                                        return ListTile(
-                                          onTap: () {
-                                            setState(() {
-                                              selectedFilter = index;
-                                            });
-                                          },
-                                          title: Text(
-                                            filterDateOptions[index],
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          trailing: Radio<int>(
-                                            value: index,
-                                            activeColor: AppColor.primaryColor,
-                                            groupValue: selectedFilter,
-                                            fillColor: MaterialStatePropertyAll(
-                                              AppColor.primaryColor,
-                                            ),
-                                            onChanged: (int? value) {
-                                              setState(() {
-                                                selectedFilter = value!;
-                                              });
-                                            },
-                                          ),
-                                        );
-                                      }),
-                                    ),
-                                  ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: SaverOutlineButton(
-                          text: "Clear All",
-                          onPressed: () {
-                            setState(() {
-                              _isExpireDateSelected = false;
-                              _isLocationSelected = false;
-                              Navigator.pop(context);
-                            });
-                          },
-                        ),
-                      ),
-                      SizedBox(width: 14),
-                      Expanded(
-                        child: SaverButton(
-                          text: "Apply",
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
 
   Widget _buildBody() {
     return Padding(
@@ -446,6 +147,7 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
               item: donation,
               tabIndex: _tabController.index,
               itsMy: false,
+              isFromHomePage: true,
               onInterestToggled: (isIntrested, id, type) {
                 context.read<FoodShareBloc>().add(
                   IntrestedFoodShareEvent(
@@ -470,7 +172,6 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
           return SaverLoader();
         }
         if (snapshot.hasError) {
-          log(snapshot.error.toString());
           return Center(child: Text("Error: ${snapshot.error}"));
         }
         final beneficiaryList = snapshot.data;
@@ -501,10 +202,6 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
         Text(
           _tabController.index == 0 ? "Global Donations" : "Available Food",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-        GestureDetector(
-          onTap: _showFilterDialog,
-          child: Icon(Icons.filter_list),
         ),
       ],
     );

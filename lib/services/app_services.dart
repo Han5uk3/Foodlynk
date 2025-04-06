@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -236,7 +235,6 @@ class Services {
         .map(
           (query) =>
               query.docs.map((doc) {
-                log(doc.data().toString());
                 return NotificationModel.fromMap(
                   doc.data() as Map<String, dynamic>,
                 );

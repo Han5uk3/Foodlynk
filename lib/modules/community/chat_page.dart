@@ -31,17 +31,15 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     _communityBloc = context.read<CommunityBloc>();
-
     if (widget.isFromNotifications) {
       _communityBloc.add(
         InitializeChatRoomEvent(
           isFoodSwapped: false,
-          isFoodShare: false,
+          isFromDonations: false,
           roomId: widget.chatRoomId,
         ),
       );
     }
-
     _messageController.addListener(_handleTextChange);
   }
 
@@ -50,6 +48,7 @@ class _ChatPageState extends State<ChatPage> {
     _messageController.removeListener(_handleTextChange);
     _messageController.dispose();
     _chatTextNotifier.dispose();
+    context.read<CommunityBloc>().add(ClearCommunityStateEvent());
     super.dispose();
   }
 
@@ -60,6 +59,7 @@ class _ChatPageState extends State<ChatPage> {
   void _navigateToMainScreen() {
     final String? roomId =
         widget.chatRoomId ?? _communityBloc.state.currentChatRoomId;
+    context.read<CommunityBloc>().add(ClearCommunityStateEvent());
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => MainScreen(currentIndex: 1)),
@@ -231,7 +231,6 @@ class _MessagesBody extends StatelessWidget {
               final msg = state.messages[state.messages.length - 1 - index];
               final isMe = msg.senderUID == Services.uid;
               final time = DateFormat.jm().format(msg.timestamp);
-
               return Padding(
                 padding: const EdgeInsets.symmetric(
                   vertical: 8,
@@ -272,12 +271,33 @@ class _MessagesBody extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          time,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isMe ? Colors.white70 : Colors.black54,
-                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment:
+                              isMe
+                                  ? MainAxisAlignment.end
+                                  : MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              time,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isMe ? Colors.white70 : Colors.black54,
+                              ),
+                            ),
+                            if (isMe) ...[
+                              const SizedBox(width: 6),
+                              // Icon(
+                              //   msg.seen == true
+                              //       ? Icons.done_all // seen ✅✅
+                              //       : Icons.check,   // sent ✅
+                              //   size: 16,
+                              //   color: msg.seen == true
+                              //       ? Colors.lightGreenAccent
+                              //       : Colors.white70,
+                              // ),
+                            ],
+                          ],
                         ),
                       ],
                     ),

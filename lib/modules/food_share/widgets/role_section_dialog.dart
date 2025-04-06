@@ -12,7 +12,8 @@ class RoleSelectionDialog extends StatefulWidget {
   State<RoleSelectionDialog> createState() => _RoleSelectionDialogState();
 }
 
-class _RoleSelectionDialogState extends State<RoleSelectionDialog> with SingleTickerProviderStateMixin {
+class _RoleSelectionDialogState extends State<RoleSelectionDialog>
+    with SingleTickerProviderStateMixin {
   bool _isDonor = true;
   late AnimationController _animationController;
   late Animation<double> _animation;
@@ -60,7 +61,7 @@ class _RoleSelectionDialogState extends State<RoleSelectionDialog> with SingleTi
                   color: Colors.black.withOpacity(0.3),
                   blurRadius: 20,
                   spreadRadius: 2,
-                )
+                ),
               ],
             ),
             child: Column(
@@ -103,9 +104,12 @@ class _RoleSelectionDialogState extends State<RoleSelectionDialog> with SingleTi
                 SaverButton(
                   text: "Continue",
                   onPressed: () {
+                    final selectedRole = _isDonor;
                     _animationController.reverse().then((_) {
                       Navigator.of(context).pop();
-                      widget.onRoleSelected(_isDonor);
+                      Future.microtask(() {
+                        widget.onRoleSelected(selectedRole);
+                      });
                     });
                   },
                 ),
@@ -136,15 +140,16 @@ class _RoleSelectionDialogState extends State<RoleSelectionDialog> with SingleTi
             color: isSelected ? AppColor.primaryColor : Colors.transparent,
             width: 2,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppColor.primaryColor.withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: Offset(0, 3),
-                  )
-                ]
-              : [],
+          boxShadow:
+              isSelected
+                  ? [
+                    BoxShadow(
+                      color: AppColor.primaryColor.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: Offset(0, 3),
+                    ),
+                  ]
+                  : [],
         ),
         child: Column(
           children: [
@@ -159,16 +164,14 @@ class _RoleSelectionDialogState extends State<RoleSelectionDialog> with SingleTi
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: isSelected ? AppColor.primaryColor : AppColor.lightGrey200,
+                color:
+                    isSelected ? AppColor.primaryColor : AppColor.lightGrey200,
               ),
             ),
             SizedBox(height: 5),
             Text(
               description,
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColor.lightGrey200,
-              ),
+              style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
               textAlign: TextAlign.center,
             ),
           ],

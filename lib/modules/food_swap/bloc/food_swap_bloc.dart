@@ -104,7 +104,7 @@ class FoodSwapBloc extends Bloc<FoodSwapEvent, FoodSwapState> {
               receiverUid: event.reciverUid,
               fcmToken: event.fcmToken,
               isFoodSwapped: true,
-              isFoodShare: false,
+              isFromDonations: false,
             ),
           );
         },

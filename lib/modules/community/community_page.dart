@@ -21,10 +21,7 @@ class CommunityPage extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder:
-                    (context) => ChatPage(
-                      isFromNotifications: false,
-                    ),
+                builder: (context) => ChatPage(isFromNotifications: false),
               ),
             );
           }
@@ -50,7 +47,7 @@ class CommunityPage extends StatelessWidget {
           case ChatStatus.loaded:
             return _buildChatRoomsList(context, state);
           default:
-            return SaverLoader();
+            return Text("DDDD");
         }
       },
     );
@@ -68,12 +65,16 @@ class CommunityPage extends StatelessWidget {
       itemBuilder: (context, index) {
         final room = rooms[index];
         final user = userDetails[room['receiverUID']] ?? {};
+        final unreadCount = room["unread_count"]?[Services.uid] ?? 0;
+        final bool isUnread = unreadCount > 0;
+        final lastMessage = room['lastMessage'] ?? {};
+        String messageText = lastMessage['text'] ?? '';
         String time =
-            room['timestamp'] != ''
-                ? DateFormat.jm().format(DateTime.parse(room['timestamp']))
-                : 'N/A';
-        bool isUnread = room['isSeen'] == false;
-        String lastMessage = room['lastMessage'];
+            lastMessage['timestamp'] != null
+                ? DateFormat.jm().format(
+                  DateTime.fromMillisecondsSinceEpoch(lastMessage['timestamp']),
+                )
+                : '';
         return Padding(
           padding: const EdgeInsets.only(top: 14, left: 14, right: 14),
           child: GestureDetector(
@@ -82,7 +83,7 @@ class CommunityPage extends StatelessWidget {
                   InitializeChatRoomEvent(
                     roomId: room['roomId'],
                     isFoodSwapped: false,
-                    isFoodShare: false,
+                    isFromDonations: false,
                   ),
                 ),
             child: Container(
@@ -131,7 +132,7 @@ class CommunityPage extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    lastMessage,
+                                    messageText,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     softWrap: true,

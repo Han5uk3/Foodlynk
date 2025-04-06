@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/loader.dart';
@@ -21,23 +19,7 @@ class FoodShareHomePage extends StatefulWidget {
 class _FoodShareHomePageState extends State<FoodShareHomePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  List<String> filterOptions = [
-    "1 to 5",
-    "5 to 20",
-    "20 to 50",
-    "More than 50",
-  ];
-  List<String> filterDateOptions = [
-    "Today",
-    "Last 3 days",
-    "Last 1 week",
-    "More than a week ago",
-  ];
-
   int? selectedFilter;
-  bool _isLocationSelected = false;
-  bool _isExpireDateSelected = false;
-
   @override
   void initState() {
     super.initState();
@@ -79,290 +61,6 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
         isneedtopop: true,
       ),
       body: _buildBody(),
-    );
-  }
-
-  void _showFilterDialog() {
-    showModalBottomSheet(
-      isDismissible: false,
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColor.white,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 12),
-                          child: Text(
-                            "Filter by ",
-                            style: TextStyle(
-                              fontSize: 20,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade400),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _isLocationSelected = !_isLocationSelected;
-                                    _isExpireDateSelected = false;
-                                  });
-                                },
-                                child: Container(
-                                  alignment: Alignment.centerLeft,
-                                  height: 40,
-
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(),
-                                  child:
-                                      _isLocationSelected
-                                          ? Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Container(
-                                                height: 40,
-                                                width: 5,
-                                                color: AppColor.primaryColor,
-                                              ),
-
-                                              Expanded(
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        left: 9,
-                                                      ),
-                                                  child: Text("Serves"),
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                          : Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Expanded(
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        left: 12,
-                                                      ),
-                                                  child: Text("Serves"),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _isExpireDateSelected =
-                                        !_isExpireDateSelected;
-                                    _isLocationSelected = false;
-                                  });
-                                },
-                                child: Container(
-                                  alignment: Alignment.centerLeft,
-                                  height: 40,
-
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    border: Border.symmetric(
-                                      horizontal: BorderSide(
-                                        color: Colors.grey.shade300,
-                                      ),
-                                    ),
-                                  ),
-                                  child:
-                                      _isExpireDateSelected
-                                          ? Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Container(
-                                                height: 40,
-                                                width: 5,
-                                                color: AppColor.primaryColor,
-                                              ),
-
-                                              Expanded(
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        left: 9,
-                                                      ),
-                                                  child: Text("Period"),
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                          : Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Expanded(
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        left: 12,
-                                                      ),
-                                                  child: Text("Period"),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child:
-                              _isLocationSelected
-                                  ? Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade100,
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: List.generate(4, (index) {
-                                        return ListTile(
-                                          onTap: () {
-                                            setState(() {
-                                              selectedFilter = index;
-                                            });
-                                          },
-                                          title: Text(
-                                            filterOptions[index],
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          trailing: Radio<int>(
-                                            value: index,
-                                            activeColor: AppColor.primaryColor,
-                                            groupValue: selectedFilter,
-                                            fillColor: WidgetStateProperty.all(
-                                              AppColor.primaryColor,
-                                            ),
-                                            onChanged: (int? value) {
-                                              setState(() {
-                                                selectedFilter = value!;
-                                              });
-                                            },
-                                          ),
-                                        );
-                                      }),
-                                    ),
-                                  )
-                                  : Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade100,
-                                    ),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: List.generate(4, (index) {
-                                        return ListTile(
-                                          onTap: () {
-                                            setState(() {
-                                              selectedFilter = index;
-                                            });
-                                          },
-                                          title: Text(
-                                            filterDateOptions[index],
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          trailing: Radio<int>(
-                                            value: index,
-                                            activeColor: AppColor.primaryColor,
-                                            groupValue: selectedFilter,
-                                            fillColor: WidgetStateProperty.all(
-                                              AppColor.primaryColor,
-                                            ),
-                                            onChanged: (int? value) {
-                                              setState(() {
-                                                selectedFilter = value!;
-                                              });
-                                            },
-                                          ),
-                                        );
-                                      }),
-                                    ),
-                                  ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: SaverOutlineButton(
-                          text: "Clear All",
-                          onPressed: () {
-                            setState(() {
-                              _isExpireDateSelected = false;
-                              _isLocationSelected = false;
-                              Navigator.pop(context);
-                            });
-                          },
-                        ),
-                      ),
-                      SizedBox(width: 14),
-                      Expanded(
-                        child: SaverButton(
-                          text: "Apply",
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                ],
-              ),
-            );
-          },
-        );
-      },
     );
   }
 
@@ -479,7 +177,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
       padding: const EdgeInsets.all(14),
       child: Column(
         children: [
-          SizedBox(height: 20),
+          SizedBox(height: 8),
           _buildTabSelector(),
           SizedBox(height: 20),
           _buildSectionHeader(),
@@ -506,7 +204,6 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
         if (snapshot.connectionState == ConnectionState.waiting) {
           return SaverLoader();
         }
-        log(snapshot.hasError.toString());
         if (snapshot.hasError ||
             snapshot.data == null ||
             snapshot.data!.isEmpty) {
@@ -599,10 +296,6 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
         Text(
           _tabController.index == 0 ? "Donor" : "Beneficiary",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-        GestureDetector(
-          onTap: _showFilterDialog,
-          child: Icon(Icons.filter_list),
         ),
       ],
     );

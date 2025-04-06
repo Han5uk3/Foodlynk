@@ -51,7 +51,8 @@ int getDateDifferenceNumber(String dateString) {
     );
 
     int daysDifference = storedDate.difference(currentDate).inDays;
-    return daysDifference;
+
+    return daysDifference < 0 ? 0 : daysDifference;
   } catch (e) {
     return 404;
   }

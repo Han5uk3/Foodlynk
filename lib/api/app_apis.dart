@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -90,15 +89,6 @@ class AppApis {
         'type': type,
         'chatRoomId': chatRoomId,
       }),
-    );
-    log(
-      {
-        'token': token,
-        'title': title,
-        'body': subTitle,
-        'type': type,
-        'chatRoomId': chatRoomId,
-      }.toString(),
     );
     if (response.statusCode == 200) {
       await Services.addNotification(
