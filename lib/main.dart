@@ -81,7 +81,7 @@ class _MyAppState extends State<MyApp> {
             MaterialPageRoute(
               builder:
                   (context) => ChatPage(
-                    isFromFoodSwap: false,
+                
                     isFromNotifications: true,
                     chatRoomId: chatRoomId,
                   ),

@@ -2,7 +2,7 @@ part of 'community_bloc.dart';
 
 class CommunityState extends Equatable {
   final List<Map<String, dynamic>> chatRooms;
-  final Map<String, Map<String, dynamic>> userDetails;
+  final Map<String, dynamic> userDetails;
   final String? currentChatRoomId;
   final String? currentReceiverUid;
   final List<ChatMessage> messages;
@@ -21,7 +21,7 @@ class CommunityState extends Equatable {
 
   CommunityState copyWith({
     List<Map<String, dynamic>>? chatRooms,
-    Map<String, Map<String, dynamic>>? userDetails,
+    Map<String, dynamic>? userDetails,
     String? currentChatRoomId,
     String? currentReceiverUid,
     List<ChatMessage>? messages,

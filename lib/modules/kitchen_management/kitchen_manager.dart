@@ -127,9 +127,9 @@ class _KitchenManagerState extends State<KitchenManager> {
       int days = expiredDate.difference(DateTime.now()).inDays;
       if (selectedFilter.isNotEmpty) {
         if (selectedFilter == "Expired") {
-          matchesFilter = days < 0;
+          matchesFilter = days <= 0;
         } else if (selectedFilter == "Expiring Soon") {
-          matchesFilter = days >= 0 && days < 3;
+          matchesFilter = days > 0 && days < 3;
         } else if (selectedFilter == "Fresh") {
           matchesFilter = days >= 3;
         }
@@ -500,9 +500,9 @@ class _KitchenManagerState extends State<KitchenManager> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         color:
-            days < 0
+            days <= 0
                 ? AppColor.lightRed
-                : days >= 0 && days < 3
+                : days > 0 && days < 3
                 ? AppColor.lightYellow
                 : AppColor.greenshade,
       ),
@@ -514,16 +514,16 @@ class _KitchenManagerState extends State<KitchenManager> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
-              days < 0
+              days <= 0
                   ? Icons.sentiment_neutral_outlined
-                  : days >= 0 && days < 3
+                  : days > 0 && days < 3
                   ? Icons.sentiment_satisfied_alt_outlined
                   : Icons.sentiment_very_satisfied_outlined,
               size: 14,
               color:
-                  days < 0
+                  days <= 0
                       ? AppColor.red
-                      : days >= 0 && days < 3
+                      : days > 0 && days < 3
                       ? AppColor.yellow
                       : AppColor.green,
             ),
@@ -532,9 +532,9 @@ class _KitchenManagerState extends State<KitchenManager> {
               style: TextStyle(
                 fontSize: 12,
                 color:
-                    days < 0
+                    days <= 0
                         ? AppColor.red
-                        : days >= 0 && days < 3
+                        : days > 0 && days < 3
                         ? AppColor.yellow
                         : AppColor.green,
               ),

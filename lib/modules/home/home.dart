@@ -42,7 +42,9 @@ class _MainScreenState extends State<MainScreen> {
     }
     _currentIndex = widget.currentIndex;
     _activeGridPage = null;
-    context.read<CommunityBloc>().add(LoadChatRoomsEvent());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CommunityBloc>().add(LoadChatRoomsEvent());
+    });
     super.initState();
   }
 

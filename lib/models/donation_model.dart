@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:saver_bbk_main/services/app_services.dart';
 
 class DonationModel {
   final String? id;
+  final List<Map<String, dynamic>>? request;
   final String? foodName;
   final String? image;
   final String? foodType;
@@ -20,6 +22,7 @@ class DonationModel {
 
   DonationModel({
     this.id,
+    this.request,
     this.foodName,
     this.image,
     this.foodType,
@@ -40,6 +43,10 @@ class DonationModel {
   static DonationModel fromMap(Map<String, dynamic> data) {
     return DonationModel(
       id: data['id'],
+      request:
+          data['request'] != null
+              ? List<Map<String, dynamic>>.from(data['request'])
+              : null,
       foodName: data['foodName'],
       image: data['image'],
       foodType: data['foodType'],
@@ -67,6 +74,7 @@ class DonationModel {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'request': request,
       'foodName': foodName,
       'image': image,
       'foodType': foodType,
@@ -84,5 +92,19 @@ class DonationModel {
           expiredDate != null ? Timestamp.fromDate(expiredDate!) : null,
       'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
     };
+  }
+
+  bool get isUserInterested {
+    if (request == null || request!.isEmpty) {
+      return false;
+    }
+
+    for (var req in request!) {
+      if (req['raisedUid'] == Services.uid) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

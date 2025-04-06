@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -147,7 +146,7 @@ class Services {
   }
 
   static Future<void> updateFCMToken(String token) async {
-    if (uid!.isEmpty) {
+    if (uid == null && uid!.isEmpty) {
       return;
     } else {
       try {
@@ -236,7 +235,6 @@ class Services {
         .map(
           (query) =>
               query.docs.map((doc) {
-                log(doc.data().toString());
                 return NotificationModel.fromMap(
                   doc.data() as Map<String, dynamic>,
                 );
@@ -288,5 +286,39 @@ class Services {
                   )
                   .toList(),
         );
+  }
+
+  static Stream<List<DonationModel>> getGlobalDonations(String type) {
+    return Collections.donations
+        .where('type', isEqualTo: type)
+        .where('raisedBy', isNotEqualTo: uid)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (query) =>
+              query.docs
+                  .map(
+                    (doc) => DonationModel.fromMap(
+                      doc.data() as Map<String, dynamic>,
+                    ),
+                  )
+                  .toList(),
+        );
+  }
+
+  static Stream<List<Map<String, dynamic>>> getFoodShareRequest(String itemId) {
+    return Collections.donations.doc(itemId).snapshots().map((snapshot) {
+      if (snapshot.exists) {
+        final data = snapshot.data() as Map<String, dynamic>?;
+        if (data != null && data.containsKey('request')) {
+          final List<dynamic> shareRequests = data['request'];
+          return shareRequests.whereType<Map<String, dynamic>>().toList();
+        } else {
+          return [];
+        }
+      } else {
+        return [];
+      }
+    });
   }
 }

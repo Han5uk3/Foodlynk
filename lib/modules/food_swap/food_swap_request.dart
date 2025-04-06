@@ -30,6 +30,8 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
   DateTime selectedDate = DateTime.now();
   String dayT = "AM";
   String? selectedItem;
+  String? selectedItemId;
+  FoodSwapModel? selectedSwapItem;
   TextEditingController locationController = TextEditingController();
 
   late Future<List<FoodSwapModel>> _swapListFuture;
@@ -167,6 +169,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                     RequestFoodSwapEvent(
                       uid: Services.uid,
                       acceptedSwapItem: selectedItem,
+                      acceptedSwapItemId: selectedItemId,
                       pickupDate: selectedDate,
                       pickupLocation: locationController.text,
                       pickupTime: selectedTime,
@@ -192,6 +195,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
             style: TextStyle(color: Colors.red),
           );
         }
+
         List<FoodSwapModel> items = snapshot.data ?? [];
 
         List<String> dropdownItems =
@@ -212,6 +216,14 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
           onChanged: (value) {
             setState(() {
               selectedItem = value;
+
+              // Find the selected item from the list
+              selectedSwapItem = items.firstWhere(
+                (item) => item.name == value,
+                orElse: () => FoodSwapModel(), // fallback in case not found
+              );
+
+              selectedItemId = selectedSwapItem?.id;
             });
           },
         );

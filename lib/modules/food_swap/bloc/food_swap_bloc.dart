@@ -94,6 +94,9 @@ class FoodSwapBloc extends Bloc<FoodSwapEvent, FoodSwapState> {
   ) async {
     emit(RequestAcceptedLoadingState(isLoading: true));
     try {
+      await Collections.foodSwap.doc(event.acceptedSwapItemId).update({
+        'status': 'A',
+      });
       await Collections.foodSwap.doc(event.swapId).update({'status': 'A'}).then(
         (value) {
           event.communityBloc?.add(
@@ -101,6 +104,7 @@ class FoodSwapBloc extends Bloc<FoodSwapEvent, FoodSwapState> {
               receiverUid: event.reciverUid,
               fcmToken: event.fcmToken,
               isFoodSwapped: true,
+              isFromDonations: false,
             ),
           );
         },
@@ -131,6 +135,7 @@ class FoodSwapBloc extends Bloc<FoodSwapEvent, FoodSwapState> {
           'reqId': random.nextInt(10000),
           'uid': event.uid ?? "",
           'swapedItemId': event.swapId ?? "",
+          'acceptedSwapItemId': event.acceptedSwapItemId ?? '',
           'acceptedSwapItem': event.acceptedSwapItem ?? "",
           'pickupLocation': event.pickupLocation ?? "",
           'pickupDate': event.pickupDate?.toIso8601String() ?? "",

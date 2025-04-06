@@ -1,9 +1,8 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/api/app_apis.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/models/chat_model.dart';
@@ -38,13 +37,15 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         chatRooms: [],
       ),
     );
+
     try {
       await _chatRoomsSubscription?.cancel();
+
       _chatRoomsSubscription = ChatServices.database
           .ref('chats')
           .onValue
           .listen(
-            (snapshot) async {
+            (snapshot) {
               if (snapshot.snapshot.value != null) {
                 Map<dynamic, dynamic> chatRooms =
                     snapshot.snapshot.value as Map<dynamic, dynamic>;
@@ -52,62 +53,78 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
                 List<Map<String, dynamic>> rooms = [];
                 List<String> receiverUIDs = [];
 
-                chatRooms.forEach((key, value) {
-                  if (value is Map) {
-                    List<String> uids = key.split('_');
-                    if (uids.length == 2) {
-                      String senderUID = uids[0];
-                      String receiverUID = uids[1];
+                try {
+                  chatRooms.forEach((key, value) {
+                    if (value is Map) {
+                      List<String> uids = key.split('_');
+                      if (uids.length == 2) {
+                        String senderUID = uids[0];
+                        String receiverUID = uids[1];
 
-                      if (uids.contains(Services.uid)) {
-                        String otherUserUID =
-                            (Services.uid == senderUID)
-                                ? receiverUID
-                                : senderUID;
+                        if (uids.contains(Services.uid)) {
+                          String otherUserUID =
+                              (Services.uid == senderUID)
+                                  ? receiverUID
+                                  : senderUID;
 
-                        rooms.add({
-                          'roomId': key,
-                          'receiverUID': otherUserUID,
-                          'lastMessage': value['lastMessage'] ?? '',
-                          'timestamp': value['timestamp'] ?? '',
-                          'unreadCount':
-                              value['unread_count']?[Services.uid] ?? 0,
-                          'isSeen': value['seen_by']?[Services.uid] ?? false,
-                          'lastSenderUID': value['lastSenderUID'] ?? '',
-                        });
+                          int unreadCount = 0;
+                          var unreadRaw = value['unread_count'];
+                          if (unreadRaw is Map &&
+                              unreadRaw[Services.uid] != null) {
+                            unreadCount = unreadRaw[Services.uid];
+                          }
 
-                        receiverUIDs.add(otherUserUID);
+                          bool isSeen = false;
+                          var seenRaw = value['seen_by'];
+                          if (seenRaw is Map && seenRaw[Services.uid] != null) {
+                            isSeen = seenRaw[Services.uid];
+                          }
+
+                          String lastMessageText =
+                              value['lastMessage']?.toString() ?? '';
+
+                          int lastTimestamp = 0;
+                          try {
+                            String timestampStr = value['timestamp'] ?? '';
+                            if (timestampStr.isNotEmpty) {
+                              lastTimestamp =
+                                  DateTime.parse(
+                                    timestampStr,
+                                  ).millisecondsSinceEpoch;
+                            }
+                          } catch (e) {
+                            debugPrint('Timestamp parse error: $e');
+                          }
+
+                          rooms.add({
+                            'roomId': key,
+                            'receiverUID': otherUserUID,
+                            'lastMessage': {
+                              'text': lastMessageText,
+                              'timestamp': lastTimestamp,
+                            },
+                            'timestamp': lastTimestamp,
+                            'unreadCount': unreadCount,
+                            'isSeen': isSeen,
+                            'lastSenderUID': value['lastSenderUID'] ?? '',
+                          });
+
+                          receiverUIDs.add(otherUserUID);
+                        }
                       }
                     }
-                  }
-                });
-
+                  });
+                } catch (e) {
+                  debugPrint("ERROR: Error parsing chatRooms: $e");
+                }
                 rooms.sort(
                   (a, b) =>
-                      (b['timestamp'] ?? '').compareTo(a['timestamp'] ?? ''),
+                      (b['timestamp'] ?? 0).compareTo(a['timestamp'] ?? 0),
                 );
-                Map<String, Map<String, dynamic>> userDetails = {};
-                try {
-                  if (receiverUIDs.isNotEmpty) {
-                    var query =
-                        await Collections.users
-                            .where('uid', whereIn: receiverUIDs)
-                            .get();
 
-                    for (var doc in query.docs) {
-                      Map<String, dynamic> userData =
-                          doc.data() as Map<String, dynamic>;
-                      String uid = userData['uid'];
-                      userDetails[uid] = userData;
-                    }
-                  }
-                } catch (e) {
-                  if (kDebugMode) {
-                    print('Error fetching user details: $e');
-                  }
-                }
-
-                add(FetchUserDetailsEvent(rooms, userDetails));
+                _fetchUserDetails(receiverUIDs).then((userDetails) {
+                  add(FetchUserDetailsEvent(rooms, userDetails));
+                });
               } else {
                 add(FetchUserDetailsEvent([], {}));
               }
@@ -147,7 +164,6 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
   ) async {
     try {
       emit(state.copyWith(status: ChatStatus.loading));
-
       String? chatRoomId;
       String currentUID = Services.uid ?? '';
       if (event.receiverUid != null) {
@@ -157,25 +173,26 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       } else if (event.roomId != null) {
         chatRoomId = event.roomId;
       }
-
       if (chatRoomId != null) {
-        await ChatServices.resetUnreadCount(chatRoomId, currentUID);
-
         emit(
           state.copyWith(
             currentChatRoomId: chatRoomId,
             status: ChatStatus.goToChatPage,
           ),
         );
-        if (event.isFoodSwapped) {
+        if (event.isFoodSwapped ||
+            event.isFromDonations ||
+            event.isFromBeneficiary) {
           await _sendInitialFoodSwapMessages(
             chatRoomId,
             currentUID,
             event.receiverUid ?? "",
             event.fcmToken ?? '',
+            event.isFoodSwapped,
+            event.isFromDonations,
+            event.isFromBeneficiary,
           );
         }
-
         Future.delayed(
           const Duration(milliseconds: 500),
         ).then((value) => add(LoadMessagesEvent()));
@@ -194,62 +211,74 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     }
   }
 
-  Future<void> _onSendMessage(
-    SendMessageEvent event,
-    Emitter<CommunityState> emit,
-  ) async {
-    if (state.currentChatRoomId == null || event.message.trim().isEmpty) return;
+Future<void> _onSendMessage(
+  SendMessageEvent event,
+  Emitter<CommunityState> emit,
+) async {
+  if (state.currentChatRoomId == null || event.message.trim().isEmpty) return;
 
-    try {
-      emit(state.copyWith(status: ChatStatus.sending));
+  try {
+    emit(state.copyWith(status: ChatStatus.sending));
 
-      final timestamp = DateTime.now().toIso8601String();
-      final messageRef =
-          ChatServices.database
-              .ref('chats')
-              .child(state.currentChatRoomId!)
-              .child('messages')
-              .push();
+    final timestamp = DateTime.now().toIso8601String();
+    final chatRoomId = state.currentChatRoomId!;
+    final message = event.message.trim();
 
-      await messageRef.set({
-        'senderUID': Services.uid,
-        'message': event.message.trim(),
-        'timestamp': timestamp,
-      });
-      await ChatServices.database
-          .ref('chats')
-          .child(state.currentChatRoomId!)
-          .update({
-            'lastMessage': event.message.trim(),
-            'lastSenderUID': Services.uid,
-            'seen_by/${Services.uid}': true,
-            'seen_by/${event.reciversUid}': false,
-            'unread_count/${Services.uid}': 0,
-            'unread_count/${event.reciversUid}': ServerValue.increment(1),
-            'timestamp': timestamp,
-          });
-      if (event.fcmToken != null && event.fcmToken!.isNotEmpty) {
-        await AppApis().sendNotificationToFCM(
-          title: event.reciversName,
-          subTitle: event.message.trim(),
-          token: event.fcmToken!,
-          chatRoomId: state.currentChatRoomId,
-          type: 'message',
-          reciversUid: event.reciversUid,
-        );
-      }
+    final messageRef = ChatServices.database
+        .ref('chats')
+        .child(chatRoomId)
+        .child('messages')
+        .push();
 
-      emit(state.copyWith(status: ChatStatus.loaded));
-    } catch (e) {
-      log('Error sending message: $e');
-      emit(
-        state.copyWith(
-          status: ChatStatus.error,
-          errorMessage: 'Failed to send message: ${e.toString()}',
-        ),
+    await messageRef.set({
+      'senderUID': Services.uid,
+      'message': message,
+      'timestamp': timestamp,
+      'seen': false,
+    });
+
+    // Update the chat room info
+    final updates = {
+      'lastMessage': message,
+      'lastSenderUID': Services.uid,
+      'timestamp': timestamp,
+      'seen_by/${Services.uid}': true,
+      'seen_by/${event.reciversUid}': false,
+      'unread_count/${Services.uid}': 0,
+      'participants/${Services.uid}': true,
+      'participants/${event.reciversUid}': true,
+    };
+
+    // Increment receiver's unread count
+    if (Services.uid != event.reciversUid) {
+      updates['unread_count/${event.reciversUid}'] = ServerValue.increment(1);
+    }
+
+    await ChatServices.database.ref('chats').child(chatRoomId).update(updates);
+
+    // Send push notification if available
+    if (event.fcmToken != null && event.fcmToken!.isNotEmpty) {
+      await AppApis().sendNotificationToFCM(
+        title: event.reciversName,
+        subTitle: message,
+        token: event.fcmToken!,
+        chatRoomId: chatRoomId,
+        type: 'message',
+        reciversUid: event.reciversUid,
       );
     }
+
+    emit(state.copyWith(status: ChatStatus.loaded));
+  } catch (e) {
+    debugPrint('Error sending message: $e');
+    emit(
+      state.copyWith(
+        status: ChatStatus.error,
+        errorMessage: 'Failed to send message: ${e.toString()}',
+      ),
+    );
   }
+}
 
   StreamSubscription? _messagesSubscription;
   Future<void> _onLoadMessages(
@@ -257,9 +286,11 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     Emitter<CommunityState> emit,
   ) async {
     emit(state.copyWith(status: ChatStatus.loading));
+
     if (state.currentChatRoomId == null) return;
 
     _messagesSubscription?.cancel();
+
     final chatRef = ChatServices.database
         .ref('chats')
         .child(state.currentChatRoomId!)
@@ -268,13 +299,21 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     _messagesSubscription = chatRef.onValue.listen((event) {
       if (event.snapshot.value != null) {
         final messagesMap = event.snapshot.value as Map<dynamic, dynamic>;
+
         final messages =
-            messagesMap.entries.map((entry) {
-              return ChatMessage.fromMap(entry.value, entry.key);
-            }).toList();
+            messagesMap.entries
+                .where(
+                  (entry) =>
+                      entry.value is Map &&
+                          (entry.value as Map).containsKey('message') ||
+                      (entry.value as Map).containsKey('text'),
+                )
+                .map((entry) {
+                  return ChatMessage.fromMap(entry.value, entry.key);
+                })
+                .toList();
 
         messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-
         add(UpdateMessagesEvent(messages));
       }
     });
@@ -285,6 +324,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     Emitter<CommunityState> emit,
   ) async {
     emit(state.copyWith(messages: event.messages, status: ChatStatus.loaded));
+
     if (state.currentChatRoomId != null) {
       await ChatServices.resetUnreadCount(
         state.currentChatRoomId!,
@@ -303,6 +343,21 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     emit(const CommunityState());
   }
 
+  Future<Map<String, Map<String, dynamic>>> _fetchUserDetails(
+    List<String> uids,
+  ) async {
+    Map<String, Map<String, dynamic>> userDetails = {};
+    if (uids.isNotEmpty) {
+      var query = await Collections.users.where('uid', whereIn: uids).get();
+      for (var doc in query.docs) {
+        Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
+        String uid = userData['uid'];
+        userDetails[uid] = userData;
+      }
+    }
+    return userDetails;
+  }
+
   @override
   Future<void> close() {
     _chatRoomsSubscription?.cancel();
@@ -315,37 +370,109 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     String currentUID,
     String receiverUID,
     String token,
+    bool isFoodSwap,
+    bool isDonation,
+    bool isBeneficiary,
   ) async {
-    final timestamp = DateTime.now().toIso8601String();
-    List<Map<String, dynamic>> initialMessages = [
-      {'senderUID': currentUID, 'message': 'Hello 👋', 'timestamp': timestamp},
-      {
-        'senderUID': currentUID,
-        'message': 'I accept your food swap! 🍲',
-        'timestamp': timestamp,
-      },
-    ];
+    final timestamp = ServerValue.timestamp;
+    final nowIso = DateTime.now().toIso8601String();
 
+    List<Map<String, dynamic>> initialMessages =
+        isFoodSwap
+            ? [
+              {
+                'senderId': currentUID,
+                'text': 'Hello 👋',
+                'timestamp': timestamp,
+              },
+              {
+                'senderId': currentUID,
+                'text': 'I accept your food swap! 🍲',
+                'timestamp': timestamp,
+              },
+            ]
+            : isDonation
+            ? [
+              {
+                'senderId': currentUID,
+                'text': 'Hello 👋',
+                'timestamp': timestamp,
+              },
+              {
+                'senderId': currentUID,
+                'text': 'I want to donate my food with you! 🍲',
+                'timestamp': timestamp,
+              },
+            ]
+            : isBeneficiary
+            ? [
+              {
+                'senderId': currentUID,
+                'text': 'Hello 👋',
+                'timestamp': timestamp,
+              },
+              {
+                'senderId': currentUID,
+                'text': 'I want to receive food with you! 🍲',
+                'timestamp': timestamp,
+              },
+            ]
+            : [];
+
+    final chatMessagesRef = ChatServices.database.ref(
+      'chats/$chatRoomId/messages',
+    );
     for (var msg in initialMessages) {
-      final messageRef =
-          ChatServices.database.ref('chats/$chatRoomId/messages').push();
-
-      await messageRef.set(msg);
+      await chatMessagesRef.push().set(msg);
     }
 
+    final lastMsg = initialMessages.last;
+
     await ChatServices.database.ref('chats/$chatRoomId').update({
-      'lastMessage': initialMessages.last['message'],
-      'lastSenderUID': Services.uid,
-      'seen_by/${Services.uid}': true,
-      'seen_by/$receiverUID': false,
-      'unread_count/${Services.uid}': 0,
-      'unread_count/$receiverUID': 2,
-      'timestamp': timestamp,
+      'lastMessage': {
+        'text': lastMsg['text'],
+        'timestamp': timestamp,
+        'senderId': currentUID,
+      },
     });
-    if (token != null && token.isNotEmpty) {
+
+    await ChatServices.database.ref('userChats/$currentUID/$chatRoomId').update(
+      {
+        'unreadCount': 0,
+        'lastSeen': ServerValue.timestamp,
+        'chatWith': receiverUID,
+        'lastMessage': {
+          'text': lastMsg['text'],
+          'timestamp': timestamp,
+          'senderId': currentUID,
+        },
+      },
+    );
+
+    await ChatServices.database
+        .ref('userChats/$receiverUID/$chatRoomId')
+        .update({
+          'unreadCount': initialMessages.length,
+          'lastSeen': null,
+          'chatWith': currentUID,
+          'lastMessage': {
+            'text': lastMsg['text'],
+            'timestamp': timestamp,
+            'senderId': currentUID,
+          },
+        });
+
+    if (token.isNotEmpty) {
       await AppApis().sendNotificationToFCM(
-        title: "Food Swap Accepted!",
-        subTitle: initialMessages.last['message'],
+        title:
+            isFoodSwap
+                ? "Food Swap Accepted!"
+                : isDonation
+                ? "Food Swap Accepted!"
+                : isBeneficiary
+                ? "Beneficiary Accepted!"
+                : "",
+        subTitle: lastMsg['text'],
         token: token,
         chatRoomId: chatRoomId,
         type: 'message',

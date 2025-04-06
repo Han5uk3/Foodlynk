@@ -32,12 +32,14 @@ class RequestFoodSwapEvent extends FoodSwapEvent {
   final String? swapId;
   final String? uid;
   final String? acceptedSwapItem;
+  final String? acceptedSwapItemId;
   final String? pickupLocation;
   final DateTime? pickupDate;
   final DateTime? pickupTime;
   const RequestFoodSwapEvent({
     this.swapId,
     this.uid,
+    this.acceptedSwapItemId,
     this.acceptedSwapItem,
     this.pickupLocation,
     this.pickupDate,
@@ -47,6 +49,7 @@ class RequestFoodSwapEvent extends FoodSwapEvent {
   List<Object> get props => [
     swapId ?? "",
     uid ?? "",
+    acceptedSwapItemId ?? "",
     acceptedSwapItem ?? "",
     pickupLocation ?? "",
     pickupDate ?? "",
@@ -56,6 +59,7 @@ class RequestFoodSwapEvent extends FoodSwapEvent {
 
 class AcceptedFoodSwapRequestEvent extends FoodSwapEvent {
   final String swapId;
+  final String acceptedSwapItemId;
   final String reciverUid;
   final String fcmToken;
   final CommunityBloc? communityBloc;
@@ -63,7 +67,8 @@ class AcceptedFoodSwapRequestEvent extends FoodSwapEvent {
     required this.swapId,
     required this.reciverUid,
     required this.fcmToken,
-    required this.communityBloc,
+    required this.acceptedSwapItemId,
+    this.communityBloc,
   });
   @override
   List<Object> get props => [swapId];

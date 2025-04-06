@@ -53,6 +53,7 @@ class FoodSwapModel {
 class AcceptedSwapItem {
   final int? reqId;
   final String? acceptedSwapItem;
+  final String? acceptedSwapItemId;
   final String? pickupDate;
   final String? pickupLocation;
   final String? pickupTime;
@@ -63,6 +64,7 @@ class AcceptedSwapItem {
   const AcceptedSwapItem({
     this.reqId,
     this.acceptedSwapItem,
+    this.acceptedSwapItemId,
     this.pickupDate,
     this.pickupLocation,
     this.pickupTime,
@@ -74,6 +76,7 @@ class AcceptedSwapItem {
     return AcceptedSwapItem(
       reqId: map['reqId'] as int?,
       acceptedSwapItem: map['acceptedSwapItem'] as String?,
+      acceptedSwapItemId: map['acceptedSwapItemId'] as String?,
       pickupDate: map['pickupDate'],
       pickupLocation: map['pickupLocation'] as String?,
       pickupTime: map['pickupTime'],
