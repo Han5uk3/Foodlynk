@@ -160,7 +160,7 @@ class _AddItemState extends State<AddItem> {
                                   decoration: BoxDecoration(
                                     border: Border.all(
                                       color:
-                                          days < 0
+                                          days <= 0
                                               ? AppColor.red
                                               : days >= 0 && days < 3
                                               ? AppColor.yellow
@@ -183,7 +183,7 @@ class _AddItemState extends State<AddItem> {
                                           CrossAxisAlignment.center,
                                       children: [
                                         Icon(
-                                          days < 0
+                                          days <= 0
                                               ? Icons.sentiment_neutral_outlined
                                               : days >= 0 && days < 3
                                               ? Icons
@@ -192,7 +192,7 @@ class _AddItemState extends State<AddItem> {
                                                   .sentiment_very_satisfied_outlined,
                                           size: 18,
                                           color:
-                                              days < 0
+                                              days <= 0
                                                   ? AppColor.red
                                                   : days >= 0 && days < 3
                                                   ? AppColor.yellow
@@ -204,7 +204,7 @@ class _AddItemState extends State<AddItem> {
                                           ),
                                           style: TextStyle(
                                             color:
-                                                days < 0
+                                                days <= 0
                                                     ? AppColor.red
                                                     : days >= 0 && days < 3
                                                     ? AppColor.yellow
@@ -503,7 +503,7 @@ class _AddItemState extends State<AddItem> {
                                 category: selectedCategory,
                                 expiredDate: selectedExpiryDate,
                               ),
-                              imageFile: _imageFile
+                              imageFile: _imageFile,
                             ),
                           );
                     },
