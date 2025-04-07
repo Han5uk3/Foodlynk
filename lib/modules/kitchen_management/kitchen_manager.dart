@@ -129,7 +129,7 @@ class _KitchenManagerState extends State<KitchenManager> {
         if (selectedFilter == "Expired") {
           matchesFilter = days < 0;
         } else if (selectedFilter == "Expiring Soon") {
-          matchesFilter = days >= 0 && days < 3;
+          matchesFilter = days >= 0 && days < 2;
         } else if (selectedFilter == "Fresh") {
           matchesFilter = days > 3;
         }
