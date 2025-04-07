@@ -43,7 +43,7 @@ class _GenerateRecipePageState extends State<GenerateRecipePage> {
     setState(() {
       if (_selectedIngredients.contains(ingredient)) {
         _selectedIngredients.remove(ingredient);
-      } else if (_selectedIngredients.length < 5) {
+      } else {
         _selectedIngredients.add(ingredient);
       }
     });
@@ -55,7 +55,9 @@ class _GenerateRecipePageState extends State<GenerateRecipePage> {
     });
 
     try {
-      GenerateSmartRecipe result = await AppApis().generateSmartRecipe(_selectedIngredients);
+      GenerateSmartRecipe result = await AppApis().generateSmartRecipe(
+        _selectedIngredients,
+      );
 
       if (!mounted) return;
 

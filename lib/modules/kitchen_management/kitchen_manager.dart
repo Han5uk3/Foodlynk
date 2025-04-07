@@ -127,11 +127,11 @@ class _KitchenManagerState extends State<KitchenManager> {
       int days = expiredDate.difference(DateTime.now()).inDays;
       if (selectedFilter.isNotEmpty) {
         if (selectedFilter == "Expired") {
-          matchesFilter = days <= 0;
+          matchesFilter = days < 0;
         } else if (selectedFilter == "Expiring Soon") {
-          matchesFilter = days > 0 && days < 3;
+          matchesFilter = days >= 0 && days < 2;
         } else if (selectedFilter == "Fresh") {
-          matchesFilter = days >= 3;
+          matchesFilter = days > 3;
         }
       }
       bool matchesSearch =
