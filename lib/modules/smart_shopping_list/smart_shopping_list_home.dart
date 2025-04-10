@@ -12,6 +12,7 @@ import 'package:saver_bbk_main/modules/smart_shopping_list/shopping_list.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 import 'dart:async';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SmartShoppingHome extends StatefulWidget {
   const SmartShoppingHome({super.key, required this.onBack});
@@ -102,7 +103,7 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: saverAppBar(
-        "Smart Shopping List",
+        AppLocalizations.of(context)!.smartShoppingList,
         context,
         isneedtopop: true,
         iswhite: false,
@@ -144,7 +145,7 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
 
           SaverSnackBar.show(
             context: context,
-            message: "Your new list has been created",
+            message: AppLocalizations.of(context)!.yourNewListHasBeenCreated,
             isTrue: true,
           );
         }
@@ -212,7 +213,7 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
                       )
                       : Icon(Icons.search, color: Colors.grey.shade600),
               hintStyle: TextStyle(color: AppColor.lightGrey200),
-              hintText: "search list",
+              hintText: AppLocalizations.of(context)!.searchList,
             ),
             onChanged: _onSearchChanged,
           ),
@@ -226,7 +227,7 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          "Shopping Lists",
+          AppLocalizations.of(context)!.shoppingLists,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         if (searchQuery.isNotEmpty)
@@ -272,7 +273,9 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
     }
 
     if (_filteredLists.isEmpty) {
-      return Center(child: Text("No shopping lists found"));
+      return Center(
+        child: Text(AppLocalizations.of(context)!.noShppingListsFound),
+      );
     }
 
     return ListView.builder(
@@ -354,7 +357,7 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
                     Text(
                       item.items?.isNotEmpty ?? false
                           ? "${item.items!.where((e) => e.status == "PR").length} of ${item.items!.length} items purchased"
-                          : "No items in the list",
+                          : AppLocalizations.of(context)!.noItemsFound,
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColor.lightGrey200,
@@ -403,7 +406,7 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "Add Shopping List",
+                            AppLocalizations.of(context)!.addShoppingList,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -429,7 +432,10 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
                         right: 14,
                         top: 14,
                       ),
-                      child: Text("List Name", style: TextStyle(fontSize: 16)),
+                      child: Text(
+                        AppLocalizations.of(context)!.listName,
+                        style: TextStyle(fontSize: 16),
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(
@@ -438,7 +444,7 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
                         top: 8,
                       ),
                       child: SaverTextField(
-                        hintText: "Enter list name",
+                        hintText: AppLocalizations.of(context)!.enterListName,
                         controller: listNameController,
                       ),
                     ),
@@ -450,7 +456,7 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
                         right: 14,
                       ),
                       child: SaverButton(
-                        text: "Save Changes",
+                        text: AppLocalizations.of(context)!.saveChanges,
                         isLoading: _isLoading,
                         onPressed:
                             (_isLoading || _isSubmitLocked)

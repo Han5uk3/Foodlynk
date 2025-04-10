@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
 import 'package:saver_bbk_main/modules/community/chat_page.dart';
@@ -18,6 +19,7 @@ import 'package:saver_bbk_main/modules/splash_screen/splash_screen.dart';
 import 'package:saver_bbk_main/modules/zero_waste_challenges/bloc/challenge_bloc.dart';
 import 'package:saver_bbk_main/modules/zero_waste_cooking/bloc/zero_waste_cooking_bloc.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 const boxName = 'myBox';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -81,7 +83,6 @@ class _MyAppState extends State<MyApp> {
             MaterialPageRoute(
               builder:
                   (context) => ChatPage(
-                
                     isFromNotifications: true,
                     chatRoomId: chatRoomId,
                   ),
@@ -114,12 +115,24 @@ class _MyAppState extends State<MyApp> {
         BlocProvider<NotificationBloc>(create: (context) => NotificationBloc()),
         BlocProvider<FoodShareBloc>(create: (context) => FoodShareBloc()),
       ],
-      child: MaterialApp(
-        title: 'Saver App',
-        theme: ThemeData(scaffoldBackgroundColor: AppColor.white),
-        debugShowCheckedModeBanner: false,
-        navigatorKey: navigatorKey,
-        home: SplashScreen(),
+      child: BlocBuilder<ProfileBloc, ProfileState>(
+        builder: (context, state) {
+          return MaterialApp(
+            title: 'Saver App',
+            theme: ThemeData(scaffoldBackgroundColor: AppColor.white),
+            debugShowCheckedModeBanner: false,
+            navigatorKey: navigatorKey,
+            locale: state.locale,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('en'), Locale('ar')],
+            home: SplashScreen(),
+          );
+        },
       ),
     );
   }

@@ -17,3 +17,14 @@ class NotificationDeleteError extends NotificationState {
 }
 
 class NotificationsClearedSuccessfully extends NotificationState {}
+
+class NotificationsFetchedSuccessfully extends NotificationState {}
+
+class NotificationsLoading extends NotificationState {}
+
+class NotificationFetchingError extends NotificationState {
+  final String errorMessage;
+  const NotificationFetchingError({required this.errorMessage});
+  @override
+  List<Object> get props => [errorMessage];
+}

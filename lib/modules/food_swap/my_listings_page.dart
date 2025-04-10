@@ -24,6 +24,7 @@ import 'package:saver_bbk_main/modules/community/chat_page.dart';
 import 'package:saver_bbk_main/modules/food_swap/bloc/food_swap_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MyListingsPage extends StatefulWidget {
   final bool isEdit;
@@ -55,7 +56,9 @@ class _MyListingsPageState extends State<MyListingsPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: saverAppBar(
-        widget.isEdit ? "My Listing" : "Add New Item",
+        widget.isEdit
+            ? AppLocalizations.of(context)!.myListing
+            : AppLocalizations.of(context)!.addNewItem,
         context,
         isneedtopop: false,
         actions:
@@ -93,7 +96,7 @@ class _MyListingsPageState extends State<MyListingsPage>
                           child: TabBar(
                             isScrollable: false,
                             physics: const BouncingScrollPhysics(),
-                            tabs: const [
+                            tabs: [
                               Tab(text: "Food Details"),
                               Tab(text: "Requests"),
                             ],
@@ -128,14 +131,14 @@ class _MyListingsPageState extends State<MyListingsPage>
             Navigator.of(context).pop();
             SaverSnackBar.show(
               context: context,
-              message: "Food Swap Success",
+              message: AppLocalizations.of(context)!.foodSwapSuccess,
               isTrue: true,
             );
           } else if (state is FoodSwapUpdateSuccessState) {
             Navigator.of(context).pop();
             SaverSnackBar.show(
               context: context,
-              message: "Food Swap Updated Successfully",
+              message: AppLocalizations.of(context)!.foodSwapUpdatedSuccessfuly,
               isTrue: true,
             );
           } else if (state is DeleteFromFoodSwapSuccessState) {
@@ -202,7 +205,7 @@ class _MyListingsPageState extends State<MyListingsPage>
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: Text(
-                    "Cancel",
+                    AppLocalizations.of(context)!.cancel,
                     style: TextStyle(color: Colors.grey.shade700),
                   ),
                 ),
@@ -223,7 +226,7 @@ class _MyListingsPageState extends State<MyListingsPage>
                       isLoadingDelete
                           ? SaverLoader()
                           : Text(
-                            "Delete",
+                            AppLocalizations.of(context)!.delete,
                             style: TextStyle(color: AppColor.red),
                           ),
                 ),
@@ -306,7 +309,7 @@ class _FoodDetailsState extends State<FoodDetails> {
         selectedExpiryDate == null) {
       SaverSnackBar.show(
         context: context,
-        message: "Please fill in all fields",
+        message: AppLocalizations.of(context)!.pleaseFillInAllFields,
         isTrue: false,
       );
       return;
@@ -324,7 +327,9 @@ class _FoodDetailsState extends State<FoodDetails> {
       if (widget.isEditable) {
         context.read<FoodSwapBloc>().add(UpdateItemInFoodSwapEvent(item: item));
       } else {
-        context.read<FoodSwapBloc>().add(AddItemToFoodSwapEvent(item: item));
+        context.read<FoodSwapBloc>().add(
+          AddItemToFoodSwapEvent(item: item, imageFile: _imageFile),
+        );
       }
     }
   }
@@ -332,124 +337,133 @@ class _FoodDetailsState extends State<FoodDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Label(text: "Item Name"),
-            const SizedBox(height: 10),
-            SaverTextField(
-              hintText: "Garlic Bread",
-              controller: nameController,
-            ),
-            const SizedBox(height: 15),
-            const Label(text: "Quantity"),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IntrinsicWidth(
-                  child: SaverDropdown(
-                    onChanged: (value) {
-                      setState(() {
-                        selectedUnit = value;
-                      });
-                    },
-                    items: unit,
-                    selectedItem: selectedUnit ?? "",
-                    hint: "Choose",
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Label(text: AppLocalizations.of(context)!.itemName),
+              const SizedBox(height: 10),
+              SaverTextField(
+                hintText: AppLocalizations.of(context)!.garlicBread,
+                controller: nameController,
+              ),
+              const SizedBox(height: 15),
+              Label(text: AppLocalizations.of(context)!.quantity),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IntrinsicWidth(
+                    child: SaverDropdown(
+                      onChanged: (value) {
+                        setState(() {
+                          selectedUnit = value;
+                        });
+                      },
+                      items: unit,
+                      selectedItem: selectedUnit ?? "",
+                      hint: AppLocalizations.of(context)!.choose,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 30),
-                Expanded(
-                  child: NumberSelector.plain(
-                    hasBorder: true,
-                    showMinMax: false,
-                    min: 1,
-                    iconColor: Colors.grey.shade500,
-                    borderRadius: 6,
-                    borderColor: Colors.grey.shade300,
-                    backgroundColor: Colors.white,
-                    current: numberOfQuantity,
-                    onUpdate: (newValue) {
-                      setState(() {
-                        numberOfQuantity = newValue;
-                      });
-                    },
+                  const SizedBox(width: 30),
+                  Expanded(
+                    child: NumberSelector.plain(
+                      hasBorder: true,
+                      showMinMax: false,
+                      min: 1,
+                      iconColor: Colors.grey.shade500,
+                      borderRadius: 6,
+                      borderColor: Colors.grey.shade300,
+                      backgroundColor: Colors.white,
+                      current: numberOfQuantity,
+                      onUpdate: (newValue) {
+                        setState(() {
+                          numberOfQuantity = newValue;
+                        });
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 15),
-            const Text(
-              "Expiry Date",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            ShowCalendar(
-              isEdit: widget.isEditable,
-              restrictBackDates: true,
-              initialDate: selectedExpiryDate,
-              onDatePicked: _onDatePicked,
-            ),
-            const SizedBox(height: 15),
-            const Text(
-              "Upload Image",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                if (_imageFile != null)
-                  Stack(
+                ],
+              ),
+              const SizedBox(height: 15),
+              Text(
+                AppLocalizations.of(context)!.expiryDate,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              ShowCalendar(
+                isEdit: widget.isEditable,
+                restrictBackDates: true,
+                initialDate: selectedExpiryDate,
+                onDatePicked: _onDatePicked,
+              ),
+              const SizedBox(height: 15),
+              widget.isEditable
+                  ? SizedBox()
+                  : Text(
+                    AppLocalizations.of(context)!.uploadImage,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+              const SizedBox(height: 10),
+              widget.isEditable
+                  ? SizedBox()
+                  : Row(
                     children: [
-                      SizedBox(
-                        height: 100,
-                        width: 100,
-                        child: Center(
-                          child: Container(
-                            height: 90,
-                            width: 90,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              image: DecorationImage(
-                                image: FileImage(_imageFile!),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        child: SizedBox(
-                          width: 100,
-                          child: Align(
-                            alignment: Alignment.topRight,
-                            child: GestureDetector(
-                              onTap: _removeImage,
-                              child: CircleAvatar(
-                                radius: 10,
-                                backgroundColor: Colors.white70,
-                                child: Center(
-                                  child: Icon(
-                                    Icons.close,
-                                    color: AppColor.black,
-                                    size: 15,
+                      if (_imageFile != null)
+                        Stack(
+                          children: [
+                            SizedBox(
+                              height: 100,
+                              width: 100,
+                              child: Center(
+                                child: Container(
+                                  height: 90,
+                                  width: 90,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    image: DecorationImage(
+                                      image: FileImage(_imageFile!),
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
+                            Positioned(
+                              child: SizedBox(
+                                width: 100,
+                                child: Align(
+                                  alignment: Alignment.topRight,
+                                  child: GestureDetector(
+                                    onTap: _removeImage,
+                                    child: CircleAvatar(
+                                      radius: 10,
+                                      backgroundColor: Colors.white70,
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.close,
+                                          color: AppColor.black,
+                                          size: 15,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
+                      if (_imageFile == null)
+                        ImagePickerButton(
+                          isFood: false,
+                          onImageSelected: _setImage,
+                        ),
                     ],
                   ),
-                if (_imageFile == null)
-                  ImagePickerButton(isFood: false, onImageSelected: _setImage),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: Padding(
@@ -465,7 +479,10 @@ class _FoodDetailsState extends State<FoodDetails> {
                 state is FoodSwapLoading ? state.isLoading : false;
             return SaverButton(
               isLoading: isButtonLoading,
-              text: widget.isEditable ? "Save Changes" : "Add to Listing",
+              text:
+                  widget.isEditable
+                      ? AppLocalizations.of(context)!.saveChanges
+                      : AppLocalizations.of(context)!.addToListing,
               onPressed: isButtonLoading ? () {} : _saveChanges,
             );
           },
@@ -509,9 +526,7 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                     context,
                     MaterialPageRoute(
                       builder:
-                          (context) => ChatPage(
-                            isFromNotifications: false,
-                          ),
+                          (context) => ChatPage(isFromNotifications: false),
                     ),
                   );
                 }
@@ -538,7 +553,9 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                     ),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.none) {
-                        return Text("No requests found.");
+                        return Text(
+                          AppLocalizations.of(context)!.noRequestsFound,
+                        );
                       }
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return SaverLoader();
@@ -551,8 +568,12 @@ class _RequestsDetailsState extends State<RequestsDetails> {
 
                       if (snapshot.data!.isEmpty) {
                         return EmptyList(
-                          message: "No requests found.",
-                          subMessage: "Check back later for new requests",
+                          message:
+                              AppLocalizations.of(context)!.noRequestsFound,
+                          subMessage:
+                              AppLocalizations.of(
+                                context,
+                              )!.checkBackLaterForNewRequests,
                         );
                       }
                       final acceptedSwapItem = snapshot.data!;
@@ -674,7 +695,7 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                               ],
                             ),
                             Text(
-                              "Requested on ${DateFormatHelper.ddmmyyyyString(item.pickupDate ?? "")}",
+                              "${AppLocalizations.of(context)!.requestedOn} ${DateFormatHelper.ddmmyyyyString(item.pickupDate ?? "")}",
                             ),
                           ],
                         ),
@@ -705,12 +726,13 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                                 child: SaverOutlineButton(
                                   isLoading: _isLoading,
 
-                                  text: "Accept",
+                                  text: AppLocalizations.of(context)!.accept,
                                   onPressed:
                                       () => context.read<FoodSwapBloc>().add(
                                         AcceptedFoodSwapRequestEvent(
                                           swapId: item.swapedItemId ?? "",
-                                          acceptedSwapItemId: item.acceptedSwapItemId ?? '',
+                                          acceptedSwapItemId:
+                                              item.acceptedSwapItemId ?? '',
                                           reciverUid: item.uid ?? "",
                                           fcmToken: fcmToken,
                                           communityBloc:
@@ -730,7 +752,7 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                                   isLoading:
                                       state
                                           is FoodSwapRequestDeclinedLoadingState,
-                                  text: "Decline",
+                                  text: AppLocalizations.of(context)!.decline,
                                   onPressed:
                                       () => context.read<FoodSwapBloc>().add(
                                         DeclineFoodSwapEvent(

@@ -20,3 +20,5 @@ class ClearAllNotificationsEvent extends NotificationEvent {
   @override
   List<Object> get props => [uid];
 }
+
+class FetchNotificationsEvent extends NotificationEvent {}

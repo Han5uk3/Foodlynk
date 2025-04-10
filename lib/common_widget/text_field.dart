@@ -56,6 +56,10 @@ class SaverTextField extends StatelessWidget {
       validator: validator,
       inputFormatters: inputFormatters,
       decoration: InputDecoration(
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: AppColor.red),
+        ),
         hintText: hintText,
         hintStyle: TextStyle(color: AppColor.lightGrey200),
         prefixIcon:
@@ -76,6 +80,10 @@ class SaverTextField extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius),
           borderSide: BorderSide(color: borderColor, width: 2.0),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: AppColor.red),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 15.0,

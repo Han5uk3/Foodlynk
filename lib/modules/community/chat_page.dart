@@ -7,6 +7,7 @@ import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
 import 'package:saver_bbk_main/modules/home/home.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ChatPage extends StatefulWidget {
   final bool isFromNotifications;
@@ -96,7 +97,7 @@ class _ChatPageState extends State<ChatPage> {
       child: Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: saverAppBar(
-          "Chat",
+          AppLocalizations.of(context)!.chat,
           context,
           isneedtopop: true,
           iswhite: true,
@@ -285,18 +286,7 @@ class _MessagesBody extends StatelessWidget {
                                 color: isMe ? Colors.white70 : Colors.black54,
                               ),
                             ),
-                            if (isMe) ...[
-                              const SizedBox(width: 6),
-                              // Icon(
-                              //   msg.seen == true
-                              //       ? Icons.done_all // seen ✅✅
-                              //       : Icons.check,   // sent ✅
-                              //   size: 16,
-                              //   color: msg.seen == true
-                              //       ? Colors.lightGreenAccent
-                              //       : Colors.white70,
-                              // ),
-                            ],
+                            if (isMe) ...[const SizedBox(width: 6)],
                           ],
                         ),
                       ],
@@ -344,7 +334,7 @@ class _ChatFooter extends StatelessWidget {
                     }
                   },
                   decoration: InputDecoration(
-                    hintText: "Type a message...",
+                    hintText: AppLocalizations.of(context)!.typeAMessage,
                     hintStyle: TextStyle(color: AppColor.lightGrey200),
                     border: const OutlineInputBorder(
                       borderSide: BorderSide.none,

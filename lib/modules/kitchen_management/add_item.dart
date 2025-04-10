@@ -19,6 +19,7 @@ import 'package:saver_bbk_main/modules/kitchen_management/kitchen_manager.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_bloc.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/widgets/item_sheets.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AddItem extends StatefulWidget {
   final String? dateString;
@@ -108,7 +109,7 @@ class _AddItemState extends State<AddItem> {
 
     return Scaffold(
       appBar: saverAppBar(
-        widget.isEdit ? "Edit Item" : "Add Item",
+        widget.isEdit ? "Edit Item" : AppLocalizations.of(context)!.addItem,
         context,
         isneedtopop: true,
         iswhite: true,
@@ -125,7 +126,7 @@ class _AddItemState extends State<AddItem> {
             Navigator.pop(context);
             SaverSnackBar.shower(
               context: context,
-              message: "New Item Added to Kitchen",
+              message: AppLocalizations.of(context)!.newItemAddedToKitchen,
               isTrue: true,
             );
           }
@@ -222,20 +223,24 @@ class _AddItemState extends State<AddItem> {
                             : SizedBox.shrink(),
 
                         Label(
-                          text: "Item Name",
+                          text: AppLocalizations.of(context)!.itemName,
                           style: TextStyle(fontSize: 16),
                         ),
                         SizedBox(height: 5),
                         IgnorePointer(
                           ignoring: widget.isEdit,
                           child: SaverTextField(
-                            hintText: "Enter Item Name",
+                            hintText:
+                                AppLocalizations.of(context)!.enterItemName,
                             controller: itemNameController,
                             validator: _validateItemName,
                           ),
                         ),
                         SizedBox(height: 20),
-                        Label(text: "Quantity", style: TextStyle(fontSize: 16)),
+                        Label(
+                          text: AppLocalizations.of(context)!.quantity,
+                          style: TextStyle(fontSize: 16),
+                        ),
                         SizedBox(height: 5),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -246,7 +251,7 @@ class _AddItemState extends State<AddItem> {
                                 items: unit,
                                 selectedItem: selectedUnit ?? "",
                                 isView: widget.isEdit,
-                                hint: "Choose",
+                                hint: AppLocalizations.of(context)!.choose,
                                 onChanged:
                                     widget.isEdit
                                         ? (value) {
@@ -282,13 +287,16 @@ class _AddItemState extends State<AddItem> {
                           ],
                         ),
                         SizedBox(height: 20),
-                        Label(text: "Category", style: TextStyle(fontSize: 16)),
+                        Label(
+                          text: AppLocalizations.of(context)!.category,
+                          style: TextStyle(fontSize: 16),
+                        ),
                         SizedBox(height: 5),
                         SaverDropdown(
                           items: category,
                           selectedItem: selectedCategory,
                           isView: widget.isEdit,
-                          hint: "Choose",
+                          hint: AppLocalizations.of(context)!.choose,
                           onChanged: (value) {
                             setState(() {
                               selectedCategory = value!;
@@ -297,7 +305,7 @@ class _AddItemState extends State<AddItem> {
                         ),
                         SizedBox(height: 20),
                         Label(
-                          text: "Expiry Date",
+                          text: AppLocalizations.of(context)!.expiryDate,
                           style: TextStyle(fontSize: 16),
                         ),
                         SizedBox(height: 5),
@@ -309,7 +317,7 @@ class _AddItemState extends State<AddItem> {
                         ),
                         SizedBox(height: 20),
                         Label(
-                          text: "Upload Image",
+                          text: AppLocalizations.of(context)!.uploadImage,
                           style: TextStyle(fontSize: 16),
                         ),
                         SizedBox(height: 5),
@@ -433,7 +441,7 @@ class _AddItemState extends State<AddItem> {
                   height: 40,
                   child: SaverButton(
                     isLoading: _isLoading,
-                    text: "Add Item",
+                    text: AppLocalizations.of(context)!.addItem,
                     onPressed: () {
                       setState(() {
                         _isLoading = true;
@@ -441,7 +449,8 @@ class _AddItemState extends State<AddItem> {
                       if (itemNameController.text.isEmpty) {
                         SaverSnackBar.show(
                           context: context,
-                          message: "Please enter item name",
+                          message:
+                              AppLocalizations.of(context)!.plaeseenterItemName,
                           isTrue: false,
                         );
                         setState(() {
@@ -451,7 +460,10 @@ class _AddItemState extends State<AddItem> {
                       } else if (selectedUnit == null) {
                         SaverSnackBar.show(
                           context: context,
-                          message: "Please select a unit type",
+                          message:
+                              AppLocalizations.of(
+                                context,
+                              )!.pleaseSelectAUnitType,
                           isTrue: false,
                         );
                         setState(() {
@@ -461,7 +473,8 @@ class _AddItemState extends State<AddItem> {
                       } else if (numberOfQuantity == 0) {
                         SaverSnackBar.show(
                           context: context,
-                          message: "Please enter quantity",
+                          message:
+                              AppLocalizations.of(context)!.pleaseEnterQuantity,
                           isTrue: false,
                         );
                         setState(() {
@@ -471,7 +484,10 @@ class _AddItemState extends State<AddItem> {
                       } else if (selectedCategory == "") {
                         SaverSnackBar.show(
                           context: context,
-                          message: "Please select a category",
+                          message:
+                              AppLocalizations.of(
+                                context,
+                              )!.pleaseSelectACategory,
                           isTrue: false,
                         );
                         setState(() {
@@ -519,7 +535,7 @@ class _AddItemState extends State<AddItem> {
       children: [
         Expanded(
           child: SaverButton(
-            text: "Move to Shopping List",
+            text: AppLocalizations.of(context)!.moveToShopping,
             onPressed:
                 () => SmartListSheet().showListSelector(
                   context,
@@ -530,7 +546,7 @@ class _AddItemState extends State<AddItem> {
         ),
         Expanded(
           child: SaverButton(
-            text: "Remove from list",
+            text: AppLocalizations.of(context)!.removeFromList,
             onPressed:
                 () => context.read<KitchenManagerBloc>().add(
                   RemoveItemEvent(

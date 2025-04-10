@@ -14,14 +14,14 @@ class AuthServices {
   static void verifyPhoneNumber(BuildContext context, String number) async {
     showLoadingDialog(context, 'Sending OTP...');
     await _firebaseAuth.verifyPhoneNumber(
-      phoneNumber: '+91 $number',
+      phoneNumber: '+965 $number',
       verificationCompleted: (PhoneAuthCredential credential) {
         Navigator.pop(context);
         signInWithPhoneNumber(
           context,
           credential.verificationId!,
           credential.smsCode!,
-          '+91 $number',
+          '+965 $number',
         );
       },
       verificationFailed: (FirebaseAuthException e) {
@@ -148,8 +148,12 @@ class AuthServices {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder:
-                (context) =>
-                    EditProfilePage(isEdit: false, phoneNumber: phoneNumber),
+                (context) => EditProfilePage(
+                  isEdit: false,
+                  phoneNumber: phoneNumber,
+                  email: "",
+                  isFromEmailLogin: false,
+                ),
           ),
           (route) => false,
         );
@@ -208,5 +212,125 @@ class AuthServices {
 
   static bool isDialogShowing(BuildContext context) {
     return ModalRoute.of(context)?.isCurrent != true;
+  }
+
+  static Future<void> resetPasswordWithEmail(
+    BuildContext context,
+    String email,
+  ) async {
+    try {
+      AuthServices.showLoadingDialog(context, 'Sending reset link...');
+
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
+
+      try {
+        Navigator.pop(context);
+      } catch (e) {
+        if (kDebugMode) {
+          print(e);
+        }
+      }
+
+      Navigator.of(context).pop();
+
+      SaverSnackBar.show(
+        context: context,
+        message: "Password reset email sent successfully",
+        isTrue: true,
+      );
+    } on FirebaseAuthException catch (e) {
+      try {
+        Navigator.pop(context);
+      } catch (dialogError) {
+        if (kDebugMode) {
+          print(dialogError);
+        }
+      }
+
+      String errorMessage = "Failed to send reset email";
+
+      if (e.code == 'user-not-found') {
+        errorMessage = 'No user found with this email address.';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'The email address is not valid.';
+      }
+
+      SaverSnackBar.show(
+        context: context,
+        message: errorMessage,
+        isTrue: false,
+      );
+
+      if (kDebugMode) {
+        print("Reset Password Error: ${e.code} - ${e.message}");
+      }
+    }
+  }
+
+  static Future<void> checkUserEmail(
+    BuildContext context,
+    String email,
+    String password,
+  ) async {
+    try {
+      final querySnapshot =
+          await Collections.users.where('email', isEqualTo: email).get();
+      if (querySnapshot.docs.isNotEmpty) {
+        final UserCredential userCredential = await FirebaseAuth.instance
+            .signInWithEmailAndPassword(email: email, password: password);
+        await HiveHelper.putUID(userCredential.user!.uid);
+        await HiveHelper.putisGuest(false);
+
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) => const MainScreen(currentIndex: 0),
+          ),
+          (route) => false,
+        );
+
+        SaverSnackBar.show(
+          context: context,
+          message: "Login Success",
+          isTrue: true,
+        );
+      } else {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder:
+                (context) => EditProfilePage(
+                  isEdit: false,
+                  phoneNumber: "",
+                  email: email,
+                  isFromEmailLogin: true,
+                  password: password,
+                ),
+          ),
+          (route) => false,
+        );
+        SaverSnackBar.show(
+          context: context,
+          message: "Welcome! Please complete your profile",
+          isTrue: true,
+        );
+      }
+    } catch (e) {
+      try {
+        Navigator.pop(context);
+      } catch (dialogError) {
+        if (kDebugMode) {
+          print(dialogError);
+        }
+      }
+
+      SaverSnackBar.show(
+        context: context,
+        message: "Error checking user profile",
+        isTrue: false,
+      );
+
+      if (kDebugMode) {
+        print("Database Error: $e");
+      }
+    }
   }
 }

@@ -10,6 +10,7 @@ class FoodSwapModel {
   final String? unit;
   final String? status;
   final String? uid;
+  final String? image;
   final List<AcceptedSwapItem>? requests;
   final DateTime? expiredDate;
 
@@ -22,6 +23,7 @@ class FoodSwapModel {
     this.status,
     this.uid,
     this.requests,
+    this.image,
     this.expiredDate,
   });
 
@@ -34,6 +36,7 @@ class FoodSwapModel {
       unit: map['unit'] ?? '',
       status: map['status'] ?? '',
       uid: map['uid'] ?? '',
+      image: map['item_image'] ?? '',
       requests:
           (map['requests'] as List<dynamic>?)
               ?.map(
@@ -59,6 +62,7 @@ class AcceptedSwapItem {
   final String? pickupTime;
   final String? swapedItemId;
   final DateTime? timestamp;
+  final String? image;
   final String? uid;
 
   const AcceptedSwapItem({
@@ -70,6 +74,8 @@ class AcceptedSwapItem {
     this.pickupTime,
     this.swapedItemId,
     this.timestamp,
+
+    this.image,
     this.uid,
   });
   factory AcceptedSwapItem.fromMap(Map<String, dynamic> map) {
@@ -81,6 +87,7 @@ class AcceptedSwapItem {
       pickupLocation: map['pickupLocation'] as String?,
       pickupTime: map['pickupTime'],
       swapedItemId: map['swapedItemId'] as String?,
+      image: map['item_image'] as String?,
       timestamp:
           map['timestamp'] != null
               ? (map['timestamp'] is Timestamp
@@ -101,6 +108,7 @@ class AcceptedSwapItem {
     String? pickupTime,
     String? swapedItemId,
     DateTime? timestamp,
+    String? image,
     String? uid,
   }) {
     return AcceptedSwapItem(
@@ -111,6 +119,7 @@ class AcceptedSwapItem {
       pickupTime: pickupTime ?? this.pickupTime,
       swapedItemId: swapedItemId ?? this.swapedItemId,
       timestamp: timestamp ?? this.timestamp,
+      image: this.image ?? this.image,
       uid: uid ?? this.uid,
     );
   }

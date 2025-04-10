@@ -10,6 +10,7 @@ import 'package:saver_bbk_main/modules/food_share/widgets/donnation_cards.dart';
 import 'package:saver_bbk_main/modules/food_share/widgets/role_section_dialog.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FoodShareAllPage extends StatefulWidget {
   const FoodShareAllPage({super.key, required this.onBack});
@@ -71,7 +72,7 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: saverAppBar(
-        "Food Share",
+        AppLocalizations.of(context)!.foodShare,
         context,
         iswhite: false,
         textColor: AppColor.white,
@@ -86,7 +87,7 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
                   MaterialPageRoute(builder: (context) => FoodShareHomePage()),
                 ),
             label: Label(
-              text: "My Requests",
+              text: AppLocalizations.of(context)!.myRequests,
               style: TextStyle(fontSize: 13, color: AppColor.white),
             ),
             icon: Icon(Icons.person_2, color: AppColor.white),
@@ -96,7 +97,6 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
       body: _buildBody(),
     );
   }
-
 
   Widget _buildBody() {
     return Padding(
@@ -134,7 +134,9 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
 
         final donerList = snapshot.data;
         if (donerList?.isEmpty ?? false) {
-          return Center(child: Text("No donations available."));
+          return Center(
+            child: Text(AppLocalizations.of(context)!.noDonationsFound),
+          );
         }
 
         return ListView.separated(
@@ -176,7 +178,9 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
         }
         final beneficiaryList = snapshot.data;
         if (beneficiaryList?.isEmpty ?? false) {
-          return Center(child: Text("No beneficiaries available."));
+          return Center(
+            child: Text(AppLocalizations.of(context)!.noBenificiaryFound),
+          );
         }
         return ListView.separated(
           itemCount: beneficiaryList?.length ?? 0,
@@ -200,42 +204,12 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          _tabController.index == 0 ? "Global Donations" : "Available Food",
+          _tabController.index == 0
+              ? AppLocalizations.of(context)!.globalDonations
+              : "Available Food",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
       ],
     );
   }
-}
-
-class DiagonalBackgroundPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    var paint = Paint();
-
-    Path topLeftPath =
-        Path()
-          ..moveTo(0, 0)
-          ..lineTo(size.width * 0.53, 0)
-          ..lineTo(size.width * 0.76, size.height)
-          ..lineTo(0, size.height)
-          ..close();
-
-    paint.color = Color(0xFFC9F5FF);
-    canvas.drawPath(topLeftPath, paint);
-
-    Path bottomRightPath =
-        Path()
-          ..moveTo(size.width, 0)
-          ..lineTo(size.width * 0.53, 0)
-          ..lineTo(size.width * 0.76, size.height)
-          ..lineTo(size.width, size.height)
-          ..close();
-
-    paint.color = Color(0xFF9EE9FA);
-    canvas.drawPath(bottomRightPath, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
@@ -6,6 +7,7 @@ import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
+import 'package:saver_bbk_main/services/storage_services.dart';
 
 part 'food_swap_event.dart';
 part 'food_swap_state.dart';
@@ -28,10 +30,17 @@ class FoodSwapBloc extends Bloc<FoodSwapEvent, FoodSwapState> {
     try {
       emit(FoodSwapLoading(isLoading: true));
       String foodswapId = Collections.foodSwap.doc().id;
+      final String imageUrl = await StorageService.uploadFile(
+        filePath: event.imageFile!.path,
+        fileName:
+            "swap_item_$foodswapId${DateTime.now().millisecondsSinceEpoch}",
+      );
+
       final updatedItem = {
         ...event.item.toMap(),
         'id': foodswapId,
         'status': 'P',
+        'item_image': imageUrl,
         'uid': HiveHelper.getUID(),
       };
       await Collections.foodSwap

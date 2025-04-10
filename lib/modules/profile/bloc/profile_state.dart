@@ -1,13 +1,21 @@
 part of 'profile_bloc.dart';
 
-@immutable
-sealed class ProfileState {}
+class ProfileState extends Equatable {
+  final Locale locale;
 
-final class ProfileInitial extends ProfileState {}
+  const ProfileState({this.locale = const Locale('en')});
+
+  ProfileState copyWith({Locale? locale}) {
+    return ProfileState(locale: locale ?? this.locale);
+  }
+
+  @override
+  List<Object?> get props => [locale];
+}
 
 class LogoutStateLoading extends ProfileState {
   final bool isLoading;
-  LogoutStateLoading({required this.isLoading});
+  const LogoutStateLoading({required this.isLoading});
   @override
   String toString() => 'LogoutStateLoading{isLoading: $isLoading}';
 }

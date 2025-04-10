@@ -8,6 +8,7 @@ import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/modules/zero_waste_challenges/bloc/challenge_bloc.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CleanPlateChallenge extends StatefulWidget {
   const CleanPlateChallenge({super.key});
@@ -24,7 +25,11 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: saverAppBar("Clean Plate Challenge", context, isneedtopop: true),
+      appBar: saverAppBar(
+        AppLocalizations.of(context)!.cleanPlateChallenge,
+        context,
+        isneedtopop: true,
+      ),
       body: BlocConsumer<ChallengeBloc, ChallengeState>(
         listener: (context, state) {
           if (state is BeforeUploadImageSuccessState) {
@@ -33,7 +38,8 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
             });
             SaverSnackBar.show(
               context: context,
-              message: "Before image uploaded successfully!",
+              message:
+                  AppLocalizations.of(context)!.beforeImageUploadedSuccessfully,
               isTrue: true,
             );
           } else if (state is BeforeUploadImageErrorState) {
@@ -49,7 +55,8 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
             });
             SaverSnackBar.show(
               context: context,
-              message: "After image uploaded successfully!",
+              message:
+                  AppLocalizations.of(context)!.afterImageUploadedSuccessfully,
               isTrue: true,
             );
           } else if (state is AfterUploadImageErrorState) {
@@ -93,13 +100,13 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                 children: [
                   _buildChallengeCard(),
                   _buildImageSection(
-                    "Upload before image",
+                    AppLocalizations.of(context)!.uploadBeforeImage,
                     _beforeImageFile,
                     true,
                     isBeforeLoading,
                   ),
                   _buildImageSection(
-                    "Upload after image",
+                    AppLocalizations.of(context)!.uploadAfterImage,
                     _afterImageFile,
                     false,
                     isAfterLoading,
@@ -113,7 +120,10 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(14),
         child: SaverButton(
-          text: _isSubmitting ? "Submitting..." : "Submit Challenge",
+          text:
+              _isSubmitting
+                  ? AppLocalizations.of(context)!.submitting
+                  : AppLocalizations.of(context)!.submitChallenge,
           color:
               (_beforeImageFile != null &&
                       _afterImageFile != null &&
@@ -168,7 +178,7 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                     ),
                     child: Center(
                       child: Text(
-                        "+10 points",
+                        AppLocalizations.of(context)!.tenpoints,
                         style: TextStyle(fontSize: 12, color: AppColor.white),
                       ),
                     ),
@@ -178,19 +188,23 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
             ),
             Divider(color: Colors.grey.shade200, thickness: 2),
             Text(
-              "Finish your entire meal without leftovers and upload a before & after photo.",
+              AppLocalizations.of(context)!.finishYourEntireMeal,
               style: TextStyle(color: Colors.grey.shade600),
             ),
             const SizedBox(height: 12),
             Text(
-              "Steps to Complete",
+              AppLocalizations.of(context)!.stepsToComplete,
               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
             ),
             const SizedBox(height: 8),
-            bulletText("Take a \"before\" photo of your full plate."),
-            bulletText("Enjoy your meal!"),
-            bulletText("Take an \"after\" photo of your clean plate."),
-            bulletText("Submit for verification!"),
+            bulletText(
+              AppLocalizations.of(context)!.takeABeforePhotoOfYourFullPlate,
+            ),
+            bulletText(AppLocalizations.of(context)!.enjoyYourMeal),
+            bulletText(
+              AppLocalizations.of(context)!.takeAnAfterPhotoOfYourCleanPlate,
+            ),
+            bulletText(AppLocalizations.of(context)!.submitForVerification),
             const SizedBox(height: 12),
           ],
         ),
@@ -227,7 +241,7 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  "Uploading...",
+                  AppLocalizations.of(context)!.uploading,
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColor.primaryColor,
@@ -260,7 +274,10 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                   } else {
                     SaverSnackBar.show(
                       context: context,
-                      message: "Please upload the before image first",
+                      message:
+                          AppLocalizations.of(
+                            context,
+                          )!.pleaseUploadTheBeforeImageFirst,
                       isTrue: false,
                     );
                   }
@@ -292,7 +309,7 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
             ),
             const SizedBox(height: 8),
             Text(
-              "Processing",
+              AppLocalizations.of(context)!.processing,
               style: TextStyle(fontSize: 12, color: AppColor.primaryColor),
             ),
           ],
@@ -383,7 +400,7 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
             child: Column(
               children: [
                 Text(
-                  "Congratulations!",
+                  AppLocalizations.of(context)!.congratulations,
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
@@ -401,7 +418,7 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: SaverButton(
-                        text: "Back",
+                        text: AppLocalizations.of(context)!.back,
                         onPressed: () {
                           Navigator.pop(context);
                           context.read<ChallengeBloc>().add(

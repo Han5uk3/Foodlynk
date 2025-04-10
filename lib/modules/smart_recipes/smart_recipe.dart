@@ -5,6 +5,7 @@ import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/models/smart_recipe_model.dart';
 import 'package:saver_bbk_main/modules/smart_recipes/smart_recipe_result_page.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class GenerateRecipePage extends StatefulWidget {
   final VoidCallback onBack;
@@ -103,7 +104,7 @@ class _GenerateRecipePageState extends State<GenerateRecipePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: saverAppBar(
-        "Generate new Recipe",
+        AppLocalizations.of(context)!.generateNewRecipe,
         context,
         isneedtopop: true,
         onpop: widget.onBack,
@@ -115,8 +116,10 @@ class _GenerateRecipePageState extends State<GenerateRecipePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'NOTE : Your kitchen must have at least 5 items to generate a recipe.',
+                Text(
+                  AppLocalizations.of(
+                    context,
+                  )!.noteYourKitchenMustHaveAtLeastFive,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -124,8 +127,8 @@ class _GenerateRecipePageState extends State<GenerateRecipePage> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Select Ingredients (Choose at least 5)',
+                Text(
+                  AppLocalizations.of(context)!.selectIngredients,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
@@ -202,8 +205,8 @@ class _GenerateRecipePageState extends State<GenerateRecipePage> {
                                 strokeWidth: 2,
                               ),
                             )
-                            : const Text(
-                              'Generate Recipe',
+                            : Text(
+                              AppLocalizations.of(context)!.generateRecipe,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -225,8 +228,8 @@ class _GenerateRecipePageState extends State<GenerateRecipePage> {
                   children: [
                     SaverLoader(),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Generating your recipe...',
+                    Text(
+                      AppLocalizations.of(context)!.generatingYourRecipe,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,

@@ -7,6 +7,7 @@ import 'package:saver_bbk_main/modules/community/chat_page.dart';
 import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CommunityPage extends StatelessWidget {
   const CommunityPage({super.key});
@@ -14,7 +15,11 @@ class CommunityPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: saverAppBar("Community", context, isneedtopop: false),
+      appBar: saverAppBar(
+        AppLocalizations.of(context)!.community,
+        context,
+        isneedtopop: false,
+      ),
       body: BlocListener<CommunityBloc, CommunityState>(
         listener: (context, state) {
           if (state.status == ChatStatus.goToChatPage) {
@@ -58,7 +63,9 @@ class CommunityPage extends StatelessWidget {
     final userDetails = state.userDetails;
 
     if (rooms.isEmpty) {
-      return const Center(child: Text("No chat rooms found"));
+      return Center(
+        child: Text(AppLocalizations.of(context)!.nochatRoomsFound),
+      );
     }
     return ListView.builder(
       itemCount: rooms.length,

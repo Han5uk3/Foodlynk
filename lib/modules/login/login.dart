@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
 import 'package:saver_bbk_main/modules/home/home.dart';
+import 'package:saver_bbk_main/modules/login/login_with_password.dart';
 import 'package:saver_bbk_main/services/auth_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -73,8 +76,8 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Login Using Mobile Number',
+          Text(
+            AppLocalizations.of(context)!.loginUsingMobileNumber,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -92,12 +95,16 @@ class _LoginPageState extends State<LoginPage> {
             ),
             child: TextField(
               controller: _phoneController,
-              maxLength: 10,
+              maxLength: 8,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(8),
+              ],
               keyboardType: TextInputType.phone,
               decoration: const InputDecoration(
                 counterText: "",
-                hintText: 'Enter 10 digit mobile number',
-                prefixText: '+91 - ',
+                hintText: 'Enter 8 digit mobile number',
+                prefixText: '+965 - ',
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 10,
@@ -131,8 +138,8 @@ class _LoginPageState extends State<LoginPage> {
               ),
               GestureDetector(
                 onTap: () {},
-                child: const Text(
-                  'Terms & Conditions',
+                child:  Text(
+                  AppLocalizations.of(context)!.termsAndConditions,
                   style: TextStyle(color: AppColor.primaryColor),
                 ),
               ),
@@ -144,8 +151,14 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               Expanded(
                 child: SaverOutlineButton(
-                  onPressed: () {},
-                  text: "Login with Password",
+                  onPressed:
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginWithPassword(),
+                        ),
+                      ),
+                  text: AppLocalizations.of(context)!.loginWithPassword,
                   style: TextStyle(fontSize: 13, color: AppColor.primaryColor),
                 ),
               ),
@@ -153,10 +166,7 @@ class _LoginPageState extends State<LoginPage> {
               Expanded(
                 child: SaverButton(
                   onPressed: () {
-                    if ((_phoneController.text.length == 10 &&
-                        RegExp(
-                          r'^[0-9]{10}$',
-                        ).hasMatch(_phoneController.text))) {
+                    if (_phoneController.text.length == 8) {
                       _isChecked
                           ? AuthServices.verifyPhoneNumber(
                             context,
@@ -164,29 +174,29 @@ class _LoginPageState extends State<LoginPage> {
                           )
                           : SaverSnackBar.show(
                             context: context,
-                            message: "Please accept our terms and conditions",
+                            message: AppLocalizations.of(context)!.pleaseAcceptOurTermsAndConditions,
                             isTrue: false,
                           );
                     } else {
                       SaverSnackBar.show(
                         context: context,
-                        message: "Enter valid mobile number",
+                        message:AppLocalizations.of(context)!.enterMobileNumber,
                         isTrue: false,
                       );
                     }
                   },
-                  text: "OTP",
+                  text: AppLocalizations.of(context)!.otp,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 25),
-          const Row(
+           Row(
             children: [
               Expanded(child: Divider()),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Text('OR', style: TextStyle(color: Colors.grey)),
+                child: Text(AppLocalizations.of(context)!.or, style: TextStyle(color: Colors.grey)),
               ),
               Expanded(child: Divider()),
             ],
@@ -196,8 +206,8 @@ class _LoginPageState extends State<LoginPage> {
           Center(
             child: GestureDetector(
               onTap: _continueAsGuest,
-              child: const Text(
-                'Continue as Guest',
+              child:  Text(
+                AppLocalizations.of(context)!.continueAsGuest,
                 style: TextStyle(color: AppColor.primaryColor),
               ),
             ),

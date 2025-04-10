@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
@@ -13,10 +13,21 @@ part 'profile_event.dart';
 part 'profile_state.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
-  ProfileBloc() : super(ProfileInitial()) {
+  ProfileBloc() : super(ProfileState()) {
+    on<ChangeLocale>(_onChangeLocale);
     on<LogoutEvent>(_logout);
     on<CreateProfileEvent>(_createProfile);
     on<EditProfileEvent>(_editProfile);
+  }
+
+  static Locale getSavedLocale() {
+    String languageCode = HiveHelper().getUserlanguage();
+    return Locale(languageCode);
+  }
+
+  void _onChangeLocale(ChangeLocale event, Emitter<ProfileState> emit) {
+    HiveHelper().putUserlanguage(event.languageCode);
+    emit(state.copyWith(locale: Locale(event.languageCode)));
   }
 
   void _logout(LogoutEvent event, Emitter<ProfileState> emit) async {
@@ -46,12 +57,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         address: event.address,
         gender: event.gender,
         dob: event.dob,
-        nationality: event.nationality,
-        country: event.country,
-        state: event.state,
-        city: event.city,
         zipCode: event.zipCode,
         points: 0,
+        profileImage: event.profileImage,
         createdAt: DateTime.now(),
       );
       try {
@@ -59,6 +67,14 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
             .doc(FirebaseAuth.instance.currentUser!.uid)
             .set(userData.toFirestore())
             .then((value) async {
+              if (event.isEmailLogin) {
+                final UserCredential userCredential = await FirebaseAuth
+                    .instance
+                    .createUserWithEmailAndPassword(
+                      email: event.email,
+                      password: event.password ?? "",
+                    );
+              }
               await HiveHelper.putUID(FirebaseAuth.instance.currentUser!.uid);
               emit(CreateProfileSuccessState());
             });
@@ -78,9 +94,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
             .doc(event.userModel.uid)
             .update({
               'address': event.userModel.address,
-              'city': event.userModel.city,
-              'country': event.userModel.country,
-              'state': event.userModel.state,
               'zipCode': event.userModel.zipCode,
               'title': event.userModel.title,
               'firstName': event.userModel.firstName,
@@ -89,7 +102,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
               'email': event.userModel.email,
               'gender': event.userModel.gender,
               'dob': event.userModel.dob,
-              'nationality': event.userModel.nationality,
+              'profileImage': event.userModel.profileImage,
             })
             .then((value) {
               emit(EditProfileSuccessState());

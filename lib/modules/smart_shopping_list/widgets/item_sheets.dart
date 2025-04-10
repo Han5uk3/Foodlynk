@@ -11,6 +11,7 @@ import 'package:saver_bbk_main/modules/kitchen_management/add_item.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SmartListSheet {
   void showEditBottomSheet(
@@ -42,6 +43,7 @@ class SmartListSheet {
         ),
       ),
       builder: (context) {
+        bool isListNameEmpty = false;
         return Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -52,7 +54,7 @@ class SmartListSheet {
                 Navigator.pop(context);
                 SaverSnackBar.show(
                   context: context,
-                  message: "Item added successfully",
+                  message: AppLocalizations.of(context)!.itemAddedSuccessfully,
                   isTrue: true,
                 );
               }
@@ -68,7 +70,8 @@ class SmartListSheet {
                 Navigator.pop(context);
                 SaverSnackBar.show(
                   context: context,
-                  message: "Item purchased successfully",
+                  message:
+                      AppLocalizations.of(context)!.itemPurchasedSuccessfully,
                   isTrue: true,
                 );
               }
@@ -100,7 +103,8 @@ class SmartListSheet {
                 Navigator.pop(context);
                 SaverSnackBar.show(
                   context: context,
-                  message: "List name changed successfully",
+                  message:
+                      AppLocalizations.of(context)!.listNameChangedSuccessfully,
                   isTrue: true,
                 );
               }
@@ -131,8 +135,10 @@ class SmartListSheet {
                             isItem
                                 ? isView
                                     ? items?.name ?? "N/A"
-                                    : "Add New Item"
-                                : "Edit Shopping List",
+                                    : AppLocalizations.of(context)!.addNewItem
+                                : AppLocalizations.of(
+                                  context,
+                                )!.editShoppingList,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -156,7 +162,12 @@ class SmartListSheet {
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       child: Padding(
                         padding: const EdgeInsets.only(top: 14),
-                        child: Label(text: isItem ? "Item Name" : "List Name"),
+                        child: Label(
+                          text:
+                              isItem
+                                  ? AppLocalizations.of(context)!.itemName
+                                  : AppLocalizations.of(context)!.listName,
+                        ),
                       ),
                     ),
                     IgnorePointer(
@@ -168,17 +179,29 @@ class SmartListSheet {
                         ),
                         child: SaverTextField(
                           hintText:
-                              isItem ? "Enter Item Name" : "Weekly Grocery",
+                              isItem
+                                  ? AppLocalizations.of(context)!.enterItemName
+                                  : AppLocalizations.of(context)!.weeklyGrocery,
                           controller: itemNameController,
                         ),
                       ),
                     ),
-
+                    if (isListNameEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        child: Text(
+                          "Please enter a list name",
+                          style: TextStyle(color: Colors.red, fontSize: 12),
+                        ),
+                      ),
                     // Quantity & Unit Section (Only for items)
                     if (isItem) ...[
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 14),
-                        child: Text("Quantity", style: TextStyle(fontSize: 16)),
+                        child: Text(
+                          AppLocalizations.of(context)!.quantity,
+                          style: TextStyle(fontSize: 16),
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -192,7 +215,7 @@ class SmartListSheet {
                               child: SaverDropdown(
                                 items: units,
                                 selectedItem: selectedUnit,
-                                hint: "Choose",
+                                hint: AppLocalizations.of(context)!.choose,
                                 onChanged: (value) {
                                   if (value != null) {
                                     setState(() => selectedUnit = value);
@@ -231,14 +254,15 @@ class SmartListSheet {
                           vertical: 14,
                         ),
                         child: Text(
-                          "Note: When an item is purchased, it will be moved to the kitchen manager for tracking!",
+                          AppLocalizations.of(
+                            context,
+                          )!.noteWhenanItemIsPurchased,
                           maxLines: 2,
                           softWrap: true,
                           textAlign: TextAlign.justify,
                           style: TextStyle(color: AppColor.primaryColor),
                         ),
                       ),
-
                     // Action Buttons
                     Padding(
                       padding: const EdgeInsets.symmetric(
@@ -253,7 +277,10 @@ class SmartListSheet {
                                     children: [
                                       Expanded(
                                         child: SaverButton(
-                                          text: "Purchased",
+                                          text:
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.purchased,
                                           isLoading:
                                               state
                                                   is PurchasedItemLoadingState,
@@ -275,7 +302,10 @@ class SmartListSheet {
                                       SizedBox(width: 12),
                                       Expanded(
                                         child: SaverButton(
-                                          text: "Remove from List",
+                                          text:
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.removeFromList,
                                           isLoading:
                                               state
                                                   is RemoveItemFromSmartListLoadingState,
@@ -296,8 +326,12 @@ class SmartListSheet {
                                   : SaverButton(
                                     text:
                                         (isFromKitchen ?? false)
-                                            ? "Move to Shopping List"
-                                            : "Add Item",
+                                            ? AppLocalizations.of(
+                                              context,
+                                            )!.moveToShopping
+                                            : AppLocalizations.of(
+                                              context,
+                                            )!.addItem,
                                     isLoading:
                                         state
                                             is NewItemAddedToListLoadingState ||
@@ -322,22 +356,41 @@ class SmartListSheet {
                                                             false,
                                                       ),
                                                     )
-                                                : context
-                                                    .read<SmartShoppingBloc>()
-                                                    .add(
-                                                      AddNewItemSmartShoppingEvent(
-                                                        listId: listId ?? "",
-                                                        itemName:
-                                                            itemNameController
-                                                                .text
-                                                                .trim(),
-                                                        itemQuantity: quantity,
-                                                        itemUnit: selectedUnit,
-                                                      ),
-                                                    ),
+                                                : () {
+                                                  final name =
+                                                      itemNameController.text
+                                                          .trim();
+                                                  if (name.isEmpty) {
+                                                    setState(
+                                                      () =>
+                                                          isListNameEmpty =
+                                                              true,
+                                                    );
+                                                    return;
+                                                  }
+                                                  setState(
+                                                    () =>
+                                                        isListNameEmpty = false,
+                                                  );
+                                                  context
+                                                      .read<SmartShoppingBloc>()
+                                                      .add(
+                                                        AddNewItemSmartShoppingEvent(
+                                                          listId: listId ?? "",
+                                                          itemName:
+                                                              itemNameController
+                                                                  .text
+                                                                  .trim(),
+                                                          itemQuantity:
+                                                              quantity,
+                                                          itemUnit:
+                                                              selectedUnit,
+                                                        ),
+                                                      );
+                                                },
                                   )
                               : SaverButton(
-                                text: "Save Changes",
+                                text: AppLocalizations.of(context)!.saveChanges,
                                 isLoading: state is ListNameChangedLoadingState,
                                 onPressed:
                                     () => context.read<SmartShoppingBloc>().add(
@@ -435,7 +488,7 @@ class SmartListSheet {
                                       horizontal: 12,
                                     ),
                                     child: Text(
-                                      "Select a list",
+                                      AppLocalizations.of(context)!.selectAList,
                                       style: TextStyle(fontSize: 16),
                                     ),
                                   ),
@@ -454,12 +507,15 @@ class SmartListSheet {
                                   ),
                                   if (showAlert)
                                     Text(
-                                      "Please select a list",
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.pleaseSelectAList,
                                       style: TextStyle(color: Colors.red),
                                     ),
                                   SizedBox(height: 15),
                                   SaverButton(
-                                    text: "Add to list",
+                                    text:
+                                        AppLocalizations.of(context)!.addToList,
                                     onPressed: () {
                                       if ((selectedListName?.isEmpty ??
                                               false) ||

@@ -14,6 +14,7 @@ import 'package:saver_bbk_main/models/food_swap_model.dart';
 import 'package:saver_bbk_main/modules/food_swap/bloc/food_swap_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FoodSwapRequest extends StatefulWidget {
   const FoodSwapRequest({super.key, required this.items});
@@ -58,7 +59,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: saverAppBar(
-        "Food Swap Request",
+        AppLocalizations.of(context)!.foodSwapRequest,
         context,
 
         isneedtopop: true,
@@ -97,19 +98,19 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                 ),
                 SizedBox(height: 20),
                 Text(
-                  "Your Swap Item",
+                  AppLocalizations.of(context)!.yourSwapItem,
                   style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                 ),
                 SizedBox(height: 10),
                 _buildSwapItemDropdown(),
                 SizedBox(height: 20),
                 Text(
-                  "Pickup Location",
+                  AppLocalizations.of(context)!.pickupLocation,
                   style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                 ),
                 SizedBox(height: 10),
                 SaverTextField(
-                  hintText: "Enter pickup location",
+                  hintText: AppLocalizations.of(context)!.enterPickupLocation,
                   controller: locationController,
                   suffixIcon: Icons.location_on_outlined,
                   suffixIconColor: AppColor.black,
@@ -151,7 +152,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
           return Padding(
             padding: const EdgeInsets.only(left: 14, right: 14, bottom: 24),
             child: SaverButton(
-              text: "Submit Swap Request",
+              text: AppLocalizations.of(context)!.submitSwapRequest,
               isLoading: state is RequestFoodSwapLoadingState,
               onPressed: () {
                 if (selectedItem == null ||
@@ -160,7 +161,8 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                     selectedTime == null) {
                   SaverSnackBar.show(
                     context: context,
-                    message: "Please fill in all fields",
+                    message:
+                        AppLocalizations.of(context)!.pleaseFillInAllFields,
                     isTrue: false,
                   );
                   return;
@@ -201,7 +203,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
         List<String> dropdownItems =
             items.isNotEmpty
                 ? items.map((item) => item.name ?? "No Name").toList()
-                : ["No items available"];
+                : [AppLocalizations.of(context)!.noItemAvailable];
 
         String defaultValue =
             dropdownItems.contains(selectedItem)
@@ -287,7 +289,9 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
           height: 27,
           child: Center(
             child: Text(
-              isPending ? "pending" : "available",
+              isPending
+                  ? AppLocalizations.of(context)!.pending
+                  : AppLocalizations.of(context)!.available,
               style: TextStyle(
                 fontSize: 12,
                 color: isPending ? AppColor.yellow : AppColor.green,
@@ -309,7 +313,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
           child: loadsvg("assets/icons/expiry.svg"),
         ),
         Text(
-          " Expiry Date: ${DateFormatHelper.ddmmyyyy(items.expiredDate ?? DateTime.now())}",
+          " ${AppLocalizations.of(context)!.expiryDate}: ${DateFormatHelper.ddmmyyyy(items.expiredDate ?? DateTime.now())}",
           style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
         ),
       ],
@@ -340,7 +344,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
           child: Icon(size: 14, Icons.list_outlined, color: AppColor.red),
         ),
         Text(
-          " Quantity: ${items.quantity}",
+          " ${AppLocalizations.of(context)!.quantity}: ${items.quantity}",
           style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
         ),
       ],
@@ -385,7 +389,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                 children: [
                   Expanded(
                     child: SaverOutlineButton(
-                      text: "Cancel",
+                      text: AppLocalizations.of(context)!.cancel,
                       borderColor: AppColor.red,
                       textColor: AppColor.red,
                       onPressed: () {
@@ -396,7 +400,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                   SizedBox(width: 10),
                   Expanded(
                     child: SaverButton(
-                      text: "Done",
+                      text:AppLocalizations.of(context)!.done,
                       onPressed: () {
                         Navigator.pop(context);
                         setState(() {

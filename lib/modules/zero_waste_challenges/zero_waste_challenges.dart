@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/modules/zero_waste_challenges/clean_plate_challenge.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class ZeroWasteChallenges extends StatefulWidget {
@@ -20,7 +19,7 @@ class _ZeroWasteChallengesState extends State<ZeroWasteChallenges> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: saverAppBar(
-        "Zero Waste Challenges",
+        AppLocalizations.of(context)!.zeroWasteChallenges,
         context,
         iconColor: AppColor.white,
         textColor: AppColor.white,
@@ -34,59 +33,9 @@ class _ZeroWasteChallengesState extends State<ZeroWasteChallenges> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Card(
-              shape: RoundedRectangleBorder(
-                side: BorderSide(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              elevation: 2,
-              child: CustomPaint(
-                painter: DiagonalBackgroundPainter(),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  height: 100,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 14),
-                          child: Text(
-                            "Total points",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 14),
-                          child: Row(
-                            children: [
-                              loadsvg("assets/icons/coin.svg"),
-                              Text(
-                                " 10",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 35),
+            SizedBox(height: 15),
             Text(
-              "Take a challenge, save food, and earn rewards",
+              AppLocalizations.of(context)!.takeAChallengeSaveFoodAndEarnReward,
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 20),
@@ -129,7 +78,9 @@ class _ZeroWasteChallengesState extends State<ZeroWasteChallenges> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  "Clean Plate Challenge",
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.cleanPlateChallenge,
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
@@ -145,7 +96,7 @@ class _ZeroWasteChallengesState extends State<ZeroWasteChallenges> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      "+10 points",
+                                      AppLocalizations.of(context)!.tenpoints,
                                       style: TextStyle(
                                         color: AppColor.white,
                                         fontSize: 12,
@@ -159,7 +110,9 @@ class _ZeroWasteChallengesState extends State<ZeroWasteChallenges> {
                             Padding(
                               padding: const EdgeInsets.only(right: 12),
                               child: Text(
-                                "Finish your entire meal without leftovers and upload a before & after photo.",
+                                AppLocalizations.of(
+                                  context,
+                                )!.finishYourEntireMeal,
                                 style: TextStyle(fontSize: 12),
                               ),
                             ),

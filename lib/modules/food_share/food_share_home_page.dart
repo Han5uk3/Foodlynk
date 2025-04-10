@@ -8,6 +8,7 @@ import 'package:saver_bbk_main/modules/food_share/donation_details.dart';
 import 'package:saver_bbk_main/modules/food_share/widgets/donnation_cards.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FoodShareHomePage extends StatefulWidget {
   const FoodShareHomePage({super.key});
@@ -54,7 +55,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: saverAppBar(
-        "My Donations & Requests",
+        AppLocalizations.of(context)!.myDonationsRequests,
         context,
         iswhite: true,
 
@@ -82,7 +83,10 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("New", style: TextStyle(fontSize: 18)),
+                      Text(
+                        AppLocalizations.of(context)!.newText,
+                        style: TextStyle(fontSize: 18),
+                      ),
                       GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
@@ -95,7 +99,10 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
                 Divider(color: Colors.grey.shade300, thickness: 2),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 14),
-                  child: Text("Choose Role", style: TextStyle(fontSize: 18)),
+                  child: Text(
+                    AppLocalizations.of(context)!.chooseRole,
+                    style: TextStyle(fontSize: 18),
+                  ),
                 ),
                 SizedBox(height: 35),
                 Padding(
@@ -108,7 +115,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
                               isDonor
                                   ? AppColor.primaryColor
                                   : AppColor.lightGrey200,
-                          text: "Donor",
+                          text: AppLocalizations.of(context)!.donor,
                           borderColor:
                               isDonor
                                   ? AppColor.primaryColor
@@ -127,7 +134,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
                               isDonor
                                   ? AppColor.lightGrey
                                   : AppColor.primaryColor,
-                          text: "Beneficiary",
+                          text: AppLocalizations.of(context)!.beneficiary,
                           textColor:
                               isDonor
                                   ? AppColor.lightGrey200
@@ -146,7 +153,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   child: SaverButton(
-                    text: "Continue",
+                    text: AppLocalizations.of(context)!.continueText,
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -207,7 +214,9 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
         if (snapshot.hasError ||
             snapshot.data == null ||
             snapshot.data!.isEmpty) {
-          return Center(child: Text("No Donations found"));
+          return Center(
+            child: Text(AppLocalizations.of(context)!.noDonationsFound),
+          );
         }
         final donations = snapshot.data!;
         return ListView.separated(
@@ -238,7 +247,9 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
         if (snapshot.hasError ||
             snapshot.data == null ||
             snapshot.data!.isEmpty) {
-          return Center(child: Text("No Benificiary found"));
+          return Center(
+            child: Text(AppLocalizations.of(context)!.noBenificiaryFound),
+          );
         }
         final benificiary = snapshot.data!;
 
@@ -270,7 +281,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
         children: [
           Expanded(
             child: _buildTabButton(
-              "Donor",
+              AppLocalizations.of(context)!.donor,
               AppColor.appbarColor,
               AppColor.lightAppbarColor,
               0,
@@ -278,7 +289,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
           ),
           Expanded(
             child: _buildTabButton(
-              "Beneficiary",
+              AppLocalizations.of(context)!.beneficiary,
               AppColor.green500,
               AppColor.lightGreen100,
               1,
@@ -294,7 +305,9 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          _tabController.index == 0 ? "Donor" : "Beneficiary",
+          _tabController.index == 0
+              ? AppLocalizations.of(context)!.donor
+              : AppLocalizations.of(context)!.beneficiary,
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
       ],
@@ -335,36 +348,4 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
       ),
     );
   }
-}
-
-class DiagonalBackgroundPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    var paint = Paint();
-
-    Path topLeftPath =
-        Path()
-          ..moveTo(0, 0)
-          ..lineTo(size.width * 0.53, 0)
-          ..lineTo(size.width * 0.76, size.height)
-          ..lineTo(0, size.height)
-          ..close();
-
-    paint.color = Color(0xFFC9F5FF);
-    canvas.drawPath(topLeftPath, paint);
-
-    Path bottomRightPath =
-        Path()
-          ..moveTo(size.width, 0)
-          ..lineTo(size.width * 0.53, 0)
-          ..lineTo(size.width * 0.76, size.height)
-          ..lineTo(size.width, size.height)
-          ..close();
-
-    paint.color = Color(0xFF9EE9FA);
-    canvas.drawPath(bottomRightPath, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

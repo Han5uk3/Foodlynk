@@ -17,6 +17,7 @@ import 'package:saver_bbk_main/modules/kitchen_management/widgets/food_expiry_tr
 import 'package:saver_bbk_main/modules/smart_shopping_list/widgets/item_sheets.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class KitchenManager extends StatefulWidget {
   final VoidCallback onBack;
@@ -127,11 +128,12 @@ class _KitchenManagerState extends State<KitchenManager> {
       int days = expiredDate.difference(DateTime.now()).inDays;
       if (selectedFilter.isNotEmpty) {
         if (selectedFilter == "Expired") {
-          matchesFilter = days < 0;
+          matchesFilter = days < 0; // Expired when days < 0
         } else if (selectedFilter == "Expiring Soon") {
-          matchesFilter = days >= 0 && days <= 2;
+          matchesFilter =
+              days >= 0 && days <= 3; // Expiring Soon when 0 <= days <= 3
         } else if (selectedFilter == "Fresh") {
-          matchesFilter = days >= 3;
+          matchesFilter = days > 3; // Fresh when days > 3
         }
       }
       bool matchesSearch =
@@ -160,7 +162,7 @@ class _KitchenManagerState extends State<KitchenManager> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: saverAppBar(
-        'Kitchen Manager',
+        AppLocalizations.of(context)!.kitchenManager,
         textColor: AppColor.white,
         iconColor: AppColor.white,
         context,
@@ -183,7 +185,7 @@ class _KitchenManagerState extends State<KitchenManager> {
           }
           SaverSnackBar.show(
             context: context,
-            message: "Item removed",
+            message: AppLocalizations.of(context)!.itemRemoved,
             isTrue: true,
           );
         }
@@ -255,7 +257,7 @@ class _KitchenManagerState extends State<KitchenManager> {
                       )
                       : Icon(Icons.search, color: Colors.grey.shade600),
               hintStyle: TextStyle(color: AppColor.lightGrey200),
-              hintText: "search items",
+              hintText: AppLocalizations.of(context)!.serachItems,
             ),
             onTap: () {
               if (selectedFilter.isNotEmpty) {
@@ -278,21 +280,21 @@ class _KitchenManagerState extends State<KitchenManager> {
         Expanded(
           child: _buildFilterButton(
             AppColor.red,
-            "Expired",
+            AppLocalizations.of(context)!.expired,
             Icons.sentiment_neutral_outlined,
           ),
         ),
         Expanded(
           child: _buildFilterButton(
             AppColor.pointColor,
-            "Expiring Soon",
+            AppLocalizations.of(context)!.expiringSoon,
             Icons.sentiment_satisfied_alt_outlined,
           ),
         ),
         Expanded(
           child: _buildFilterButton(
             AppColor.green,
-            "Fresh",
+            AppLocalizations.of(context)!.fresh,
             Icons.sentiment_very_satisfied_outlined,
           ),
         ),
@@ -303,7 +305,7 @@ class _KitchenManagerState extends State<KitchenManager> {
   Widget _buildFilterTitle(List<Items> filteredItems) {
     return Text(
       selectedFilter.isEmpty && searchQuery.isEmpty
-          ? "All Items"
+          ? AppLocalizations.of(context)!.allItems
           : searchQuery.isNotEmpty && selectedFilter.isNotEmpty
           ? "Search Results for '$searchQuery' in $selectedFilter Items"
           : searchQuery.isNotEmpty
@@ -500,9 +502,9 @@ class _KitchenManagerState extends State<KitchenManager> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         color:
-            days <= 0
+            days < 0
                 ? AppColor.lightRed
-                : days > 0 && days < 3
+                : days >= 0 && days <= 3
                 ? AppColor.lightYellow
                 : AppColor.greenshade,
       ),
@@ -514,16 +516,16 @@ class _KitchenManagerState extends State<KitchenManager> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
-              days <= 0
+              days < 0
                   ? Icons.sentiment_neutral_outlined
-                  : days > 0 && days < 3
+                  : days >= 0 && days <= 3
                   ? Icons.sentiment_satisfied_alt_outlined
                   : Icons.sentiment_very_satisfied_outlined,
               size: 14,
               color:
-                  days <= 0
+                  days < 0
                       ? AppColor.red
-                      : days > 0 && days < 3
+                      : days >= 0 && days <= 3
                       ? AppColor.yellow
                       : AppColor.green,
             ),
@@ -532,9 +534,9 @@ class _KitchenManagerState extends State<KitchenManager> {
               style: TextStyle(
                 fontSize: 12,
                 color:
-                    days <= 0
+                    days < 0
                         ? AppColor.red
-                        : days > 0 && days < 3
+                        : days >= 0 && days <= 3
                         ? AppColor.yellow
                         : AppColor.green,
               ),

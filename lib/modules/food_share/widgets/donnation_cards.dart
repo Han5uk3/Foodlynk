@@ -9,6 +9,7 @@ import 'package:saver_bbk_main/modules/food_share/bloc/food_share_bloc.dart';
 import 'package:saver_bbk_main/modules/food_share/donation_details.dart';
 import 'package:saver_bbk_main/modules/food_share/widgets/sheet.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DonnationCards extends StatefulWidget {
   final DonationModel item;
@@ -56,7 +57,7 @@ class _DonnationCardsState extends State<DonnationCards> {
     SaverSnackBar.show(
       context: context,
       message:
-          "You are already in queue. Please wait until your interest is accepted.",
+          AppLocalizations.of(context)!.youAreAlreadyInQueuePleaseWaitUntil,
       isTrue: true,
     );
   }
@@ -243,7 +244,10 @@ class _DonnationCardsState extends State<DonnationCards> {
 
           SaverSnackBar.show(
             context: context,
-            message: isInterested ? "Request Sent" : "Request Withdrawn",
+            message:
+                isInterested
+                    ? AppLocalizations.of(context)!.requestSent
+                    : "Request Withdrawn",
             isTrue: true,
           );
           return;
@@ -292,7 +296,9 @@ class _DonnationCardsState extends State<DonnationCards> {
               size: 18,
             ),
             label: Text(
-              isInterested ? "Interested" : "I'm Interested",
+              isInterested
+                  ? "Interested"
+                  : AppLocalizations.of(context)!.imInterested,
               style: TextStyle(
                 fontWeight: FontWeight.w500,
                 color: isInterested ? Colors.white : AppColor.blue,
@@ -344,7 +350,9 @@ class _DonnationCardsState extends State<DonnationCards> {
               ),
               SizedBox(width: 4),
               Text(
-                isPending ? "Pending" : "Picked",
+                isPending
+                    ? AppLocalizations.of(context)!.pending
+                    : AppLocalizations.of(context)!.picked,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -370,7 +378,7 @@ class _DonnationCardsState extends State<DonnationCards> {
         SizedBox(width: 6),
         Expanded(
           child: Text(
-            "Donated On: ${DateFormatHelper.ddmmyyyy(widget.item.createdAt ?? DateTime.now())}",
+            "${AppLocalizations.of(context)!.donatedOn} ${DateFormatHelper.ddmmyyyy(widget.item.createdAt ?? DateTime.now())}",
             style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
           ),
         ),
@@ -390,7 +398,7 @@ class _DonnationCardsState extends State<DonnationCards> {
         SizedBox(width: 6),
         Expanded(
           child: Text(
-            "Received On: ${DateFormatHelper.ddmmyyyy(widget.item.createdAt ?? DateTime.now())}",
+            "${AppLocalizations.of(context)!.receivedOn} ${DateFormatHelper.ddmmyyyy(widget.item.createdAt ?? DateTime.now())}",
             style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
           ),
         ),
@@ -409,7 +417,7 @@ class _DonnationCardsState extends State<DonnationCards> {
         ),
         SizedBox(width: 6),
         Text(
-          "Serves: ${widget.item.noOfServe ?? 0}",
+          "${AppLocalizations.of(context)!.serves} ${widget.item.noOfServe ?? 0}",
           style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
         ),
       ],
@@ -450,7 +458,7 @@ class _DonnationCardsState extends State<DonnationCards> {
         SizedBox(width: 6),
         Expanded(
           child: Text(
-            "Contact: ${widget.item.contactName ?? ""} ${widget.item.contactMobile != null ? '(${widget.item.contactContryCode ?? ""}${widget.item.contactMobile})' : ''}",
+            "${AppLocalizations.of(context)!.contact} ${widget.item.contactName ?? ""} ${widget.item.contactMobile != null ? '(${widget.item.contactContryCode ?? ""}${widget.item.contactMobile})' : ''}",
             style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

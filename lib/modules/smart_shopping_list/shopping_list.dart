@@ -8,6 +8,7 @@ import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_b
 import 'package:saver_bbk_main/modules/smart_shopping_list/widgets/item_sheets.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ShoppingList extends StatefulWidget {
   final String listId;
@@ -126,7 +127,7 @@ class _ShoppingListState extends State<ShoppingList>
         children: [
           Expanded(
             child: _buildTabButton(
-              "All",
+              AppLocalizations.of(context)!.all,
               AppColor.yellow600,
               AppColor.lightYellow,
               0,
@@ -134,7 +135,7 @@ class _ShoppingListState extends State<ShoppingList>
           ),
           Expanded(
             child: _buildTabButton(
-              "Purchased",
+              AppLocalizations.of(context)!.purchased,
               AppColor.primaryColor,
               AppColor.lightGreen100,
               1,
@@ -189,7 +190,10 @@ class _ShoppingListState extends State<ShoppingList>
         }
         if (snapshot.data?.isEmpty ?? false) {
           return Center(
-            child: Text("No items found", style: TextStyle(fontSize: 16)),
+            child: Text(
+              AppLocalizations.of(context)!.noItemsFound,
+              style: TextStyle(fontSize: 16),
+            ),
           );
         }
         allItems =
@@ -215,7 +219,10 @@ class _ShoppingListState extends State<ShoppingList>
 
         if (allItems == null || allItems!.isEmpty) {
           return Center(
-            child: Text("No items in the list", style: TextStyle(fontSize: 16)),
+            child: Text(
+              AppLocalizations.of(context)!.noItemsInTheList,
+              style: TextStyle(fontSize: 16),
+            ),
           );
         }
 
@@ -288,7 +295,10 @@ class _ShoppingListState extends State<ShoppingList>
   Widget _buildPurchasedListItems() {
     if (purchaseItems == null || purchaseItems!.isEmpty) {
       return Center(
-        child: Text("No purchased items", style: TextStyle(fontSize: 16)),
+        child: Text(
+          AppLocalizations.of(context)!.noPurchasedItems,
+          style: TextStyle(fontSize: 16),
+        ),
       );
     }
     return ListView.builder(

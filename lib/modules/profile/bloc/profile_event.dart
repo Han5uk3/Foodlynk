@@ -7,56 +7,50 @@ sealed class ProfileEvent extends Equatable {
 }
 
 class LogoutEvent extends ProfileEvent {
-   final CommunityBloc communityBloc;
+  final CommunityBloc communityBloc;
   LogoutEvent({required this.communityBloc});
-  
 }
 
 class CreateProfileEvent extends ProfileEvent {
   final String title;
   final String firstName;
+  final String profileImage;
   final String lastName;
   final String email;
   final String phoneNumber;
   final String address;
   final String gender;
   final Timestamp dob;
-  final String nationality;
-  final String country;
-  final String state;
-  final String city;
   final String zipCode;
+  final bool isEmailLogin;
+  final String? password;
 
   CreateProfileEvent({
     required this.title,
     required this.firstName,
     required this.lastName,
+    required this.isEmailLogin,
+    required this.profileImage,
     required this.email,
     required this.phoneNumber,
     required this.address,
     required this.gender,
     required this.dob,
-    required this.nationality,
-    required this.country,
-    required this.state,
-    required this.city,
     required this.zipCode,
+    this.password,
   });
 
   @override
   List<Object?> get props => [
     title,
     firstName,
+    profileImage,
     lastName,
     email,
     phoneNumber,
     address,
     gender,
     dob,
-    nationality,
-    country,
-    state,
-    city,
     zipCode,
   ];
 }
@@ -66,4 +60,13 @@ class EditProfileEvent extends ProfileEvent {
   EditProfileEvent({required this.userModel});
   @override
   List<Object?> get props => [userModel];
+}
+
+class ChangeLocale extends ProfileEvent {
+  final String languageCode;
+
+  ChangeLocale({required this.languageCode});
+
+  @override
+  List<Object?> get props => [languageCode];
 }

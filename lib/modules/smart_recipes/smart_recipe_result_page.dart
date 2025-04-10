@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/models/smart_recipe_model.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RecipeResultsPage extends StatelessWidget {
   final GenerateSmartRecipe recipeData;
@@ -17,7 +18,10 @@ class RecipeResultsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: saverAppBar("Generated Recipes", context),
+      appBar: saverAppBar(
+        AppLocalizations.of(context)!.generatedRecipes,
+        context,
+      ),
       body: _generatedTiles(),
     );
   }
@@ -74,7 +78,7 @@ class RecipeResultsPage extends StatelessWidget {
                           const Icon(Icons.access_time, size: 16),
                           const SizedBox(width: 4),
                           Text(
-                            "${recipe!.cookingTime!} min",
+                            recipe!.cookingTime!,
                             style: TextStyle(color: Colors.grey[600]),
                           ),
                         ],
@@ -89,25 +93,23 @@ class RecipeResultsPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      ...recipe.steps!
-                          .map(
-                            (step) => Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "• ",
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Expanded(child: Text(step.whatToDo ?? "")),
-                                ],
+                      ...recipe.steps!.map(
+                        (step) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "• ",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                          )
-                          ,
+                              Expanded(child: Text(step.whatToDo ?? "")),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ],
                 ),

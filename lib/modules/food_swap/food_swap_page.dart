@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/empty_list.dart';
 import 'package:saver_bbk_main/common_widget/loader.dart';
@@ -10,6 +11,7 @@ import 'package:saver_bbk_main/modules/food_swap/food_swap_request.dart';
 import 'package:saver_bbk_main/modules/food_swap/my_listings_page.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FoodSwapPage extends StatefulWidget {
   const FoodSwapPage({super.key, required this.onBack});
@@ -48,6 +50,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
     _searchController.dispose();
     super.dispose();
   }
+
   int? selectedFilter;
 
   @override
@@ -70,7 +73,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: saverAppBar(
-        "Food Swap",
+        AppLocalizations.of(context)!.foodSwap,
         context,
         textColor: AppColor.white,
         iconColor: AppColor.white,
@@ -122,7 +125,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
         ),
         suffixIcon: Icon(Icons.search, color: Colors.grey.shade600),
         hintStyle: TextStyle(color: AppColor.lightGrey200),
-        hintText: "search items",
+        hintText: AppLocalizations.of(context)!.serachItems,
       ),
     );
   }
@@ -138,7 +141,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
         children: [
           Expanded(
             child: _buildTabButton(
-              "My Listings",
+              AppLocalizations.of(context)!.myListings,
               AppColor.appbarColor,
               AppColor.lightAppbarColor,
               0,
@@ -146,7 +149,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
           ),
           Expanded(
             child: _buildTabButton(
-              "Available Swaps",
+              AppLocalizations.of(context)!.availableSwaps,
               AppColor.green500,
               AppColor.lightGreen100,
               1,
@@ -162,7 +165,9 @@ class _FoodSwapPageState extends State<FoodSwapPage>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          _tabController.index == 0 ? "My Listings" : "Available Swaps",
+          _tabController.index == 0
+              ? AppLocalizations.of(context)!.myListings
+              : AppLocalizations.of(context)!.availableSwaps,
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
       ],
@@ -223,8 +228,9 @@ class _FoodSwapPageState extends State<FoodSwapPage>
 
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return EmptyList(
-            message: "No food swap listings available",
-            subMessage: "Tap the + button to create a new listing",
+            message: AppLocalizations.of(context)!.noFoodSwapListingsAvailable,
+            subMessage:
+                AppLocalizations.of(context)!.tapTheButtonToCReateANewListing,
           );
         }
         myListings = List.from(snapshot.data!);
@@ -335,7 +341,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
             child: SizedBox(
               width: double.infinity,
               child: SaverOutlineButton(
-                text: "Request Swap",
+                text: AppLocalizations.of(context)!.requestSwap,
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -368,8 +374,16 @@ class _FoodSwapPageState extends State<FoodSwapPage>
               border: Border.all(color: AppColor.lightGrey200),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Center(
-              child: Icon(Icons.image, color: AppColor.lightGrey200),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: CachedNetworkImage(
+                imageUrl: items.image ?? '',
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+
+                errorWidget: (context, url, error) => Icon(Icons.image),
+              ),
             ),
           ),
         ),
@@ -408,7 +422,9 @@ class _FoodSwapPageState extends State<FoodSwapPage>
           height: 27,
           child: Center(
             child: Text(
-              items.status == "P" ? "Pending" : "Accepted",
+              items.status == "P"
+                  ? AppLocalizations.of(context)!.pending
+                  : AppLocalizations.of(context)!.accept,
               style: TextStyle(
                 fontSize: 12,
                 color: items.status == "P" ? AppColor.yellow : AppColor.blue,
@@ -430,7 +446,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
           child: loadsvg("assets/icons/expiry.svg"),
         ),
         Text(
-          " Expiry Date: ${DateFormatHelper.ddmmyyyy(items.expiredDate ?? DateTime.now())}",
+          " ${AppLocalizations.of(context)!.expiryDate}: ${DateFormatHelper.ddmmyyyy(items.expiredDate ?? DateTime.now())}",
           style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
         ),
       ],
@@ -461,7 +477,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
           child: Icon(size: 14, Icons.list_outlined, color: AppColor.red),
         ),
         Text(
-          " Quantity: ${items.quantity}",
+          " ${AppLocalizations.of(context)!.quantity}: ${items.quantity}",
           style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
         ),
       ],

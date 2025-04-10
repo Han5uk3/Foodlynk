@@ -20,7 +20,16 @@ class HiveHelper {
   static removeUID() {
     return MyApp.box.delete('uid');
   }
+
   static removeIsGuest() {
     return MyApp.box.delete('isGuest');
+  }
+
+  putUserlanguage(String lang) {
+    return MyApp.box.put('user_language', lang);
+  }
+
+  getUserlanguage() {
+    return MyApp.box.get('user_language', defaultValue: "en");
   }
 }
