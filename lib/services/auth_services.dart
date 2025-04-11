@@ -67,7 +67,7 @@ class AuthServices {
   }
 
   static void submitOtp(BuildContext context, String otp, String phoneNumber) {
-    showLoadingDialog(context, 'Verifying OTP...');
+    showLoadingDialog(context, AppLocalizations.of(context)!.verifyingOtp);
     signInWithPhoneNumber(context, verId, otp, phoneNumber);
   }
 
@@ -116,7 +116,10 @@ class AuthServices {
   ) async {
     try {
       if (!isDialogShowing(context)) {
-        showLoadingDialog(context, 'Checking account...');
+        showLoadingDialog(
+          context,
+          AppLocalizations.of(context)!.checkingAccount,
+        );
       }
 
       final querySnapshot =

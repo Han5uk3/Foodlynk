@@ -50,7 +50,7 @@ class _ZeroWasteRecipeResultPageState extends State<ZeroWasteRecipeResultPage> {
             _buildBanner(),
             SizedBox(height: 10),
             Text(
-              "${widget.selectedMeal} for ${widget.genaratedPlanModel.data?.numberOfServings} ${AppLocalizations.of(context)!.people}",
+              "${widget.selectedMeal} ${AppLocalizations.of(context)!.forText} ${widget.genaratedPlanModel.data?.numberOfServings} ${AppLocalizations.of(context)!.people}",
               style: TextStyle(fontSize: 15),
             ),
             SizedBox(height: 10),

@@ -201,7 +201,7 @@ class _DonationDetailsState extends State<DonationDetails>
             Navigator.pop(context);
             SaverSnackBar.show(
               context: context,
-              message: "Request Declined Successfully",
+              message: AppLocalizations.of(context)!.requestDeclinedSuccessfully,
               isTrue: true,
             );
           }
@@ -651,18 +651,18 @@ class _DonationDetailsState extends State<DonationDetails>
         final Duration difference = DateTime.now().difference(dateTime);
 
         if (difference.inDays > 0) {
-          return "${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago";
+          return "${difference.inDays} ${AppLocalizations.of(context)!.day}${difference.inDays > 1 ? 's' : ''} ${AppLocalizations.of(context)!.ago}";
         } else if (difference.inHours > 0) {
-          return "${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago";
+          return "${difference.inHours} ${AppLocalizations.of(context)!.hour}${difference.inHours > 1 ? 's' : ''} ${AppLocalizations.of(context)!.ago}";
         } else if (difference.inMinutes > 0) {
-          return "${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''} ago";
+          return "${difference.inMinutes} ${AppLocalizations.of(context)!.minute}${difference.inMinutes > 1 ? 's' : ''} ${AppLocalizations.of(context)!.ago}";
         } else {
-          return "just now";
+          return AppLocalizations.of(context)!.justNow;
         }
       }
-      return "recently";
+      return AppLocalizations.of(context)!.recently;
     } catch (e) {
-      return "recently";
+      return AppLocalizations.of(context)!.recently;
     }
   }
 
@@ -673,9 +673,9 @@ class _DonationDetailsState extends State<DonationDetails>
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text("Decline Request"),
+            title: Text(AppLocalizations.of(context)!.declineRequest),
             content: Text(
-              "Are you sure you want to decline the request from ${user.firstName ?? 'this user'}?",
+              "${AppLocalizations.of(context)!.areYouSureYouWantToDeclineTheRequestFrom} ${user.firstName ?? 'this user'}?",
             ),
             actions: [
               TextButton(
@@ -1127,12 +1127,12 @@ class _DonationDetailsState extends State<DonationDetails>
           backgroundColor: Colors.white,
           title: Text(
             isDonor
-                ? 'Delete Donation'
+                ? AppLocalizations.of(context)!.deleteDonation
                 : AppLocalizations.of(context)!.deleteRequest,
           ),
           content: Text(
             isDonor
-                ? 'Are you sure you want to delete this donation?'
+                ? AppLocalizations.of(context)!.areYouSureWantToDeletThisDonation
                 : AppLocalizations.of(
                   context,
                 )!.areYouSureWantToDeletThisRequest,

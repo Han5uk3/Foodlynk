@@ -226,7 +226,7 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
         ),
         if (searchQuery.isNotEmpty)
           Text(
-            "Showing results for \"$searchQuery\"",
+            "${AppLocalizations.of(context)!.searchResultsFor} \"$searchQuery\"",
             style: TextStyle(color: AppColor.lightGrey200, fontSize: 12),
           ),
       ],
@@ -356,7 +356,7 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
                     SizedBox(height: 6),
                     Text(
                       item.items?.isNotEmpty ?? false
-                          ? "${item.items!.where((e) => e.status == "PR").length} of ${item.items!.length} items purchased"
+                          ? "${item.items!.where((e) => e.status == "PR").length} ${AppLocalizations.of(context)!.ofText} ${item.items!.length} ${AppLocalizations.of(context)!.itemsPurchased}"
                           : AppLocalizations.of(context)!.noItemsFound,
                       style: TextStyle(
                         fontSize: 12,

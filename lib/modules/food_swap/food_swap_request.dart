@@ -211,7 +211,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                 : dropdownItems.first;
 
         return SaverDropdown(
-          hint: "Choose from my listings",
+          hint: AppLocalizations.of(context)!.chooseFromMyListing,
           items: dropdownItems,
           isLoading: snapshot.connectionState == ConnectionState.waiting,
           selectedItem: defaultValue,

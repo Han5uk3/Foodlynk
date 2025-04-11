@@ -3,8 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/modules/profile/bloc/profile_bloc.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
 class Localization {
   static void showLanguageDialog(BuildContext context) {
     showDialog(
@@ -100,9 +98,7 @@ class Localization {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              "${AppLocalizations.of(context)!.languageChangedTo} $language",
-            ),
+            content: Text("Language changed to $language"),
             backgroundColor: AppColor.appbarColor,
             duration: Duration(seconds: 2),
           ),

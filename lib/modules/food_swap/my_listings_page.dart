@@ -343,16 +343,6 @@ class _FoodDetailsState extends State<FoodDetails> {
 
   @override
   Widget build(BuildContext context) {
-    // final List<String> category = [
-    //   AppLocalizations.of(context)!.dairy,
-    //   AppLocalizations.of(context)!.meat,
-    //   AppLocalizations.of(context)!.oils,
-    //   AppLocalizations.of(context)!.poultry,
-    //   AppLocalizations.of(context)!.fruit,
-    //   AppLocalizations.of(context)!.vegetables,
-    //   AppLocalizations.of(context)!.seafood,
-    // ];
-
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -561,7 +551,7 @@ class _RequestsDetailsState extends State<RequestsDetails> {
         ],
         child:
             widget.foodSwapModel.status == "A"
-                ? EmptyList(message: "Already accepted")
+                ? EmptyList(message: AppLocalizations.of(context)!.alreadyAccepted)
                 : Padding(
                   padding: const EdgeInsets.only(top: 14, left: 14, right: 14),
                   child: StreamBuilder<List<AcceptedSwapItem>>(

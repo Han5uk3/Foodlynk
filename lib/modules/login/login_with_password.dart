@@ -149,7 +149,7 @@ class _LoginWithPasswordState extends State<LoginWithPassword> {
 
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return AppLocalizations.of(context)!.pleaseEnterYourPassword;
                     }
                     if (value.length < 6) {
                       return AppLocalizations.of(
@@ -298,7 +298,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                 TextButton.icon(
                   onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.check_circle),
-                  label: const Text('CLOSE'),
+                  label:  Text(AppLocalizations.of(context)!.close),
                   style: TextButton.styleFrom(
                     foregroundColor: colorScheme.primary,
                     padding: const EdgeInsets.symmetric(
@@ -355,7 +355,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              const Text('PROCESSING...'),
+                               Text(AppLocalizations.of(context)!.processing),
                             ],
                           )
                           : Row(
@@ -430,7 +430,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
               if (!RegExp(
                 r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
               ).hasMatch(value)) {
-                return 'Please enter a valid email address';
+                return AppLocalizations.of(context)!.pleaseEnterAValidEmailAddress;
               }
               return null;
             },
@@ -465,7 +465,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Reset Link Sent!',
+            AppLocalizations.of(context)!.resetLinkSent,
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -474,7 +474,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
           ),
           const SizedBox(height: 16),
           Text(
-            'We\'ve sent a password reset link to:',
+            AppLocalizations.of(context)!.weVeSentAPasswordResetLinkTo,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
@@ -492,7 +492,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
             ),
           ),
           Text(
-            'Please check your inbox and follow the instructions in the email.',
+            AppLocalizations.of(context)!.pleaseCheckYourInboxAndFollowTheInstructions,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
