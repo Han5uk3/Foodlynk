@@ -35,7 +35,6 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox(boxName);
   final savedLocale = ProfileBloc.getSavedLocale();
-  print("App starting with locale: ${savedLocale.languageCode}");
   runApp(MyApp(initialLocale: savedLocale));
 }
 

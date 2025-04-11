@@ -53,7 +53,7 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
         });
       },
       onError: (error) {
-        print("Error in stream: $error");
+        debugPrint("Error in stream: $error");
       },
     );
   }

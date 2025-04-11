@@ -33,9 +33,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
           .where('uid', isEqualTo: event.uid)
           .get()
           .then((value) {
-            value.docs.forEach((element) {
+            for (var element in value.docs) {
               Collections.notifications.doc(element.id).delete();
-            });
+            }
           });
       emit(NotificationsClearedSuccessfully());
     } catch (e) {
