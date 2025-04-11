@@ -38,6 +38,7 @@ class _ChatPageState extends State<ChatPage> {
           isFoodSwapped: false,
           isFromDonations: false,
           roomId: widget.chatRoomId,
+          context: context,
         ),
       );
     }

@@ -109,7 +109,9 @@ class _AddItemState extends State<AddItem> {
 
     return Scaffold(
       appBar: saverAppBar(
-        widget.isEdit ? "Edit Item" : AppLocalizations.of(context)!.addItem,
+        widget.isEdit
+            ? AppLocalizations.of(context)!.editItem
+            : AppLocalizations.of(context)!.addItem,
         context,
         isneedtopop: true,
         iswhite: true,
@@ -202,6 +204,7 @@ class _AddItemState extends State<AddItem> {
                                         Text(
                                           getDateDifferenceMessage(
                                             widget.dateString!,
+                                            context,
                                           ),
                                           style: TextStyle(
                                             color:

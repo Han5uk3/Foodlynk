@@ -29,8 +29,6 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
   String searchQuery = "";
   final FocusNode searchFocusNode = FocusNode();
 
-  bool _isSubmitLocked = false;
-
   Timer? _debounce;
 
   List<SmartShoppingModel>? _allLists;
@@ -136,13 +134,10 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
         if (state is CreateNewSmartShoppingListSuccessState) {
           setState(() {
             _isLoading = false;
-            _isSubmitLocked = false;
           });
           Navigator.pop(context);
           listNameController.clear();
-
           _subscribeToListStream();
-
           SaverSnackBar.show(
             context: context,
             message: AppLocalizations.of(context)!.yourNewListHasBeenCreated,
@@ -152,7 +147,6 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
         if (state is CreateNewSmartShoppingListFailureState) {
           setState(() {
             _isLoading = false;
-            _isSubmitLocked = false;
           });
           SaverSnackBar.show(
             context: context,
@@ -253,7 +247,9 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
             }
 
             if (snapshot.data?.isEmpty ?? true) {
-              return Center(child: Text("No shopping lists found"));
+              return Center(
+                child: Text(AppLocalizations.of(context)!.noShppingListsFound),
+              );
             }
 
             if (_allLists == null) {
@@ -269,7 +265,11 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
 
   Widget _buildListView() {
     if (_filteredLists.isEmpty && searchQuery.isNotEmpty) {
-      return Center(child: Text("No lists matching \"$searchQuery\""));
+      return Center(
+        child: Text(
+          "${AppLocalizations.of(context)!.noListingMatching} \"$searchQuery\"",
+        ),
+      );
     }
 
     if (_filteredLists.isEmpty) {
@@ -333,7 +333,7 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
                           ),
                         ),
                         Text(
-                          " Created On: ${DateFormatHelper.ddmmyyyy(item.createdAt ?? DateTime.now())}",
+                          " ${AppLocalizations.of(context)!.createdOn} ${DateFormatHelper.ddmmyyyy(item.createdAt ?? DateTime.now())}",
                           style: TextStyle(
                             color: AppColor.lightGrey200,
                             fontSize: 12,
@@ -374,8 +374,8 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
   }
 
   _showAddBottomSheet() {
-    _isSubmitLocked = false;
     listNameController.clear();
+    String? errorText; // <--- Move outside the builder
 
     showModalBottomSheet(
       isDismissible: false,
@@ -446,8 +446,27 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
                       child: SaverTextField(
                         hintText: AppLocalizations.of(context)!.enterListName,
                         controller: listNameController,
+                        onChanged: (value) {
+                          if (errorText != null) {
+                            setModalState(() {
+                              errorText = null;
+                            });
+                          }
+                        },
                       ),
                     ),
+                    if (errorText != null)
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 14,
+                          right: 14,
+                          top: 8,
+                        ),
+                        child: Text(
+                          errorText!,
+                          style: TextStyle(color: Colors.red, fontSize: 14),
+                        ),
+                      ),
                     Padding(
                       padding: const EdgeInsets.only(
                         top: 50,
@@ -459,23 +478,18 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
                         text: AppLocalizations.of(context)!.saveChanges,
                         isLoading: _isLoading,
                         onPressed:
-                            (_isLoading || _isSubmitLocked)
+                            (_isLoading)
                                 ? () {}
                                 : () {
                                   if (listNameController.text.trim().isEmpty) {
-                                    SaverSnackBar.show(
-                                      context: context,
-                                      message: "Please enter a list name",
-                                      isTrue: false,
-                                    );
+                                    setModalState(() {
+                                      errorText =
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.pleaseEnterAListName;
+                                    });
                                     return;
                                   }
-
-                                  setState(() {
-                                    _isSubmitLocked = true;
-                                  });
-
-                                  setModalState(() {});
 
                                   context.read<SmartShoppingBloc>().add(
                                     CreateNewSmartShoppingEvent(

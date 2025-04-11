@@ -126,16 +126,18 @@ class _KitchenManagerState extends State<KitchenManager> {
         return false;
       }
       int days = expiredDate.difference(DateTime.now()).inDays;
+
       if (selectedFilter.isNotEmpty) {
-        if (selectedFilter == "Expired") {
-          matchesFilter = days < 0; // Expired when days < 0
-        } else if (selectedFilter == "Expiring Soon") {
-          matchesFilter =
-              days >= 0 && days <= 3; // Expiring Soon when 0 <= days <= 3
-        } else if (selectedFilter == "Fresh") {
-          matchesFilter = days > 3; // Fresh when days > 3
+        if (selectedFilter == AppLocalizations.of(context)!.expired) {
+          matchesFilter = days < 0;
+        } else if (selectedFilter ==
+            AppLocalizations.of(context)!.expiringSoon) {
+          matchesFilter = days >= 0 && days <= 4;
+        } else if (selectedFilter == AppLocalizations.of(context)!.fresh) {
+          matchesFilter = days > 4;
         }
       }
+
       bool matchesSearch =
           searchQuery.isEmpty ||
           item.name!.toLowerCase().contains(searchQuery.toLowerCase());
@@ -176,7 +178,6 @@ class _KitchenManagerState extends State<KitchenManager> {
 
   Widget _buildContent() {
     filteredItems = filterItems(kitchenItems);
-
     return BlocListener<KitchenManagerBloc, KitchenManagerState>(
       listener: (context, state) {
         if (state is RemoveItemStateSuccess) {
@@ -307,12 +308,12 @@ class _KitchenManagerState extends State<KitchenManager> {
       selectedFilter.isEmpty && searchQuery.isEmpty
           ? AppLocalizations.of(context)!.allItems
           : searchQuery.isNotEmpty && selectedFilter.isNotEmpty
-          ? "Search Results for '$searchQuery' in $selectedFilter Items"
+          ? "Search Results for '$searchQuery' in $selectedFilter ${AppLocalizations.of(context)!.items}"
           : searchQuery.isNotEmpty
           ? "Search Results for '$searchQuery'"
           : selectedFilter == "Expiring Soon"
-          ? "Items $selectedFilter"
-          : "$selectedFilter Items",
+          ? "${AppLocalizations.of(context)!.items} $selectedFilter"
+          : "$selectedFilter ${AppLocalizations.of(context)!.items}",
       style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w600,
@@ -392,7 +393,7 @@ class _KitchenManagerState extends State<KitchenManager> {
                   size: 30,
                 ),
                 Text(
-                  "Move to Shopping List",
+                  AppLocalizations.of(context)!.moveToShopping,
                   style: TextStyle(color: AppColor.white),
                 ),
               ],
@@ -412,7 +413,10 @@ class _KitchenManagerState extends State<KitchenManager> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Icon(CupertinoIcons.trash, color: Colors.white, size: 25),
-              Text("Remove from list", style: TextStyle(color: AppColor.white)),
+              Text(
+                AppLocalizations.of(context)!.removeFromList,
+                style: TextStyle(color: AppColor.white),
+              ),
             ],
           ),
         ),
@@ -504,7 +508,7 @@ class _KitchenManagerState extends State<KitchenManager> {
         color:
             days < 0
                 ? AppColor.lightRed
-                : days >= 0 && days <= 3
+                : days >= 0 && days <= 4
                 ? AppColor.lightYellow
                 : AppColor.greenshade,
       ),
@@ -518,14 +522,14 @@ class _KitchenManagerState extends State<KitchenManager> {
             Icon(
               days < 0
                   ? Icons.sentiment_neutral_outlined
-                  : days >= 0 && days <= 3
+                  : days >= 0 && days <= 4
                   ? Icons.sentiment_satisfied_alt_outlined
                   : Icons.sentiment_very_satisfied_outlined,
               size: 14,
               color:
                   days < 0
                       ? AppColor.red
-                      : days >= 0 && days <= 3
+                      : days >= 0 && days <= 4
                       ? AppColor.yellow
                       : AppColor.green,
             ),
@@ -536,7 +540,7 @@ class _KitchenManagerState extends State<KitchenManager> {
                 color:
                     days < 0
                         ? AppColor.red
-                        : days >= 0 && days <= 3
+                        : days >= 0 && days <= 4
                         ? AppColor.yellow
                         : AppColor.green,
               ),
@@ -554,7 +558,7 @@ class _KitchenManagerState extends State<KitchenManager> {
     } else if (item.expiredDate is DateTime) {
       expDate = item.expiredDate as DateTime;
     } else {
-      expDate = DateTime.now(); // Fallback
+      expDate = DateTime.now();
     }
 
     return Row(
@@ -590,7 +594,7 @@ class _KitchenManagerState extends State<KitchenManager> {
                 ),
               ),
               Text(
-                " Category: ${item.category != "" ? item.category : "N/A"}",
+                "${AppLocalizations.of(context)!.category}: ${item.category != "" ? item.category : "N/A"}",
                 style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
               ),
             ],
@@ -606,7 +610,7 @@ class _KitchenManagerState extends State<KitchenManager> {
               child: Icon(size: 14, Icons.list_outlined, color: AppColor.red),
             ),
             Text(
-              " Quantity: ${item.quantity}",
+              "${AppLocalizations.of(context)!.quantity}: ${item.quantity}",
               style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
             ),
           ],

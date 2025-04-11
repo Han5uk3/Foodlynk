@@ -206,7 +206,7 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
         Text(
           _tabController.index == 0
               ? AppLocalizations.of(context)!.globalDonations
-              : "Available Food",
+              : AppLocalizations.of(context)!.availableFood,
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
       ],

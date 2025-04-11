@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
@@ -29,13 +30,15 @@ class FoodSwapBloc extends Bloc<FoodSwapEvent, FoodSwapState> {
   ) async {
     try {
       emit(FoodSwapLoading(isLoading: true));
+      String? imageUrl;
       String foodswapId = Collections.foodSwap.doc().id;
-      final String imageUrl = await StorageService.uploadFile(
-        filePath: event.imageFile!.path,
-        fileName:
-            "swap_item_$foodswapId${DateTime.now().millisecondsSinceEpoch}",
-      );
-
+      if (event.imageFile != null) {
+        imageUrl = await StorageService.uploadFile(
+          filePath: event.imageFile!.path,
+          fileName:
+              "swap_item_$foodswapId${DateTime.now().millisecondsSinceEpoch}",
+        );
+      }
       final updatedItem = {
         ...event.item.toMap(),
         'id': foodswapId,
@@ -114,6 +117,7 @@ class FoodSwapBloc extends Bloc<FoodSwapEvent, FoodSwapState> {
               fcmToken: event.fcmToken,
               isFoodSwapped: true,
               isFromDonations: false,
+              context: event.context
             ),
           );
         },

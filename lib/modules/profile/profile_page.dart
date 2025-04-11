@@ -44,9 +44,20 @@ class _ProfilePageState extends State<ProfilePage> {
               );
             });
           }
+          if (state is DeleteProfileSuccessState) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => LoginPage()),
+                (route) => false,
+              );
+            });
+          }
         },
         builder: (context, state) {
           if (state is LogoutStateLoading) {
+            _isLoading = state.isLoading;
+          }
+          if (state is DeleteProfileLoadingState) {
             _isLoading = state.isLoading;
           }
           return Padding(
@@ -56,9 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 _buildProfileTile(
                   label: AppLocalizations.of(context)!.myProfile,
                   path: "assets/icons/Icon.svg",
-
                   color: AppColor.lightblue,
-
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -247,7 +256,9 @@ class _ProfilePageState extends State<ProfilePage> {
                               : AppLocalizations.of(context)!.logout,
                       onPressed:
                           toggler
-                              ? () {}
+                              ? () => context.read<ProfileBloc>().add(
+                                DeleteProfileEvent(),
+                              )
                               : () => context.read<ProfileBloc>().add(
                                 LogoutEvent(
                                   communityBloc: context.read<CommunityBloc>(),

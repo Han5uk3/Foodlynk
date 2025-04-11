@@ -125,7 +125,6 @@ class SmartListSheet {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Header
                     Padding(
                       padding: const EdgeInsets.all(14),
                       child: Row(
@@ -157,7 +156,6 @@ class SmartListSheet {
                       height: 1.5,
                     ),
 
-                    // Item Name or List Name
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       child: Padding(
@@ -190,11 +188,11 @@ class SmartListSheet {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 14),
                         child: Text(
-                          "Please enter a list name",
+                          AppLocalizations.of(context)!.pleaseEnterAListName,
                           style: TextStyle(color: Colors.red, fontSize: 12),
                         ),
                       ),
-                    // Quantity & Unit Section (Only for items)
+
                     if (isItem) ...[
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -210,7 +208,6 @@ class SmartListSheet {
                         ),
                         child: Row(
                           children: [
-                            // Unit Dropdown
                             IntrinsicWidth(
                               child: SaverDropdown(
                                 items: units,
@@ -224,7 +221,7 @@ class SmartListSheet {
                               ),
                             ),
                             SizedBox(width: 12),
-                            // Quantity Selector
+
                             Expanded(
                               child: NumberSelector.plain(
                                 hasBorder: true,
@@ -246,7 +243,6 @@ class SmartListSheet {
                       ),
                     ],
 
-                    // Note (For View mode only)
                     if (isView)
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -263,7 +259,7 @@ class SmartListSheet {
                           style: TextStyle(color: AppColor.primaryColor),
                         ),
                       ),
-                    // Action Buttons
+
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 14,
@@ -336,69 +332,59 @@ class SmartListSheet {
                                         state
                                             is NewItemAddedToListLoadingState ||
                                         state is MovingItemLoadingState,
-                                    onPressed:
-                                        () =>
-                                            (isFromKitchen ?? false)
-                                                ? context
-                                                    .read<SmartShoppingBloc>()
-                                                    .add(
-                                                      MoveFromKitchenToSmartListEvent(
-                                                        listId: listId ?? "",
-                                                        item: Items(
-                                                          id: items?.id ?? "",
-                                                          name:
-                                                              items?.name ?? "",
-                                                          quantity: quantity,
-                                                          unit: selectedUnit,
-                                                        ),
-                                                        isFromParentSide:
-                                                            isFromInsideItem ??
-                                                            false,
-                                                      ),
-                                                    )
-                                                : () {
-                                                  final name =
-                                                      itemNameController.text
-                                                          .trim();
-                                                  if (name.isEmpty) {
-                                                    setState(
-                                                      () =>
-                                                          isListNameEmpty =
-                                                              true,
-                                                    );
-                                                    return;
-                                                  }
-                                                  setState(
-                                                    () =>
-                                                        isListNameEmpty = false,
-                                                  );
-                                                  context
-                                                      .read<SmartShoppingBloc>()
-                                                      .add(
-                                                        AddNewItemSmartShoppingEvent(
-                                                          listId: listId ?? "",
-                                                          itemName:
-                                                              itemNameController
-                                                                  .text
-                                                                  .trim(),
-                                                          itemQuantity:
-                                                              quantity,
-                                                          itemUnit:
-                                                              selectedUnit,
-                                                        ),
-                                                      );
-                                                },
+                                    onPressed: () {
+                                      if (isFromKitchen ?? false) {
+                                        context.read<SmartShoppingBloc>().add(
+                                          MoveFromKitchenToSmartListEvent(
+                                            listId: listId ?? "",
+                                            item: Items(
+                                              id: items?.id ?? "",
+                                              name: items?.name ?? "",
+                                              quantity: quantity,
+                                              unit: selectedUnit,
+                                            ),
+                                            isFromParentSide:
+                                                isFromInsideItem ?? false,
+                                          ),
+                                        );
+                                      } else {
+                                        final name =
+                                            itemNameController.text.trim();
+                                        if (name.isEmpty) {
+                                          setState(
+                                            () => isListNameEmpty = true,
+                                          );
+                                          return;
+                                        }
+                                        setState(() => isListNameEmpty = false);
+                                        context.read<SmartShoppingBloc>().add(
+                                          AddNewItemSmartShoppingEvent(
+                                            listId: listId ?? "",
+                                            itemName: name,
+                                            itemQuantity: quantity,
+                                            itemUnit: selectedUnit,
+                                          ),
+                                        );
+                                      }
+                                    },
                                   )
                               : SaverButton(
                                 text: AppLocalizations.of(context)!.saveChanges,
                                 isLoading: state is ListNameChangedLoadingState,
-                                onPressed:
-                                    () => context.read<SmartShoppingBloc>().add(
-                                      UpdateSmartShopingListNameEvent(
-                                        newName: itemNameController.text.trim(),
-                                        listId: listId ?? "",
-                                      ),
+                                onPressed: () {
+                                  final name = itemNameController.text.trim();
+                                  if (name.isEmpty) {
+                                    setState(() => isListNameEmpty = true);
+                                    return;
+                                  }
+                                  setState(() => isListNameEmpty = false);
+                                  context.read<SmartShoppingBloc>().add(
+                                    UpdateSmartShopingListNameEvent(
+                                      newName: itemNameController.text.trim(),
+                                      listId: listId ?? "",
                                     ),
+                                  );
+                                },
                               );
                         },
                       ),

@@ -59,7 +59,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _emailController = TextEditingController();
   final List<String> titles = ['Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Prof.'];
   final List<String> genders = ['Male', 'Female', 'Other'];
-
+  final currentLocale = HiveHelper().getUserlanguage();
   final ImagePicker _picker = ImagePicker();
 
   @override
@@ -340,10 +340,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           dob: Timestamp.fromDate(selectedDate!),
                           profileImage: imageUrl,
                         ),
+                        preserveLocale: true,
+                        locale: HiveHelper().getUserlanguage(),
+                      ),
+                    );
+
+                    context.read<ProfileBloc>().add(
+                      ChangeLocale(
+                        languageCode: HiveHelper().getUserlanguage(),
                       ),
                     );
                   }
                   : () async {
+                    if (_nameController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            AppLocalizations.of(context)!.pleaseEnterYourName,
+                          ),
+                        ),
+                      );
+                      return;
+                    }
                     if (selectedDate == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(

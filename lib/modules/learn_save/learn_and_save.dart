@@ -4,6 +4,7 @@ import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PdfGridPage extends StatelessWidget {
   final VoidCallback onBack;
@@ -28,7 +29,7 @@ class PdfGridPage extends StatelessWidget {
 
     return Scaffold(
       appBar: saverAppBar(
-        "Learn & Save",
+        AppLocalizations.of(context)!.learnAndSave,
         context,
         onpop: onBack,
         isneedtopop: true,
@@ -38,8 +39,8 @@ class PdfGridPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Select a document to read",
+            Text(
+              AppLocalizations.of(context)!.selectADocumentToRead,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

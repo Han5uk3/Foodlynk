@@ -8,7 +8,7 @@ import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/models/chat_model.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/services/chat_services.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 part 'community_event.dart';
 part 'community_state.dart';
 
@@ -191,6 +191,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
             event.isFoodSwapped,
             event.isFromDonations,
             event.isFromBeneficiary,
+            event.context,
           );
         }
         Future.delayed(
@@ -211,74 +212,75 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     }
   }
 
-Future<void> _onSendMessage(
-  SendMessageEvent event,
-  Emitter<CommunityState> emit,
-) async {
-  if (state.currentChatRoomId == null || event.message.trim().isEmpty) return;
+  Future<void> _onSendMessage(
+    SendMessageEvent event,
+    Emitter<CommunityState> emit,
+  ) async {
+    if (state.currentChatRoomId == null || event.message.trim().isEmpty) return;
 
-  try {
-    emit(state.copyWith(status: ChatStatus.sending));
+    try {
+      emit(state.copyWith(status: ChatStatus.sending));
 
-    final timestamp = DateTime.now().toIso8601String();
-    final chatRoomId = state.currentChatRoomId!;
-    final message = event.message.trim();
+      final timestamp = DateTime.now().toIso8601String();
+      final chatRoomId = state.currentChatRoomId!;
+      final message = event.message.trim();
 
-    final messageRef = ChatServices.database
-        .ref('chats')
-        .child(chatRoomId)
-        .child('messages')
-        .push();
+      final messageRef =
+          ChatServices.database
+              .ref('chats')
+              .child(chatRoomId)
+              .child('messages')
+              .push();
 
-    await messageRef.set({
-      'senderUID': Services.uid,
-      'message': message,
-      'timestamp': timestamp,
-      'seen': false,
-    });
+      await messageRef.set({
+        'senderUID': Services.uid,
+        'message': message,
+        'timestamp': timestamp,
+        'seen': false,
+      });
 
-    // Update the chat room info
-    final updates = {
-      'lastMessage': message,
-      'lastSenderUID': Services.uid,
-      'timestamp': timestamp,
-      'seen_by/${Services.uid}': true,
-      'seen_by/${event.reciversUid}': false,
-      'unread_count/${Services.uid}': 0,
-      'participants/${Services.uid}': true,
-      'participants/${event.reciversUid}': true,
-    };
+      final updates = {
+        'lastMessage': message,
+        'lastSenderUID': Services.uid,
+        'timestamp': timestamp,
+        'seen_by/${Services.uid}': true,
+        'seen_by/${event.reciversUid}': false,
+        'unread_count/${Services.uid}': 0,
+        'participants/${Services.uid}': true,
+        'participants/${event.reciversUid}': true,
+      };
 
-    // Increment receiver's unread count
-    if (Services.uid != event.reciversUid) {
-      updates['unread_count/${event.reciversUid}'] = ServerValue.increment(1);
-    }
+      if (Services.uid != event.reciversUid) {
+        updates['unread_count/${event.reciversUid}'] = ServerValue.increment(1);
+      }
 
-    await ChatServices.database.ref('chats').child(chatRoomId).update(updates);
+      await ChatServices.database
+          .ref('chats')
+          .child(chatRoomId)
+          .update(updates);
 
-    // Send push notification if available
-    if (event.fcmToken != null && event.fcmToken!.isNotEmpty) {
-      await AppApis().sendNotificationToFCM(
-        title: event.reciversName,
-        subTitle: message,
-        token: event.fcmToken!,
-        chatRoomId: chatRoomId,
-        type: 'message',
-        reciversUid: event.reciversUid,
+      if (event.fcmToken != null && event.fcmToken!.isNotEmpty) {
+        await AppApis().sendNotificationToFCM(
+          title: event.reciversName,
+          subTitle: message,
+          token: event.fcmToken!,
+          chatRoomId: chatRoomId,
+          type: 'message',
+          reciversUid: event.reciversUid,
+        );
+      }
+
+      emit(state.copyWith(status: ChatStatus.loaded));
+    } catch (e) {
+      debugPrint('Error sending message: $e');
+      emit(
+        state.copyWith(
+          status: ChatStatus.error,
+          errorMessage: 'Failed to send message: ${e.toString()}',
+        ),
       );
     }
-
-    emit(state.copyWith(status: ChatStatus.loaded));
-  } catch (e) {
-    debugPrint('Error sending message: $e');
-    emit(
-      state.copyWith(
-        status: ChatStatus.error,
-        errorMessage: 'Failed to send message: ${e.toString()}',
-      ),
-    );
   }
-}
 
   StreamSubscription? _messagesSubscription;
   Future<void> _onLoadMessages(
@@ -373,16 +375,17 @@ Future<void> _onSendMessage(
     bool isFoodSwap,
     bool isDonation,
     bool isBeneficiary,
+    BuildContext context,
   ) async {
-    final timestamp = ServerValue.timestamp;
-    final nowIso = DateTime.now().toIso8601String();
-
+    final now = DateTime.now();
+    final nowIso = now.toIso8601String();
+    final timestamp = now.millisecondsSinceEpoch;
     List<Map<String, dynamic>> initialMessages =
         isFoodSwap
             ? [
               {
                 'senderId': currentUID,
-                'text': 'Hello 👋',
+                'text': '${AppLocalizations.of(context)!.hello} 👋',
                 'timestamp': timestamp,
               },
               {
@@ -395,12 +398,13 @@ Future<void> _onSendMessage(
             ? [
               {
                 'senderId': currentUID,
-                'text': 'Hello 👋',
+                'text': '${AppLocalizations.of(context)!.hello} 👋',
                 'timestamp': timestamp,
               },
               {
                 'senderId': currentUID,
-                'text': 'I want to donate my food with you! 🍲',
+                'text':
+                    '${AppLocalizations.of(context)!.iWantToDonateMyFoodWithYou} 🍲',
                 'timestamp': timestamp,
               },
             ]
@@ -408,12 +412,13 @@ Future<void> _onSendMessage(
             ? [
               {
                 'senderId': currentUID,
-                'text': 'Hello 👋',
+                'text': '${AppLocalizations.of(context)!.hello} 👋',
                 'timestamp': timestamp,
               },
               {
                 'senderId': currentUID,
-                'text': 'I want to receive food with you! 🍲',
+                'text':
+                    '${AppLocalizations.of(context)!.iWantToReceiveFoodWithYou} 🍲',
                 'timestamp': timestamp,
               },
             ]
@@ -429,25 +434,20 @@ Future<void> _onSendMessage(
     final lastMsg = initialMessages.last;
 
     await ChatServices.database.ref('chats/$chatRoomId').update({
-      'lastMessage': {
-        'text': lastMsg['text'],
-        'timestamp': timestamp,
-        'senderId': currentUID,
-      },
+      'lastMessage': lastMsg['text'],
+      'lastSenderUID': currentUID,
+      'timestamp': nowIso,
+      'seen_by': {currentUID: true, receiverUID: false},
     });
 
-    await ChatServices.database.ref('userChats/$currentUID/$chatRoomId').update(
-      {
-        'unreadCount': 0,
-        'lastSeen': ServerValue.timestamp,
-        'chatWith': receiverUID,
-        'lastMessage': {
-          'text': lastMsg['text'],
-          'timestamp': timestamp,
-          'senderId': currentUID,
-        },
-      },
-    );
+    await ChatServices.database
+        .ref('userChats/$currentUID/$chatRoomId')
+        .update({
+          'unreadCount': 0,
+          'lastSeen': timestamp,
+          'chatWith': receiverUID,
+          'lastMessage': lastMsg['text'],
+        });
 
     await ChatServices.database
         .ref('userChats/$receiverUID/$chatRoomId')
@@ -455,20 +455,16 @@ Future<void> _onSendMessage(
           'unreadCount': initialMessages.length,
           'lastSeen': null,
           'chatWith': currentUID,
-          'lastMessage': {
-            'text': lastMsg['text'],
-            'timestamp': timestamp,
-            'senderId': currentUID,
-          },
+          'lastMessage': lastMsg['text'],
         });
 
     if (token.isNotEmpty) {
       await AppApis().sendNotificationToFCM(
         title:
             isFoodSwap
-                ? "Food Swap Accepted!"
+                ? AppLocalizations.of(context)!.foodSwapAccepted
                 : isDonation
-                ? "Food Swap Accepted!"
+                ? AppLocalizations.of(context)!.foodSwapAccepted
                 : isBeneficiary
                 ? "Beneficiary Accepted!"
                 : "",

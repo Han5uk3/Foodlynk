@@ -7,12 +7,13 @@ import 'package:saver_bbk_main/helpers/hive_helper.dart';
 import 'package:saver_bbk_main/modules/home/home.dart';
 import 'package:saver_bbk_main/modules/login/otp/verify_otp.dart';
 import 'package:saver_bbk_main/modules/profile/edit_profile.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AuthServices {
   static String verId = "";
   static final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   static void verifyPhoneNumber(BuildContext context, String number) async {
-    showLoadingDialog(context, 'Sending OTP...');
+    showLoadingDialog(context, AppLocalizations.of(context)!.sendingOtp);
     await _firebaseAuth.verifyPhoneNumber(
       phoneNumber: '+965 $number',
       verificationCompleted: (PhoneAuthCredential credential) {
@@ -140,7 +141,7 @@ class AuthServices {
 
         SaverSnackBar.show(
           context: context,
-          message: "Login Success",
+          message: AppLocalizations.of(context)!.loginSuccess,
           isTrue: true,
         );
       } else {
@@ -160,7 +161,8 @@ class AuthServices {
 
         SaverSnackBar.show(
           context: context,
-          message: "Welcome! Please complete your profile",
+          message:
+              AppLocalizations.of(context)!.welcomePleaseCompleteYourProfile,
           isTrue: true,
         );
       }
@@ -219,7 +221,7 @@ class AuthServices {
     String email,
   ) async {
     try {
-      AuthServices.showLoadingDialog(context, 'Sending reset link...');
+      AuthServices.showLoadingDialog(context, AppLocalizations.of(context)!.sendingResetLink);
 
       await _firebaseAuth.sendPasswordResetEmail(email: email);
 
@@ -290,7 +292,7 @@ class AuthServices {
 
         SaverSnackBar.show(
           context: context,
-          message: "Login Success",
+          message: AppLocalizations.of(context)!.loginSuccess,
           isTrue: true,
         );
       } else {
@@ -309,7 +311,7 @@ class AuthServices {
         );
         SaverSnackBar.show(
           context: context,
-          message: "Welcome! Please complete your profile",
+          message: AppLocalizations.of(context)!.welcomePleaseCompleteYourProfile,
           isTrue: true,
         );
       }

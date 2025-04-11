@@ -60,3 +60,19 @@ class EditProfileErrorState extends ProfileState {
   @override
   String toString() => 'EditProfileErrorState{errorMessage: $errorMessage}';
 }
+
+class DeleteProfileLoadingState extends ProfileState {
+  final bool isLoading;
+  const DeleteProfileLoadingState({required this.isLoading});
+  @override
+  String toString() => 'DeleteProfileLoadingState{isLoading: $isLoading}';
+}
+
+class DeleteProfileSuccessState extends ProfileState {}
+
+class DeleteProfileErrorState extends ProfileState {
+  final String errorMessage;
+  const DeleteProfileErrorState({required this.errorMessage});
+  @override
+  String toString() => 'DeleteProfileErrorState{errorMessage: $errorMessage}';
+}

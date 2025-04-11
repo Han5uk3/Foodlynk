@@ -297,7 +297,7 @@ class _DonnationCardsState extends State<DonnationCards> {
             ),
             label: Text(
               isInterested
-                  ? "Interested"
+                  ? AppLocalizations.of(context)!.interested
                   : AppLocalizations.of(context)!.imInterested,
               style: TextStyle(
                 fontWeight: FontWeight.w500,
@@ -439,7 +439,7 @@ class _DonnationCardsState extends State<DonnationCards> {
         ),
         SizedBox(width: 6),
         Text(
-          "Donated By: ${widget.item.contactName ?? "Anonymous"}",
+          "${AppLocalizations.of(context)!.donatedBy} ${widget.item.contactName ?? AppLocalizations.of(context)!.anonymous}",
           style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
         ),
       ],
@@ -511,7 +511,7 @@ class _DonnationCardsState extends State<DonnationCards> {
           SizedBox(width: 10),
           Expanded(
             child: Text(
-              "You have $count pending request${count == 1 ? '' : 's'}",
+              "${AppLocalizations.of(context)!.youHave} $count ${AppLocalizations.of(context)!.pendingRequests}${count == 1 ? '' : 's'}",
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,

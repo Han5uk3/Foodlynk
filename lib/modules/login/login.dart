@@ -101,9 +101,9 @@ class _LoginPageState extends State<LoginPage> {
                 LengthLimitingTextInputFormatter(8),
               ],
               keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
+              decoration:  InputDecoration(
                 counterText: "",
-                hintText: 'Enter 8 digit mobile number',
+                hintText: AppLocalizations.of(context)!.enterEightDigitMobileNumber,
                 prefixText: '+965 - ',
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(
@@ -132,8 +132,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(width: 8),
-              const Text(
-                'I agree with the ',
+               Text(
+                AppLocalizations.of(context)!.iAgreeWithThe,
                 style: TextStyle(color: AppColor.black),
               ),
               GestureDetector(

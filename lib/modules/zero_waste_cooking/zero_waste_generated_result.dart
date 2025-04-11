@@ -6,7 +6,7 @@ import 'package:saver_bbk_main/styles/colors.dart';
 class ZeroWasteRecipeResultPage extends StatefulWidget {
   final GenaratedProteinPlanModel genaratedPlanModel;
   final String selectedMeal;
-  // final List<Str>
+
   const ZeroWasteRecipeResultPage({
     super.key,
     required this.genaratedPlanModel,
@@ -131,11 +131,10 @@ class _ZeroWasteRecipeResultPageState extends State<ZeroWasteRecipeResultPage> {
                                 .data!
                                 .ingredients!
                                 .length *
-                            85, // Adjust based on item height
+                            85,
                         child: ListView.builder(
                           shrinkWrap: true,
-                          physics:
-                              NeverScrollableScrollPhysics(), // Prevents nested scrolling issues
+                          physics: NeverScrollableScrollPhysics(),
                           itemCount:
                               widget
                                   .genaratedPlanModel
@@ -271,12 +270,7 @@ class DiagonalBackgroundPainter extends CustomPainter {
           ..lineTo(0, size.height)
           ..close();
 
-    paint.color = Color.fromARGB(
-      100,
-      246,
-      231,
-      178,
-    ); //rgba(246, 231, 178, 0.29)
+    paint.color = Color.fromARGB(100, 246, 231, 178);
     canvas.drawPath(topLeftPath, paint);
 
     Path bottomRightPath =

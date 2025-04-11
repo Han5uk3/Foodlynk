@@ -140,9 +140,9 @@ class _GenerateRecipePageState extends State<GenerateRecipePage> {
                 if (_isLoading)
                   SaverLoader()
                 else if (_kitchenItemNames.isEmpty)
-                  const Center(
+                  Center(
                     child: Text(
-                      'No kitchen items available.',
+                      AppLocalizations.of(context)!.noKitchenItemsAvailable,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -91,6 +92,7 @@ class CommunityPage extends StatelessWidget {
                     roomId: room['roomId'],
                     isFoodSwapped: false,
                     isFromDonations: false,
+                    context: context,
                   ),
                 ),
             child: Container(
@@ -105,10 +107,35 @@ class CommunityPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    CircleAvatar(radius: 35),
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Colors.grey[200],
+                      child: ClipOval(
+                        child:
+                            user["profileImage"] != null &&
+                                    user["profileImage"].toString().isNotEmpty
+                                ? CachedNetworkImage(
+                                  imageUrl: user["profileImage"],
+                                  width: 70,
+                                  height: 70,
+                                  fit: BoxFit.cover,
+                                  placeholder:
+                                      (context, url) =>
+                                          CircularProgressIndicator(),
+                                  errorWidget:
+                                      (context, url, error) =>
+                                          Icon(Icons.error),
+                                )
+                                : Icon(
+                                  Icons.person,
+                                  size: 40,
+                                  color: Colors.grey,
+                                ),
+                      ),
+                    ),
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 10),
+                        padding: const EdgeInsets.only(left: 10, right: 10),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,

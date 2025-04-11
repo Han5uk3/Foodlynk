@@ -1,36 +1,31 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-String getDateDifferenceMessage(String dateString) {
+String getDateDifferenceMessage(String dateString, BuildContext context) {
   try {
-    // Define the date format
     DateFormat format = DateFormat("dd/MM/yyyy");
-
-    // Parse the stored date string into a DateTime object
     DateTime storedDate = format.parse(dateString);
-
-    // Get the current system date (without time)
     DateTime currentDate = DateTime.now();
     currentDate = DateTime(
       currentDate.year,
       currentDate.month,
       currentDate.day,
     );
-
-    // Calculate the difference in days
     int daysDifference = storedDate.difference(currentDate).inDays;
 
     if (daysDifference > 3) {
-      return "This item is still fresh";
+      return AppLocalizations.of(context)!.thisItemIsStillFresh;
     } else if (daysDifference == 3) {
-      return "This item expires in 3 days";
+      return AppLocalizations.of(context)!.thisItemExpiresInThreeDay;
     } else if (daysDifference == 2) {
-      return "This item expires in 2 days";
+      return AppLocalizations.of(context)!.thisItemExpiresInTwoDay;
     } else if (daysDifference == 1) {
-      return "This item expires in 1 day";
+      return AppLocalizations.of(context)!.thisItemExpiresInOneDay;
     } else if (daysDifference == 0) {
-      return "This item expires today";
+      return AppLocalizations.of(context)!.thisItemExpiresToday;
     } else {
-      return "This item expired ${-daysDifference} days ago";
+      return "${AppLocalizations.of(context)!.thisItemExpired} ${-daysDifference} ${AppLocalizations.of(context)!.daysAgo}";
     }
   } catch (e) {
     return "Invalid date format!";

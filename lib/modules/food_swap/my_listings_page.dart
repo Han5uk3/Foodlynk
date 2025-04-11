@@ -97,8 +97,8 @@ class _MyListingsPageState extends State<MyListingsPage>
                             isScrollable: false,
                             physics: const BouncingScrollPhysics(),
                             tabs: [
-                              Tab(text: "Food Details"),
-                              Tab(text: "Requests"),
+                              Tab(text: AppLocalizations.of(context)!.foodDeatils),
+                              Tab(text:AppLocalizations.of(context)!.requests),
                             ],
                             indicatorColor: AppColor.appbarColor,
                             labelStyle: const TextStyle(
@@ -303,34 +303,47 @@ class _FoodDetailsState extends State<FoodDetails> {
   }
 
   void _saveChanges() {
-    if (nameController.text.isEmpty ||
-        numberOfQuantity < 1 ||
-        (selectedUnit?.isEmpty ?? false) ||
-        selectedExpiryDate == null) {
+    if (nameController.text.isEmpty) {
       SaverSnackBar.show(
         context: context,
-        message: AppLocalizations.of(context)!.pleaseFillInAllFields,
+        message: AppLocalizations.of(context)!.plaeseenterItemName,
         isTrue: false,
       );
       return;
-    } else {
-      final Items item = Items(
-        id: widget.items.id,
-        name: nameController.text,
-        quantity: numberOfQuantity,
-        unit: selectedUnit ?? "",
-        status: widget.items.status,
-        category: selectedCategory,
-        expiredDate: selectedExpiryDate,
+    }
+    if (selectedUnit == null) {
+      SaverSnackBar.show(
+        context: context,
+        message: AppLocalizations.of(context)!.pleaseSelectAUnitType,
+        isTrue: false,
       );
+      return;
+    }
+    if (selectedExpiryDate == null) {
+      SaverSnackBar.show(
+        context: context,
+        message: "Please select an expiry date",
+        isTrue: false,
+      );
+      return;
+    }
 
-      if (widget.isEditable) {
-        context.read<FoodSwapBloc>().add(UpdateItemInFoodSwapEvent(item: item));
-      } else {
-        context.read<FoodSwapBloc>().add(
-          AddItemToFoodSwapEvent(item: item, imageFile: _imageFile),
-        );
-      }
+    final Items item = Items(
+      id: widget.items.id,
+      name: nameController.text,
+      quantity: numberOfQuantity,
+      unit: selectedUnit ?? "",
+      status: widget.items.status,
+      category: selectedCategory,
+      expiredDate: selectedExpiryDate,
+    );
+
+    if (widget.isEditable) {
+      context.read<FoodSwapBloc>().add(UpdateItemInFoodSwapEvent(item: item));
+    } else {
+      context.read<FoodSwapBloc>().add(
+        AddItemToFoodSwapEvent(item: item, imageFile: _imageFile),
+      );
     }
   }
 
@@ -737,6 +750,7 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                                           fcmToken: fcmToken,
                                           communityBloc:
                                               context.read<CommunityBloc>(),
+                                              context: context
                                         ),
                                       ),
                                   borderColor: AppColor.primaryColor,

@@ -34,12 +34,15 @@ void main() async {
   await dotenv.load(fileName: "lib/.env");
   await Hive.initFlutter();
   await Hive.openBox(boxName);
-  runApp(const MyApp());
+  final savedLocale = ProfileBloc.getSavedLocale();
+  print("App starting with locale: ${savedLocale.languageCode}");
+  runApp(MyApp(initialLocale: savedLocale));
 }
 
 class MyApp extends StatefulWidget {
   static final box = Hive.box(boxName);
-  const MyApp({super.key});
+  final Locale initialLocale;
+  const MyApp({super.key, required this.initialLocale});
 
   @override
   State<MyApp> createState() => _MyAppState();

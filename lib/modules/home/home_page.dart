@@ -65,9 +65,9 @@ class _HomePageState extends State<HomePage> {
       },
       {
         "id": 8,
-        "name": "Learn & Save",
-        "image": "waste free cooking.svg",
-        "color": 0xFFFAF0FA,
+        "name": AppLocalizations.of(context)!.learnAndSave,
+        "image": "Learn & Save.svg",
+        "color": 0xFFfad7ee,
       },
     ];
     return Scaffold(
@@ -274,11 +274,7 @@ class _HomePageState extends State<HomePage> {
         padding: EdgeInsets.symmetric(vertical: 10),
         child: Row(
           children: [
-            Container(
-              height: 40,
-              width: 40,
-             child: loadsvg(flagAsset),
-            ),
+            Container(height: 40, width: 40, child: loadsvg(flagAsset)),
             SizedBox(width: 15),
             Text(
               language,

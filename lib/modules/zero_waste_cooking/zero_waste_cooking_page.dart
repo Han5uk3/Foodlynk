@@ -227,7 +227,10 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                               if (selectedType == null) {
                                 SaverSnackBar.show(
                                   context: context,
-                                  message: "Please select a type",
+                                  message:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.pleaseSelectAType,
                                   isTrue: false,
                                 );
                                 return;
@@ -236,7 +239,10 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                               if (selectedMeal == null) {
                                 SaverSnackBar.show(
                                   context: context,
-                                  message: "Please select a meal",
+                                  message:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.pleaseSelectAMeal,
                                   isTrue: false,
                                 );
                                 return;
@@ -273,7 +279,9 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                                 SaverSnackBar.show(
                                   context: context,
                                   message:
-                                      "You don't have enough ingredients in your kitchen to generate the portion plan.",
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.youDontHaveEnoughIngredients,
                                   isTrue: false,
                                 );
                                 return;

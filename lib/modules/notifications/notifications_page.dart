@@ -157,7 +157,9 @@ class _NotificationsPageState extends State<NotificationsPage>
                           )
                           : Icon(Icons.delete_outlined, color: AppColor.red),
                   label: Text(
-                    isClearing ? "Clearing..." : "Clear All",
+                    isClearing
+                        ? "Clearing..."
+                        : AppLocalizations.of(context)!.clearAll,
                     style: TextStyle(color: AppColor.red),
                   ),
                 ),

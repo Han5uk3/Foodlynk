@@ -71,7 +71,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
             Navigator.pop(context);
             SaverSnackBar.show(
               context: context,
-              message: "Your request has been sent",
+              message: AppLocalizations.of(context)!.yourRequesthasBeenSent,
               isTrue: true,
             );
           }
@@ -117,7 +117,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                 ),
                 SizedBox(height: 20),
                 Text(
-                  "Pickup Date & Time",
+                  AppLocalizations.of(context)!.pickupDateAndTime,
                   style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                 ),
                 SizedBox(height: 10),
@@ -334,7 +334,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
           ),
         ),
         Text(
-          " Location: ",
+          AppLocalizations.of(context)!.location,
           style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
         ),
         SizedBox(width: 5),
@@ -400,7 +400,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                   SizedBox(width: 10),
                   Expanded(
                     child: SaverButton(
-                      text:AppLocalizations.of(context)!.done,
+                      text: AppLocalizations.of(context)!.done,
                       onPressed: () {
                         Navigator.pop(context);
                         setState(() {

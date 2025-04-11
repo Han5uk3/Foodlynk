@@ -16,6 +16,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc() : super(ProfileState()) {
     on<ChangeLocale>(_onChangeLocale);
     on<LogoutEvent>(_logout);
+    on<DeleteProfileEvent>(_deleteProfile);
     on<CreateProfileEvent>(_createProfile);
     on<EditProfileEvent>(_editProfile);
   }
@@ -41,6 +42,53 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       emit(LogoutStateSuccess());
     } catch (e) {
       emit(LogoutStateError(errorMessage: e.toString()));
+    }
+  }
+
+  void _deleteProfile(DeleteProfileEvent event, Emitter emit) async {
+    emit(DeleteProfileLoadingState(isLoading: true));
+    try {
+      WriteBatch batch = FirebaseFirestore.instance.batch();
+      batch.delete(Collections.users.doc(Services.uid));
+      QuerySnapshot foodSwapDocs =
+          await Collections.foodSwap
+              .where('uid', isEqualTo: Services.uid)
+              .get();
+      for (var doc in foodSwapDocs.docs) {
+        batch.delete(doc.reference);
+      }
+      QuerySnapshot smartShoppingDocs =
+          await Collections.smartShopping
+              .where('uid', isEqualTo: Services.uid)
+              .get();
+      for (var doc in smartShoppingDocs.docs) {
+        batch.delete(doc.reference);
+      }
+      QuerySnapshot notificationDocs =
+          await Collections.notifications
+              .where('uid', isEqualTo: Services.uid)
+              .get();
+      for (var doc in notificationDocs.docs) {
+        batch.delete(doc.reference);
+      }
+      QuerySnapshot donationDocs =
+          await Collections.donations
+              .where('raisedBy', isEqualTo: Services.uid)
+              .get();
+      for (var doc in donationDocs.docs) {
+        batch.delete(doc.reference);
+      }
+      QuerySnapshot userDocs = await Collections.users.get();
+      for (var doc in userDocs.docs) {
+        batch.delete(doc.reference);
+      }
+      await HiveHelper.removeUID();
+      await HiveHelper.removeIsGuest();
+      await batch.commit();
+      await FirebaseAuth.instance.currentUser?.delete();
+      emit(DeleteProfileSuccessState());
+    } catch (e) {
+      emit(DeleteProfileErrorState(errorMessage: e.toString()));
     }
   }
 
@@ -98,13 +146,13 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
               'title': event.userModel.title,
               'firstName': event.userModel.firstName,
               'lastName': event.userModel.lastName,
-              'phoneNumber': event.userModel.phoneNumber,
               'email': event.userModel.email,
               'gender': event.userModel.gender,
               'dob': event.userModel.dob,
               'profileImage': event.userModel.profileImage,
             })
             .then((value) {
+              add(ChangeLocale(languageCode: HiveHelper().getUserlanguage()));
               emit(EditProfileSuccessState());
             })
             .onError((error, stackTrace) {

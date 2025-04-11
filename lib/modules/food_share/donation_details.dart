@@ -154,7 +154,7 @@ class _DonationDetailsState extends State<DonationDetails>
             Navigator.pop(context);
             SaverSnackBar.show(
               context: context,
-              message: "Donation Added Successfully",
+              message: AppLocalizations.of(context)!.donationAddedSuccessfully,
               isTrue: true,
             );
           }
@@ -163,7 +163,7 @@ class _DonationDetailsState extends State<DonationDetails>
             Navigator.pop(context);
             SaverSnackBar.show(
               context: context,
-              message: "Request Added Successfully",
+              message: AppLocalizations.of(context)!.requestAddedSuccessfully,
               isTrue: true,
             );
           }
@@ -250,7 +250,7 @@ class _DonationDetailsState extends State<DonationDetails>
         text:
             widget.isDonor
                 ? AppLocalizations.of(context)!.submitDonation
-                : "Submit Request",
+                : AppLocalizations.of(context)!.submitRequest,
         isLoading: _isLoading,
         onPressed: _validateAndSubmit,
       ),
@@ -351,7 +351,7 @@ class _DonationDetailsState extends State<DonationDetails>
                             ),
                             SizedBox(height: 16),
                             Text(
-                              "Opening chat...",
+                              AppLocalizations.of(context)!.openingChat,
                               style: TextStyle(fontWeight: FontWeight.w500),
                             ),
                           ],
@@ -542,7 +542,7 @@ class _DonationDetailsState extends State<DonationDetails>
                             ),
                           ),
                           Text(
-                            "Request received ${_getTimeAgo(request['timestamp'])}",
+                            "${AppLocalizations.of(context)!.requestReceivedRecently} ${_getTimeAgo(request['timestamp'])}",
                             style: TextStyle(
                               color: Colors.grey[600],
                               fontSize: 12,
@@ -562,12 +562,21 @@ class _DonationDetailsState extends State<DonationDetails>
                   ),
                   child: Column(
                     children: [
-                      if (hasEmail) _infoRow(Icons.email, "Email", user.email!),
+                      if (hasEmail)
+                        _infoRow(
+                          Icons.email,
+                          AppLocalizations.of(context)!.email,
+                          user.email!,
+                        ),
                       if (hasPhone)
-                        _infoRow(Icons.phone, "Phone", user.phoneNumber!),
+                        _infoRow(
+                          Icons.phone,
+                          AppLocalizations.of(context)!.phone,
+                          user.phoneNumber!,
+                        ),
                       _infoRow(
                         Icons.calendar_today,
-                        "Date",
+                        AppLocalizations.of(context)!.date,
                         DateFormatHelper.ddmmyyyyString(request['timestamp']),
                       ),
                     ],
@@ -617,6 +626,7 @@ class _DonationDetailsState extends State<DonationDetails>
                                       reciverUid: raisedUid,
                                       communityBloc:
                                           context.read<CommunityBloc>(),
+                                      context: context,
                                     ),
                                   );
                                 },
@@ -1084,9 +1094,12 @@ class _DonationDetailsState extends State<DonationDetails>
                       LengthLimitingTextInputFormatter(8),
                     ],
                     keyboardType: TextInputType.phone,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       counterText: "",
-                      hintText: 'Enter 8 digit mobile number',
+                      hintText:
+                          AppLocalizations.of(
+                            context,
+                          )!.enterEightDigitMobileNumber,
                       prefixText: '+965 - ',
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(

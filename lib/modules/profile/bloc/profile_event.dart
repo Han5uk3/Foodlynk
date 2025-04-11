@@ -11,6 +11,8 @@ class LogoutEvent extends ProfileEvent {
   LogoutEvent({required this.communityBloc});
 }
 
+class DeleteProfileEvent extends ProfileEvent {}
+
 class CreateProfileEvent extends ProfileEvent {
   final String title;
   final String firstName;
@@ -57,7 +59,13 @@ class CreateProfileEvent extends ProfileEvent {
 
 class EditProfileEvent extends ProfileEvent {
   final UserModel userModel;
-  EditProfileEvent({required this.userModel});
+  final bool preserveLocale;
+  final String locale;
+  EditProfileEvent({
+    required this.userModel,
+    this.preserveLocale = false,
+    this.locale = 'en',
+  });
   @override
   List<Object?> get props => [userModel];
 }

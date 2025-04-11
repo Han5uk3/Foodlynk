@@ -178,7 +178,7 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
           iconColor: AppColor.blue,
           text:
               isBenificiary
-                  ? "Donated By: ${item.contactName ?? "Anonymous"}"
+                  ? "${AppLocalizations.of(context)!.donatedBy} ${item.contactName ?? AppLocalizations.of(context)!.anonymous}"
                   : "${AppLocalizations.of(context)!.serves} ${item.noOfServe ?? 0}",
         ),
 
