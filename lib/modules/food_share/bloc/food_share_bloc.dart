@@ -225,24 +225,28 @@ class FoodShareBloc extends Bloc<FoodShareEvent, FoodShareState> {
   ) async {
     try {
       emit(AcceptRequestLoadingState());
+      bool updateSuccessful = false;
       await Collections.donations
           .doc(event.reqId)
           .update({'status': 'A'})
           .then((value) {
-            event.communityBloc?.add(
-              InitializeChatRoomEvent(
-                receiverUid: event.reciverUid,
-                fcmToken: event.fcmToken,
-                isFoodSwapped: false,
-                isFromDonations: event.type == 'DONR',
-                isFromBeneficiary: event.type == 'BENF',
-                context: event.context,
-              ),
-            );
+            updateSuccessful = true;
           })
           .onError((error, stackTrace) {
             emit(AcceptRequestFailedState(errorMessage: error.toString()));
           });
+      if (updateSuccessful && event.communityBloc != null) {
+        event.communityBloc!.add(
+          InitializeChatRoomEvent(
+            receiverUid: event.reciverUid,
+            fcmToken: event.fcmToken,
+            isFoodSwapped: false,
+            isFromDonations: event.type == 'DONR',
+            isFromBeneficiary: event.type == 'BENF',
+            localizedMessages: event.localizedMessages,
+          ),
+        );
+      }
     } catch (e) {
       emit(AcceptRequestFailedState(errorMessage: e.toString()));
     }

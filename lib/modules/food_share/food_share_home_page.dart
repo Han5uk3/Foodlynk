@@ -159,7 +159,8 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
                         context,
                         MaterialPageRoute(
                           builder:
-                              (context) => DonationDetails(
+                              (context) =>
+                               DonationDetails(
                                 isDonor: isDonor,
                                 isView: false,
                                 isFromCard: false,
@@ -230,6 +231,7 @@ class _FoodShareHomePageState extends State<FoodShareHomePage>
               tabIndex: _tabController.index,
               isBenificiary: false,
               itsMy: true,
+              isFromHomePage: false,
             );
           },
         );

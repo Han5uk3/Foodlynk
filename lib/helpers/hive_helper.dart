@@ -15,7 +15,7 @@ class HiveHelper {
   }
 
   static getIsGuest() {
-    return MyApp.box.get('isGuest');
+    return MyApp.box.get('isGuest', defaultValue: false);
   }
 
   static removeUID() {

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -86,13 +87,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> _fetchUserProfile() async {
     try {
-      final snapshot =
-          await Services.getUserDetails(uid: HiveHelper.getUID()).first;
-      if (snapshot.docs.isNotEmpty) {
-        final userDoc = snapshot.docs.first;
-        final userData = userDoc.data();
-        final user = userData is UserModel ? userData : UserModel();
-        _populateFields(user);
+      final uid = Services.uid ?? "";
+      if (uid == null) {
+        debugPrint('No user is logged in.');
+        return;
+      }
+
+      log(uid);
+
+      final docSnapshot =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data();
+        if (data != null) {
+          final user = UserModel.fromJson(data);
+          _populateFields(user);
+        } else {
+          debugPrint('User data is null');
+        }
+      } else {
+        debugPrint('No user document found');
       }
     } catch (e) {
       debugPrint('Error fetching user profile: $e');
@@ -284,6 +299,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
             );
           }
 
+          if (state is CreateProfileErrorState) {
+            setState(() {
+              _isLoading = false;
+            });
+            SaverSnackBar.show(
+              context: context,
+              message: state.errorMessage,
+              isTrue: false,
+            );
+          }
+
           if (state is CreateProfileLoadingState) {
             setState(() {
               _isLoading = state.isLoading;
@@ -313,85 +339,47 @@ class _EditProfilePageState extends State<EditProfilePage> {
           onPressed:
               _isUploadingImage
                   ? () {}
-                  : widget.isEdit
-                  ? () async {
-                    if (!formKey.currentState!.validate()) {
-                      return;
-                    }
-
-                    final String? imageUrl = await _uploadProfileImage();
-
-                    context.read<ProfileBloc>().add(
-                      EditProfileEvent(
-                        userModel: UserModel(
-                          uid: HiveHelper.getUID(),
-                          gender: selectedGender,
-                          title: selectedTitle ?? "",
-                          firstName: _nameController.text,
-                          lastName: _lastNameController.text,
-                          phoneNumber: widget.phoneNumber ?? "",
-                          address: _addressController.text,
-                          zipCode: _zipCodeController.text,
-                          email: _emailController.text,
-                          dob: Timestamp.fromDate(selectedDate!),
-                          profileImage: imageUrl,
-                        ),
-                        preserveLocale: true,
-                        locale: HiveHelper().getUserlanguage(),
-                      ),
-                    );
-
-                    context.read<ProfileBloc>().add(
-                      ChangeLocale(
-                        languageCode: HiveHelper().getUserlanguage(),
-                      ),
-                    );
-                  }
                   : () async {
-                    if (_nameController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            AppLocalizations.of(context)!.pleaseEnterYourName,
-                          ),
-                        ),
-                      );
-                      return;
-                    }
-                    if (selectedDate == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.pleaseSelectADateOfBirth,
-                          ),
-                        ),
-                      );
-                      return;
-                    }
-                    if (!formKey.currentState!.validate()) {
-                      return;
-                    }
-
                     final String? imageUrl = await _uploadProfileImage();
 
-                    context.read<ProfileBloc>().add(
-                      CreateProfileEvent(
-                        title: selectedTitle ?? "",
-                        firstName: _nameController.text,
-                        phoneNumber: widget.phoneNumber ?? "",
-                        lastName: _lastNameController.text,
-                        gender: selectedGender ?? "",
-                        dob: Timestamp.fromDate(selectedDate!),
-                        address: _addressController.text,
-                        zipCode: _zipCodeController.text,
-                        email: _emailController.text,
-                        profileImage: imageUrl ?? '',
-                        isEmailLogin: widget.isFromEmailLogin,
-                        password: widget.password,
-                      ),
+                    final userModel = UserModel(
+                      uid: HiveHelper.getUID(),
+                      gender: selectedGender,
+                      title: selectedTitle ?? "",
+                      firstName: _nameController.text,
+                      lastName: _lastNameController.text,
+                      phoneNumber: widget.phoneNumber ?? "",
+                      address: _addressController.text,
+                      zipCode: _zipCodeController.text,
+                      email: _emailController.text,
+                      dob: Timestamp.fromDate(selectedDate ?? DateTime.now()),
+                      profileImage: imageUrl,
+                      createdAt: DateTime.now(),
                     );
+
+                    if (widget.isEdit) {
+                      context.read<ProfileBloc>().add(
+                        EditProfileEvent(
+                          userModel: userModel,
+                          preserveLocale: true,
+                          locale: HiveHelper().getUserlanguage(),
+                        ),
+                      );
+
+                      context.read<ProfileBloc>().add(
+                        ChangeLocale(
+                          languageCode: HiveHelper().getUserlanguage(),
+                        ),
+                      );
+                    } else {
+                      context.read<ProfileBloc>().add(
+                        CreateProfileEvent(
+                          userModel: userModel,
+                          password: widget.password ?? "",
+                          isEmailLogin: widget.isFromEmailLogin,
+                        ),
+                      );
+                    }
                   },
         ),
       ),

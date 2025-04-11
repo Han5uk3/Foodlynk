@@ -92,7 +92,6 @@ class CommunityPage extends StatelessWidget {
                     roomId: room['roomId'],
                     isFoodSwapped: false,
                     isFromDonations: false,
-                    context: context,
                   ),
                 ),
             child: Container(

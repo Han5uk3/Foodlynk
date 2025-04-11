@@ -27,12 +27,12 @@ class InitializeChatRoomEvent extends CommunityEvent {
   final bool isFoodSwapped;
   final bool isFromDonations;
   final bool isFromBeneficiary;
-  final BuildContext context;
+  final Map<String, String>? localizedMessages;
   InitializeChatRoomEvent({
     this.receiverUid,
     this.roomId,
     this.fcmToken,
-    required this.context,
+    this.localizedMessages,
     required this.isFoodSwapped,
     required this.isFromDonations,
     this.isFromBeneficiary = false,

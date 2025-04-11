@@ -262,11 +262,12 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                 onImageSelected: (File image) {
                   if (isBefore) {
                     context.read<ChallengeBloc>().add(
-                      UploadBeforeImageEvent(imageFile: image),
+                      UploadBeforeImageEvent(context,imageFile: image),
                     );
                   } else if (_beforeImageFile != null) {
                     context.read<ChallengeBloc>().add(
                       UploadAfterImageEvent(
+                        context,
                         imageFile: image,
                         beforeImageFile: _beforeImageFile!,
                       ),
@@ -408,7 +409,7 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                 loadsvg("assets/icons/completed.svg"),
                 const SizedBox(height: 20),
                 Text(
-                  "You earned $points points on completing your challenge!",
+                  AppLocalizations.of(context)!.youEarnedTenPointsOn,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 35),

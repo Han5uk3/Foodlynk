@@ -104,6 +104,7 @@ class FoodSwapBloc extends Bloc<FoodSwapEvent, FoodSwapState> {
     AcceptedFoodSwapRequestEvent event,
     Emitter<FoodSwapState> emit,
   ) async {
+    bool updateSuccessful = false;
     emit(RequestAcceptedLoadingState(isLoading: true));
     try {
       await Collections.foodSwap.doc(event.acceptedSwapItemId).update({
@@ -111,17 +112,20 @@ class FoodSwapBloc extends Bloc<FoodSwapEvent, FoodSwapState> {
       });
       await Collections.foodSwap.doc(event.swapId).update({'status': 'A'}).then(
         (value) {
-          event.communityBloc?.add(
-            InitializeChatRoomEvent(
-              receiverUid: event.reciverUid,
-              fcmToken: event.fcmToken,
-              isFoodSwapped: true,
-              isFromDonations: false,
-              context: event.context
-            ),
-          );
+          updateSuccessful = true;
         },
       );
+      if (updateSuccessful && event.communityBloc != null) {
+        event.communityBloc?.add(
+          InitializeChatRoomEvent(
+            receiverUid: event.reciverUid,
+            fcmToken: event.fcmToken,
+            isFoodSwapped: true,
+            isFromDonations: false,
+            localizedMessages: event.localizedMessages,
+          ),
+        );
+      }
     } catch (e) {
       emit(RequestAcceptedError(errorMessage: e.toString()));
     }

@@ -119,10 +119,9 @@ class _DonationDetailsState extends State<DonationDetails>
                   ),
                 ]
                 : [],
+
         bottom:
-            !widget.isDonor && widget.isFromCard
-                ? null
-                : widget.isFromCard
+            widget.isFromCard && widget.isDonor
                 ? TabBar(
                   controller: _tabController,
                   labelColor: AppColor.primaryColor,
@@ -201,7 +200,8 @@ class _DonationDetailsState extends State<DonationDetails>
             Navigator.pop(context);
             SaverSnackBar.show(
               context: context,
-              message: AppLocalizations.of(context)!.requestDeclinedSuccessfully,
+              message:
+                  AppLocalizations.of(context)!.requestDeclinedSuccessfully,
               isTrue: true,
             );
           }
@@ -214,9 +214,7 @@ class _DonationDetailsState extends State<DonationDetails>
           }
         },
         child:
-            !widget.isDonor && widget.isFromCard
-                ? _buildIncomingRequestsTab()
-                : widget.isFromCard
+            widget.isFromCard && widget.isDonor
                 ? TabBarView(
                   controller: _tabController,
                   children: [
@@ -224,12 +222,13 @@ class _DonationDetailsState extends State<DonationDetails>
                     _buildDonorBody(widget.isView),
                   ],
                 )
+                : widget.isFromCard && !widget.isDonor
+                ? _buildIncomingRequestsTab()
                 : widget.isDonor
                 ? _buildDonorBody(widget.isView)
                 : _buildBeneficiaryBody(widget.isView),
       ),
-      bottomNavigationBar:
-          widget.isDonor || !widget.isFromCard ? _buildSubmitButton() : null,
+      bottomNavigationBar: !widget.isFromCard ? _buildSubmitButton() : null,
     );
   }
 
@@ -331,12 +330,12 @@ class _DonationDetailsState extends State<DonationDetails>
               setState(() {
                 _isNavigatingToChat = true;
               });
-
+              final BuildContext currentContext = context;
               showDialog(
-                context: context,
+                context: currentContext,
                 barrierDismissible: false,
                 builder:
-                    (context) => Center(
+                    (dialogContext) => Center(
                       child: Container(
                         padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -351,7 +350,7 @@ class _DonationDetailsState extends State<DonationDetails>
                             ),
                             SizedBox(height: 16),
                             Text(
-                              AppLocalizations.of(context)!.openingChat,
+                              "Chat Opening.....",
                               style: TextStyle(fontWeight: FontWeight.w500),
                             ),
                           ],
@@ -361,11 +360,9 @@ class _DonationDetailsState extends State<DonationDetails>
               );
 
               Future.delayed(Duration(milliseconds: 800), () {
-                if (mounted) {
-                  Navigator.pop(context);
-
+                if (currentContext.mounted) {
                   Navigator.push(
-                    context,
+                    currentContext,
                     MaterialPageRoute(
                       builder:
                           (context) => ChatPage(isFromNotifications: false),
@@ -379,6 +376,10 @@ class _DonationDetailsState extends State<DonationDetails>
                     }
                   });
                 }
+              }).then((_) {
+                setState(() {
+                  _isNavigatingToChat = false;
+                });
               });
             }
 
@@ -386,7 +387,6 @@ class _DonationDetailsState extends State<DonationDetails>
               setState(() {
                 _isNavigatingToChat = false;
               });
-
               SaverSnackBar.show(
                 context: context,
                 message: state.errorMessage ?? 'An error occurred',
@@ -612,21 +612,58 @@ class _DonationDetailsState extends State<DonationDetails>
                                     _isNavigatingToChat
                                 ? () {}
                                 : () {
+                                  final String requestId =
+                                      widget.model.id ?? '';
+                                  final String requestType =
+                                      widget.model.type ?? '';
+                                  final String userFcmToken =
+                                      user.fcmToken ?? "";
+                                  final String receiverUid = raisedUid;
+                                  final localizedMessages = {
+                                    'hello':
+                                        AppLocalizations.of(context)!.hello,
+                                    'acceptFoodSwap':
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.iAcceptYourFoodSwap,
+                                    'donateFoodMessage':
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.iWantToDonateMyFoodWithYou,
+                                    'receiveFoodMessage':
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.iWantToReceiveFoodWithYou,
+
+                                    'foodSwapAccepted':
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.foodSwapAccepted,
+                                    'beneficiaryAccepted':
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.beneficiaryAccepted,
+                                  };
                                   setState(() {
                                     _processingRequests.add(
                                       "accept_$requestId",
                                     );
                                   });
 
-                                  context.read<FoodShareBloc>().add(
+                                  final foodShareBloc =
+                                      context.read<FoodShareBloc>();
+                                  final communityBloc =
+                                      context.read<CommunityBloc>();
+
+                                  foodShareBloc.add(
                                     AcceptFoodShareRequest(
-                                      reqId: widget.model.id ?? '',
-                                      type: widget.model.type ?? '',
-                                      fcmToken: user.fcmToken ?? "",
-                                      reciverUid: raisedUid,
-                                      communityBloc:
-                                          context.read<CommunityBloc>(),
+                                      reqId: requestId,
+                                      type: requestType,
+                                      fcmToken: userFcmToken,
+                                      reciverUid: receiverUid,
+                                      communityBloc: communityBloc,
                                       context: context,
+                                      localizedMessages: localizedMessages,
                                     ),
                                   );
                                 },
@@ -1132,7 +1169,7 @@ class _DonationDetailsState extends State<DonationDetails>
           ),
           content: Text(
             isDonor
-                ? AppLocalizations.of(context)!.areYouSureWantToDeletThisDonation
+                ? 'Are you sure you want to delete this donation?'
                 : AppLocalizations.of(
                   context,
                 )!.areYouSureWantToDeletThisRequest,

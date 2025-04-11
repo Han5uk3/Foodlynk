@@ -66,13 +66,15 @@ class AcceptedFoodSwapRequestEvent extends FoodSwapEvent {
   final String fcmToken;
   final CommunityBloc? communityBloc;
   final BuildContext context;
+  final Map<String, String> localizedMessages;
   const AcceptedFoodSwapRequestEvent({
     required this.swapId,
     required this.reciverUid,
     required this.fcmToken,
     required this.acceptedSwapItemId,
     this.communityBloc,
-    required this.context
+    required this.context,
+    required this.localizedMessages,
   });
   @override
   List<Object> get props => [swapId];

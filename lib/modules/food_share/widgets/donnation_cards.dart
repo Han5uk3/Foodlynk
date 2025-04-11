@@ -90,7 +90,7 @@ class _DonnationCardsState extends State<DonnationCards> {
       onTap:
           widget.isFromHomePage
               ? _showDetailBottomSheet
-              : !widget.itsMy || widget.item.status == "A"
+              : widget.item.status == "A"
               ? null
               : () {
                 Navigator.push(
@@ -98,7 +98,7 @@ class _DonnationCardsState extends State<DonnationCards> {
                   MaterialPageRoute(
                     builder:
                         (context) => DonationDetails(
-                          isDonor: false,
+                          isDonor: !widget.isBenificiary,
                           isView: true,
                           isFromCard: true,
                           model: widget.item,

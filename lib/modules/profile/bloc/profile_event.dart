@@ -14,47 +14,18 @@ class LogoutEvent extends ProfileEvent {
 class DeleteProfileEvent extends ProfileEvent {}
 
 class CreateProfileEvent extends ProfileEvent {
-  final String title;
-  final String firstName;
-  final String profileImage;
-  final String lastName;
-  final String email;
-  final String phoneNumber;
-  final String address;
-  final String gender;
-  final Timestamp dob;
-  final String zipCode;
-  final bool isEmailLogin;
+  final UserModel userModel;
   final String? password;
+  final bool isEmailLogin;
 
   CreateProfileEvent({
-    required this.title,
-    required this.firstName,
-    required this.lastName,
+    required this.userModel,
     required this.isEmailLogin,
-    required this.profileImage,
-    required this.email,
-    required this.phoneNumber,
-    required this.address,
-    required this.gender,
-    required this.dob,
-    required this.zipCode,
     this.password,
   });
 
   @override
-  List<Object?> get props => [
-    title,
-    firstName,
-    profileImage,
-    lastName,
-    email,
-    phoneNumber,
-    address,
-    gender,
-    dob,
-    zipCode,
-  ];
+  List<Object?> get props => [userModel];
 }
 
 class EditProfileEvent extends ProfileEvent {

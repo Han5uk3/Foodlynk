@@ -9,8 +9,9 @@ abstract class ChallengeEvent extends Equatable {
 
 class UploadBeforeImageEvent extends ChallengeEvent {
   final File imageFile;
+  final BuildContext context;
 
-  const UploadBeforeImageEvent({required this.imageFile});
+  const UploadBeforeImageEvent(this.context, {required this.imageFile});
 
   @override
   List<Object> get props => [imageFile];
@@ -19,8 +20,9 @@ class UploadBeforeImageEvent extends ChallengeEvent {
 class UploadAfterImageEvent extends ChallengeEvent {
   final File imageFile;
   final File beforeImageFile;
+  final BuildContext context;
 
-  const UploadAfterImageEvent({
+  const UploadAfterImageEvent(this.context, {
     required this.imageFile, 
     required this.beforeImageFile
   });

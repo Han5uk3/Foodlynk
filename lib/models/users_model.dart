@@ -79,6 +79,48 @@ class UserModel {
       createdAt: parseTimestamp(data['createdAt']),
     );
   }
+  UserModel copyWith({
+    String? uid,
+    String? title,
+    String? profileImage,
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? phoneNumber,
+    String? address,
+    String? gender,
+    String? fcmToken,
+    Timestamp? dob,
+    String? zipCode,
+    int? points,
+    List<Items>? kitchenItems,
+    int? monthlyItemQuantityAddedCount,
+    int? monthlyItemQuantityRemovedCount,
+    DateTime? createdAt,
+  }) {
+    return UserModel(
+      uid: uid ?? this.uid,
+      title: title ?? this.title,
+      profileImage: profileImage ?? this.profileImage,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      email: email ?? this.email,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      address: address ?? this.address,
+      gender: gender ?? this.gender,
+      fcmToken: fcmToken ?? this.fcmToken,
+      dob: dob ?? this.dob,
+      zipCode: zipCode ?? this.zipCode,
+      points: points ?? this.points,
+      kitchenItems: kitchenItems ?? this.kitchenItems,
+      monthlyItemQuantityAddedCount:
+          monthlyItemQuantityAddedCount ?? this.monthlyItemQuantityAddedCount,
+      monthlyItemQuantityRemovedCount:
+          monthlyItemQuantityRemovedCount ??
+          this.monthlyItemQuantityRemovedCount,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 
   Map<String, dynamic> toFirestore({bool isNew = false}) {
     return {
@@ -211,6 +253,28 @@ class Items {
       'status': status,
       'expiredDate': Timestamp.fromDate(expiredDate ?? DateTime.now()),
     };
+  }
+
+  Items copyWith({
+    String? id,
+    String? name,
+    String? image,
+    String? category,
+    int? quantity,
+    String? unit,
+    String? status,
+    dynamic expiredDate,
+  }) {
+    return Items(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      image: image ?? this.image,
+      category: category ?? this.category,
+      quantity: quantity ?? this.quantity,
+      unit: unit ?? this.unit,
+      status: status ?? this.status,
+      expiredDate: expiredDate ?? this.expiredDate,
+    );
   }
 
   static String generateRandomId() {

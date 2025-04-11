@@ -8,7 +8,6 @@ import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/models/chat_model.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/services/chat_services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 part 'community_event.dart';
 part 'community_state.dart';
 
@@ -191,7 +190,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
             event.isFoodSwapped,
             event.isFromDonations,
             event.isFromBeneficiary,
-            event.context,
+            event.localizedMessages!,
           );
         }
         Future.delayed(
@@ -375,7 +374,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     bool isFoodSwap,
     bool isDonation,
     bool isBeneficiary,
-    BuildContext context,
+    Map<String, String> localizedMessages,
   ) async {
     final now = DateTime.now();
     final nowIso = now.toIso8601String();
@@ -385,13 +384,12 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
             ? [
               {
                 'senderId': currentUID,
-                'text': '${AppLocalizations.of(context)!.hello} 👋',
+                'text': '${localizedMessages['hello']} 👋',
                 'timestamp': timestamp,
               },
               {
                 'senderId': currentUID,
-                'text':
-                    '${AppLocalizations.of(context)!.iAcceptYourFoodSwap} 🍲',
+                'text': '${localizedMessages['acceptFoodSwap']} 🍲',
                 'timestamp': timestamp,
               },
             ]
@@ -399,13 +397,12 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
             ? [
               {
                 'senderId': currentUID,
-                'text': '${AppLocalizations.of(context)!.hello} 👋',
+                'text': '${localizedMessages['hello']} 👋',
                 'timestamp': timestamp,
               },
               {
                 'senderId': currentUID,
-                'text':
-                    '${AppLocalizations.of(context)!.iWantToDonateMyFoodWithYou} 🍲',
+                'text': '${localizedMessages['donateFoodMessage']} 🍲',
                 'timestamp': timestamp,
               },
             ]
@@ -413,13 +410,12 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
             ? [
               {
                 'senderId': currentUID,
-                'text': '${AppLocalizations.of(context)!.hello} 👋',
+                'text': '${localizedMessages['hello']} 👋',
                 'timestamp': timestamp,
               },
               {
                 'senderId': currentUID,
-                'text':
-                    '${AppLocalizations.of(context)!.iWantToReceiveFoodWithYou} 🍲',
+                'text': '${localizedMessages['receiveFoodMessage']} 🍲',
                 'timestamp': timestamp,
               },
             ]
@@ -463,11 +459,12 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       await AppApis().sendNotificationToFCM(
         title:
             isFoodSwap
-                ? AppLocalizations.of(context)!.foodSwapAccepted
+                ? localizedMessages['foodSwapAccepted'] ?? 'Food Swap Accepted'
                 : isDonation
-                ? AppLocalizations.of(context)!.foodSwapAccepted
+                ? localizedMessages['foodSwapAccepted'] ?? 'Food Swap Accepted'
                 : isBeneficiary
-                ? AppLocalizations.of(context)!.beneficiaryAccepted
+                ? localizedMessages['beneficiaryAccepted'] ??
+                    'Beneficiary Accepted'
                 : "",
         subTitle: lastMsg['text'],
         token: token,

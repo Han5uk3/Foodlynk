@@ -32,9 +32,11 @@ class AddNewItemSmartShoppingEvent extends SmartShoppingEvent {
 class MarkAsPurchasedSmartShoppingEvent extends SmartShoppingEvent {
   final String listId;
   final Items item;
+  final File? image;
   const MarkAsPurchasedSmartShoppingEvent({
     required this.listId,
     required this.item,
+    this.image,
   });
   @override
   List<Object> get props => [listId, item];

@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,6 +8,7 @@ import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/bloc/kitchen_manager_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
+import 'package:saver_bbk_main/services/storage_services.dart';
 
 part 'smart_shopping_event.dart';
 part 'smart_shopping_state.dart';
@@ -90,25 +94,36 @@ class SmartShoppingBloc extends Bloc<SmartShoppingEvent, SmartShoppingState> {
   ) async {
     try {
       emit(PurchasedItemLoadingState());
-      var docSnapshot = await Collections.smartShopping.doc(event.listId).get();
-      List<dynamic> currentItems =
-          ((docSnapshot.data() as Map<String, dynamic>?)?['items'] ?? [])
-              as List<dynamic>;
-      bool isItemFound = false;
-      for (var i = 0; i < currentItems.length; i++) {
-        if (currentItems[i]['id'] == event.item.id) {
-          currentItems[i]['status'] = 'PR';
-          isItemFound = true;
-          break;
-        }
+      String? imageUrl;
+      if (event.image != null) {
+        imageUrl = await StorageService.uploadFile(
+          filePath: event.image?.path ?? "",
+          fileName: "smart_shopping_${event.item.id}",
+        );
       }
-      await Collections.smartShopping.doc(event.listId).update({
-        'items': currentItems,
-      });
-
-      emit(PurchasedItemSuccessState(item: event.item));
-      context.read<KitchenManagerBloc>().add(AddNewItemEvent(item: event.item));
+      final updatedItem =
+         imageUrl != null ? event.item.copyWith(image: imageUrl) : event.item;
+      final docRef = Collections.smartShopping.doc(event.listId);
+      final docSnapshot = await docRef.get();
+      final data = docSnapshot.data() as Map<String, dynamic>?;
+      final currentItems =
+          (data!['items'] as List<dynamic>).map((item) {
+            if (item['id'] == event.item.id) {
+              return {
+                ...item,
+                'status': 'PR',
+                if (imageUrl != null) 'item_image': imageUrl,
+              };
+            }
+            return item;
+          }).toList();
+      await docRef.update({'items': currentItems});
+      emit(PurchasedItemSuccessState(item: updatedItem));
+      context.read<KitchenManagerBloc>().add(
+        AddNewItemEvent(item: updatedItem, imageFile: event.image),
+      );
     } catch (e) {
+      log("Error in markAsPurchased: $e");
       emit(PurchasedItemFailureState(errorMessage: e.toString()));
     }
   }

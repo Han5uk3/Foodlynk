@@ -511,6 +511,7 @@ class _AddItemState extends State<AddItem> {
                                 expiredDate: selectedExpiryDate,
                               ),
                               listId: widget.listId ?? "",
+                               image: _imageFile,
                             ),
                           )
                           : context.read<KitchenManagerBloc>().add(

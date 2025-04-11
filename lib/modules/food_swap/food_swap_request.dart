@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
@@ -61,7 +62,6 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
       appBar: saverAppBar(
         AppLocalizations.of(context)!.foodSwapRequest,
         context,
-
         isneedtopop: true,
         iswhite: true,
       ),
@@ -78,7 +78,10 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
           if (state is RequestFoodSwapError) {
             SaverSnackBar.show(
               context: context,
-              message: AppLocalizations.of(context)!.failedToSentRequestPleaseTryAgainLater,
+              message:
+                  AppLocalizations.of(
+                    context,
+                  )!.failedToSentRequestPleaseTryAgainLater,
               isTrue: false,
             );
           }
@@ -158,11 +161,17 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                 if (selectedItem == null ||
                     locationController.text.isEmpty ||
                     selectedDate == null ||
-                    selectedTime == null) {
+                    selectedTime == null ||
+                    selectedItem ==
+                        AppLocalizations.of(context)!.noItemAvailable) {
+                  String message =
+                      selectedItem ==
+                              AppLocalizations.of(context)!.noItemAvailable
+                          ? AppLocalizations.of(context)!.youdontHaveToSwapItems
+                          : AppLocalizations.of(context)!.pleaseFillInAllFields;
                   SaverSnackBar.show(
                     context: context,
-                    message:
-                        AppLocalizations.of(context)!.pleaseFillInAllFields,
+                    message: message,
                     isTrue: false,
                   );
                   return;
@@ -219,12 +228,16 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
             setState(() {
               selectedItem = value;
 
-              selectedSwapItem = items.firstWhere(
-                (item) => item.name == value,
-                orElse: () => FoodSwapModel(),
-              );
-
-              selectedItemId = selectedSwapItem?.id;
+              if (value != AppLocalizations.of(context)!.noItemAvailable) {
+                selectedSwapItem = items.firstWhere(
+                  (item) => item.name == value,
+                  orElse: () => FoodSwapModel(),
+                );
+                selectedItemId = selectedSwapItem?.id;
+              } else {
+                selectedSwapItem = null;
+                selectedItemId = null;
+              }
             });
           },
         );
@@ -249,8 +262,16 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
               border: Border.all(color: AppColor.lightGrey200),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Center(
-              child: Icon(Icons.image, color: AppColor.lightGrey200),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: CachedNetworkImage(
+                imageUrl: items.image ?? '',
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+
+                errorWidget: (context, url, error) => Icon(Icons.image),
+              ),
             ),
           ),
         ),
@@ -379,7 +400,10 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColor.white,
-          title: Text(AppLocalizations.of(context)!.selectTime, style: TextStyle(color: AppColor.black)),
+          title: Text(
+            AppLocalizations.of(context)!.selectTime,
+            style: TextStyle(color: AppColor.black),
+          ),
           content: IntrinsicHeight(child: hourMinute12H()),
           actions: [
             SizedBox(

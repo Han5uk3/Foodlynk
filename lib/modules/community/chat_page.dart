@@ -38,7 +38,6 @@ class _ChatPageState extends State<ChatPage> {
           isFoodSwapped: false,
           isFromDonations: false,
           roomId: widget.chatRoomId,
-          context: context,
         ),
       );
     }
@@ -50,7 +49,11 @@ class _ChatPageState extends State<ChatPage> {
     _messageController.removeListener(_handleTextChange);
     _messageController.dispose();
     _chatTextNotifier.dispose();
-    context.read<CommunityBloc>().add(ClearCommunityStateEvent());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<CommunityBloc>().add(ClearCommunityStateEvent());
+      }
+    });
     super.dispose();
   }
 
@@ -61,7 +64,7 @@ class _ChatPageState extends State<ChatPage> {
   void _navigateToMainScreen() {
     final String? roomId =
         widget.chatRoomId ?? _communityBloc.state.currentChatRoomId;
-    context.read<CommunityBloc>().add(ClearCommunityStateEvent());
+    _communityBloc.add(ClearCommunityStateEvent());
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => MainScreen(currentIndex: 1)),
@@ -102,7 +105,7 @@ class _ChatPageState extends State<ChatPage> {
           context,
           isneedtopop: true,
           iswhite: true,
-          onpop: _navigateToMainScreen,
+          onpop: () => _navigateToMainScreen(),
         ),
         body: BlocBuilder<CommunityBloc, CommunityState>(
           buildWhen:

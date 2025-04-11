@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
@@ -49,7 +50,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     emit(DeleteProfileLoadingState(isLoading: true));
     try {
       WriteBatch batch = FirebaseFirestore.instance.batch();
+
       batch.delete(Collections.users.doc(Services.uid));
+
       QuerySnapshot foodSwapDocs =
           await Collections.foodSwap
               .where('uid', isEqualTo: Services.uid)
@@ -57,6 +60,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       for (var doc in foodSwapDocs.docs) {
         batch.delete(doc.reference);
       }
+
       QuerySnapshot smartShoppingDocs =
           await Collections.smartShopping
               .where('uid', isEqualTo: Services.uid)
@@ -64,6 +68,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       for (var doc in smartShoppingDocs.docs) {
         batch.delete(doc.reference);
       }
+
       QuerySnapshot notificationDocs =
           await Collections.notifications
               .where('uid', isEqualTo: Services.uid)
@@ -71,6 +76,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       for (var doc in notificationDocs.docs) {
         batch.delete(doc.reference);
       }
+
       QuerySnapshot donationDocs =
           await Collections.donations
               .where('raisedBy', isEqualTo: Services.uid)
@@ -78,14 +84,28 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       for (var doc in donationDocs.docs) {
         batch.delete(doc.reference);
       }
-      QuerySnapshot userDocs = await Collections.users.get();
-      for (var doc in userDocs.docs) {
-        batch.delete(doc.reference);
+
+      final realtimeDb = FirebaseDatabase.instance;
+      final chatRef = realtimeDb.ref('chats');
+      final chatSnapshot = await chatRef.get();
+      if (chatSnapshot.exists) {
+        Map<dynamic, dynamic> chats =
+            chatSnapshot.value as Map<dynamic, dynamic>;
+
+        chats.forEach((chatroomId, value) {
+          if (chatroomId.toString().contains(Services.uid ?? "")) {
+            chatRef.child(chatroomId).remove();
+          }
+        });
       }
+
       await HiveHelper.removeUID();
       await HiveHelper.removeIsGuest();
+
       await batch.commit();
+
       await FirebaseAuth.instance.currentUser?.delete();
+
       emit(DeleteProfileSuccessState());
     } catch (e) {
       emit(DeleteProfileErrorState(errorMessage: e.toString()));
@@ -95,40 +115,25 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   void _createProfile(CreateProfileEvent event, Emitter emit) async {
     try {
       emit(CreateProfileLoadingState(isLoading: true));
-      final userData = UserModel(
-        uid: FirebaseAuth.instance.currentUser!.uid,
-        title: event.title,
-        firstName: event.firstName,
-        lastName: event.lastName,
-        email: event.email,
-        phoneNumber: event.phoneNumber,
-        address: event.address,
-        gender: event.gender,
-        dob: event.dob,
-        zipCode: event.zipCode,
-        points: 0,
-        profileImage: event.profileImage,
-        createdAt: DateTime.now(),
-      );
-      try {
-        await Collections.users
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .set(userData.toFirestore())
-            .then((value) async {
-              if (event.isEmailLogin) {
-                final UserCredential userCredential = await FirebaseAuth
-                    .instance
-                    .createUserWithEmailAndPassword(
-                      email: event.email,
-                      password: event.password ?? "",
-                    );
-              }
-              await HiveHelper.putUID(FirebaseAuth.instance.currentUser!.uid);
-              emit(CreateProfileSuccessState());
-            });
-      } catch (firestoreError) {
-        emit(CreateProfileErrorState(errorMessage: firestoreError.toString()));
+
+      String uid = "";
+
+      if (event.isEmailLogin) {
+        final UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+              email: event.userModel.email ?? "",
+              password: event.password ?? "",
+            );
+        uid = userCredential.user?.uid ?? "";
+      } else {
+        uid = FirebaseAuth.instance.currentUser?.uid ?? "";
       }
+      final updatedUserModel = event.userModel.copyWith(uid: uid);
+      await Collections.users.doc(uid).set(updatedUserModel.toJson());
+
+      await HiveHelper.putUID(uid);
+
+      emit(CreateProfileSuccessState());
     } catch (e) {
       emit(CreateProfileErrorState(errorMessage: e.toString()));
     }

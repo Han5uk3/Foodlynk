@@ -551,7 +551,9 @@ class _RequestsDetailsState extends State<RequestsDetails> {
         ],
         child:
             widget.foodSwapModel.status == "A"
-                ? EmptyList(message: AppLocalizations.of(context)!.alreadyAccepted)
+                ? EmptyList(
+                  message: AppLocalizations.of(context)!.alreadyAccepted,
+                )
                 : Padding(
                   padding: const EdgeInsets.only(top: 14, left: 14, right: 14),
                   child: StreamBuilder<List<AcceptedSwapItem>>(
@@ -734,19 +736,46 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                                   isLoading: _isLoading,
 
                                   text: AppLocalizations.of(context)!.accept,
-                                  onPressed:
-                                      () => context.read<FoodSwapBloc>().add(
-                                        AcceptedFoodSwapRequestEvent(
-                                          swapId: item.swapedItemId ?? "",
-                                          acceptedSwapItemId:
-                                              item.acceptedSwapItemId ?? '',
-                                          reciverUid: item.uid ?? "",
-                                          fcmToken: fcmToken,
-                                          communityBloc:
-                                              context.read<CommunityBloc>(),
-                                          context: context,
-                                        ),
+                                  onPressed: () {
+                                    final localizedMessages = {
+                                      'hello':
+                                          AppLocalizations.of(context)!.hello,
+                                      'acceptFoodSwap':
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.iAcceptYourFoodSwap,
+                                      'donateFoodMessage':
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.iWantToDonateMyFoodWithYou,
+                                      'receiveFoodMessage':
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.iWantToReceiveFoodWithYou,
+
+                                      'foodSwapAccepted':
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.foodSwapAccepted,
+                                      'beneficiaryAccepted':
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.beneficiaryAccepted,
+                                    };
+                                    context.read<FoodSwapBloc>().add(
+                                      AcceptedFoodSwapRequestEvent(
+                                        swapId: item.swapedItemId ?? "",
+                                        acceptedSwapItemId:
+                                            item.acceptedSwapItemId ?? '',
+                                        reciverUid: item.uid ?? "",
+                                        fcmToken: fcmToken,
+                                        communityBloc:
+                                            context.read<CommunityBloc>(),
+                                        context: context,
+                                        localizedMessages: localizedMessages,
                                       ),
+                                    );
+                                  },
                                   borderColor: AppColor.primaryColor,
                                   textColor: AppColor.primaryColor,
                                 ),

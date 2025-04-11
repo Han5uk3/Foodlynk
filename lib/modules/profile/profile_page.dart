@@ -124,7 +124,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Version: beta v1.0.6",
+                      "Version: v1.0.7",
                       style: TextStyle(
                         color: AppColor.lightGrey200,
                         fontSize: 13,

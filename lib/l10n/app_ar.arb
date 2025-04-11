@@ -418,5 +418,6 @@
     "contactUs":"اتصل بنا",
     "ifYouHaveAnyQuestions":"إذا كانت لديك أي أسئلة أو مخاوف بشأن هذه الشروط والأحكام، يرجى الاتصال بنا على",
     "close":"يغلق",
-    "pleaseEnterYourPassword":"الرجاء إدخال كلمة المرور الخاصة بك"
+    "pleaseEnterYourPassword":"الرجاء إدخال كلمة المرور الخاصة بك",
+    "youdontHaveToSwapItems":"لا يتعين عليك تبديل العناصر"
 }
