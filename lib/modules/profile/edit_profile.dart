@@ -230,10 +230,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Widget _buildProfileImage() {
     if (_imageFile != null) {
-      // Show selected image
       return CircleAvatar(radius: 60, backgroundImage: FileImage(_imageFile!));
     } else if (_profileImageUrl != null && _profileImageUrl!.isNotEmpty) {
-      // Show existing profile image
       return CircleAvatar(
         radius: 60,
         backgroundImage: NetworkImage(_profileImageUrl!),
@@ -244,7 +242,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         },
       );
     } else {
-      // Show placeholder
       return Container(
         width: 120,
         height: 120,
@@ -322,7 +319,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       return;
                     }
 
-                    // Upload image if selected
                     final String? imageUrl = await _uploadProfileImage();
 
                     context.read<ProfileBloc>().add(
@@ -378,7 +374,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       return;
                     }
 
-                    // Upload image if selected
                     final String? imageUrl = await _uploadProfileImage();
 
                     context.read<ProfileBloc>().add(

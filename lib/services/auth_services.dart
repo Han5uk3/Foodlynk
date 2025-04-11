@@ -98,7 +98,7 @@ class AuthServices {
 
       SaverSnackBar.show(
         context: context,
-        message: "OTP verification failed",
+        message: AppLocalizations.of(context)!.otpVerificationFailed,
         isTrue: false,
       );
 
@@ -221,7 +221,10 @@ class AuthServices {
     String email,
   ) async {
     try {
-      AuthServices.showLoadingDialog(context, AppLocalizations.of(context)!.sendingResetLink);
+      AuthServices.showLoadingDialog(
+        context,
+        AppLocalizations.of(context)!.sendingResetLink,
+      );
 
       await _firebaseAuth.sendPasswordResetEmail(email: email);
 
@@ -237,7 +240,8 @@ class AuthServices {
 
       SaverSnackBar.show(
         context: context,
-        message: "Password reset email sent successfully",
+        message:
+            AppLocalizations.of(context)!.passwordResetEmailSentSuccessfully,
         isTrue: true,
       );
     } on FirebaseAuthException catch (e) {
@@ -311,7 +315,8 @@ class AuthServices {
         );
         SaverSnackBar.show(
           context: context,
-          message: AppLocalizations.of(context)!.welcomePleaseCompleteYourProfile,
+          message:
+              AppLocalizations.of(context)!.welcomePleaseCompleteYourProfile,
           isTrue: true,
         );
       }

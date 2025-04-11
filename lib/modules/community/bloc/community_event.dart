@@ -1,5 +1,3 @@
-// ignore_for_file: must_be_immutable
-
 part of 'community_bloc.dart';
 
 sealed class CommunityEvent extends Equatable {
@@ -25,7 +23,7 @@ class InitializeChatRoomEvent extends CommunityEvent {
   String? receiverUid;
   String? roomId;
   String? fcmToken;
-  
+
   final bool isFoodSwapped;
   final bool isFromDonations;
   final bool isFromBeneficiary;

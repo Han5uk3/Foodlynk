@@ -222,7 +222,11 @@ class _MessagesBody extends StatelessWidget {
         }
 
         if (state.messages.isEmpty && state.status == ChatStatus.loaded) {
-          return const Expanded(child: Center(child: Text("No messages yet")));
+          return Expanded(
+            child: Center(
+              child: Text(AppLocalizations.of(context)!.noMessageYet),
+            ),
+          );
         }
 
         return Expanded(

@@ -109,7 +109,10 @@ class _LoginWithPasswordState extends State<LoginWithPassword> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.white,
-      appBar: saverAppBar(AppLocalizations.of(context)!.loginWithPassword, context),
+      appBar: saverAppBar(
+        AppLocalizations.of(context)!.loginWithPassword,
+        context,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -130,7 +133,9 @@ class _LoginWithPasswordState extends State<LoginWithPassword> {
                     if (!RegExp(
                       r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                     ).hasMatch(value)) {
-                      return AppLocalizations.of(context)!.pleaseEnterAValidEmailAddress;
+                      return AppLocalizations.of(
+                        context,
+                      )!.pleaseEnterAValidEmailAddress;
                     }
                     return null;
                   },
@@ -147,7 +152,9 @@ class _LoginWithPasswordState extends State<LoginWithPassword> {
                       return 'Please enter your password';
                     }
                     if (value.length < 6) {
-                      return AppLocalizations.of(context)!.passwordMustBeAtLeastSixCharacters;
+                      return AppLocalizations.of(
+                        context,
+                      )!.passwordMustBeAtLeastSixCharacters;
                     }
                     return null;
                   },
@@ -157,7 +164,7 @@ class _LoginWithPasswordState extends State<LoginWithPassword> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: _forgotPassword,
-                    child:  Text(
+                    child: Text(
                       AppLocalizations.of(context)!.forgotPassword,
                       style: TextStyle(color: AppColor.lightGrey200),
                     ),
@@ -222,7 +229,6 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
           _isSuccess = true;
         });
 
-        // Show success for 2 seconds before closing
         Future.delayed(const Duration(seconds: 2), () {
           if (mounted) {
             Navigator.of(context).pop();
@@ -361,7 +367,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                                 color: Colors.white,
                               ),
                               const SizedBox(width: 8),
-                               Text(AppLocalizations.of(context)!.resetPassword),
+                              Text(AppLocalizations.of(context)!.resetPassword),
                             ],
                           ),
                 ),
@@ -389,7 +395,9 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                  AppLocalizations.of(context)!.enterYourEmailAddressAndWeWill,
+                    AppLocalizations.of(
+                      context,
+                    )!.enterYourEmailAddressAndWeWill,
                     style: TextStyle(
                       fontSize: 14,
                       height: 1.5,
@@ -431,7 +439,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-             AppLocalizations.of(context)!.weWillSendASercureLinkToThisEmail,
+              AppLocalizations.of(context)!.weWillSendASercureLinkToThisEmail,
               style: TextStyle(
                 fontSize: 12,
                 fontStyle: FontStyle.italic,

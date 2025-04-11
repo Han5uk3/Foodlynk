@@ -308,10 +308,10 @@ class _KitchenManagerState extends State<KitchenManager> {
       selectedFilter.isEmpty && searchQuery.isEmpty
           ? AppLocalizations.of(context)!.allItems
           : searchQuery.isNotEmpty && selectedFilter.isNotEmpty
-          ? "Search Results for '$searchQuery' in $selectedFilter ${AppLocalizations.of(context)!.items}"
+          ? "${AppLocalizations.of(context)!.searchResultsFor} '$searchQuery' ${AppLocalizations.of(context)!.inText} $selectedFilter ${AppLocalizations.of(context)!.items}"
           : searchQuery.isNotEmpty
-          ? "Search Results for '$searchQuery'"
-          : selectedFilter == "Expiring Soon"
+          ? "${AppLocalizations.of(context)!.searchResultsFor} '$searchQuery'"
+          : selectedFilter == AppLocalizations.of(context)!.expiringSoon
           ? "${AppLocalizations.of(context)!.items} $selectedFilter"
           : "$selectedFilter ${AppLocalizations.of(context)!.items}",
       style: TextStyle(
@@ -570,7 +570,7 @@ class _KitchenManagerState extends State<KitchenManager> {
           child: loadsvg("assets/icons/expiry.svg"),
         ),
         Text(
-          " Expiry Date: ${expDate.day}/${expDate.month}/${expDate.year}",
+          "${AppLocalizations.of(context)!.expiryDate} ${expDate.day}/${expDate.month}/${expDate.year}",
           style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
         ),
       ],

@@ -390,7 +390,8 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
               },
               {
                 'senderId': currentUID,
-                'text': 'I accept your food swap! 🍲',
+                'text':
+                    '${AppLocalizations.of(context)!.iAcceptYourFoodSwap} 🍲',
                 'timestamp': timestamp,
               },
             ]
@@ -466,7 +467,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
                 : isDonation
                 ? AppLocalizations.of(context)!.foodSwapAccepted
                 : isBeneficiary
-                ? "Beneficiary Accepted!"
+                ? AppLocalizations.of(context)!.beneficiaryAccepted
                 : "",
         subTitle: lastMsg['text'],
         token: token,

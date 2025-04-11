@@ -38,7 +38,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       Services.uid = "";
       await HiveHelper.removeUID();
       await HiveHelper.removeIsGuest();
-      // event.communityBloc.add(ClearCommunityStateEvent());
+
       emit(LogoutStateSuccess());
     } catch (e) {
       emit(LogoutStateError(errorMessage: e.toString()));

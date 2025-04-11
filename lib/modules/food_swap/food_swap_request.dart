@@ -78,7 +78,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
           if (state is RequestFoodSwapError) {
             SaverSnackBar.show(
               context: context,
-              message: "Failed to send request. Please try again later.",
+              message: AppLocalizations.of(context)!.failedToSentRequestPleaseTryAgainLater,
               isTrue: false,
             );
           }
@@ -219,10 +219,9 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
             setState(() {
               selectedItem = value;
 
-              // Find the selected item from the list
               selectedSwapItem = items.firstWhere(
                 (item) => item.name == value,
-                orElse: () => FoodSwapModel(), // fallback in case not found
+                orElse: () => FoodSwapModel(),
               );
 
               selectedItemId = selectedSwapItem?.id;
@@ -380,7 +379,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColor.white,
-          title: Text("Select Time", style: TextStyle(color: AppColor.black)),
+          title: Text(AppLocalizations.of(context)!.selectTime, style: TextStyle(color: AppColor.black)),
           content: IntrinsicHeight(child: hourMinute12H()),
           actions: [
             SizedBox(

@@ -97,8 +97,10 @@ class _MyListingsPageState extends State<MyListingsPage>
                             isScrollable: false,
                             physics: const BouncingScrollPhysics(),
                             tabs: [
-                              Tab(text: AppLocalizations.of(context)!.foodDeatils),
-                              Tab(text:AppLocalizations.of(context)!.requests),
+                              Tab(
+                                text: AppLocalizations.of(context)!.foodDeatils,
+                              ),
+                              Tab(text: AppLocalizations.of(context)!.requests),
                             ],
                             indicatorColor: AppColor.appbarColor,
                             labelStyle: const TextStyle(
@@ -144,7 +146,8 @@ class _MyListingsPageState extends State<MyListingsPage>
           } else if (state is DeleteFromFoodSwapSuccessState) {
             SaverSnackBar.show(
               context: context,
-              message: "Food Swap Deleted Successfully",
+              message:
+                  AppLocalizations.of(context)!.foodSwapDeletedSuccessfully,
               isTrue: true,
             );
             Navigator.pop(context);
@@ -194,12 +197,12 @@ class _MyListingsPageState extends State<MyListingsPage>
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              title: const Text(
-                "Delete Item",
+              title: Text(
+                AppLocalizations.of(context)!.deleteItem,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               content: Text(
-                "Are you sure you want to delete this ${items.name} Item? This action cannot be undone.",
+                "${AppLocalizations.of(context)!.areYouSureWantToDeletThis} ${items.name} ${AppLocalizations.of(context)!.itemThisActionCannotBeUndone}",
               ),
               actions: [
                 TextButton(
@@ -258,15 +261,6 @@ class _FoodDetailsState extends State<FoodDetails> {
   File? _imageFile;
 
   final List<String> unit = ["Kg", "Pcs", "ml", "Ltr", "gm", "Nos"];
-  final List<String> category = [
-    "Dairy",
-    "Meat",
-    "Oils",
-    "Poultry",
-    "Fruits",
-    "Vegetables",
-    "Seafood",
-  ];
 
   @override
   void initState() {
@@ -322,7 +316,7 @@ class _FoodDetailsState extends State<FoodDetails> {
     if (selectedExpiryDate == null) {
       SaverSnackBar.show(
         context: context,
-        message: "Please select an expiry date",
+        message: AppLocalizations.of(context)!.pleaseSelectAnExpiryDate,
         isTrue: false,
       );
       return;
@@ -349,6 +343,16 @@ class _FoodDetailsState extends State<FoodDetails> {
 
   @override
   Widget build(BuildContext context) {
+    // final List<String> category = [
+    //   AppLocalizations.of(context)!.dairy,
+    //   AppLocalizations.of(context)!.meat,
+    //   AppLocalizations.of(context)!.oils,
+    //   AppLocalizations.of(context)!.poultry,
+    //   AppLocalizations.of(context)!.fruit,
+    //   AppLocalizations.of(context)!.vegetables,
+    //   AppLocalizations.of(context)!.seafood,
+    // ];
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -750,7 +754,7 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                                           fcmToken: fcmToken,
                                           communityBloc:
                                               context.read<CommunityBloc>(),
-                                              context: context
+                                          context: context,
                                         ),
                                       ),
                                   borderColor: AppColor.primaryColor,

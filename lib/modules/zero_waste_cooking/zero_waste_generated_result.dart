@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/models/protein_plan_model.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ZeroWasteRecipeResultPage extends StatefulWidget {
   final GenaratedProteinPlanModel genaratedPlanModel;
@@ -23,7 +24,7 @@ class _ZeroWasteRecipeResultPageState extends State<ZeroWasteRecipeResultPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: saverAppBar(
-        "Portion Plan",
+        AppLocalizations.of(context)!.portionPlan,
         context,
         iswhite: true,
         isneedtopop: true,
@@ -49,12 +50,12 @@ class _ZeroWasteRecipeResultPageState extends State<ZeroWasteRecipeResultPage> {
             _buildBanner(),
             SizedBox(height: 10),
             Text(
-              "${widget.selectedMeal} for ${widget.genaratedPlanModel.data?.numberOfServings} people",
+              "${widget.selectedMeal} for ${widget.genaratedPlanModel.data?.numberOfServings} ${AppLocalizations.of(context)!.people}",
               style: TextStyle(fontSize: 15),
             ),
             SizedBox(height: 10),
             Text(
-              "Recipe Name:${widget.genaratedPlanModel.data?.recipeName}",
+              "${AppLocalizations.of(context)!.recipeName}:${widget.genaratedPlanModel.data?.recipeName}",
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
             ),
             SizedBox(height: 10),
@@ -69,14 +70,14 @@ class _ZeroWasteRecipeResultPageState extends State<ZeroWasteRecipeResultPage> {
                 child: Row(
                   children: [
                     Text(
-                      "Protein: ",
+                      "${AppLocalizations.of(context)!.protein}: ",
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
                       ),
                     ),
                     Text(
-                      "~${widget.genaratedPlanModel.data?.nutritionalInfo?.protein} per person",
+                      "~${widget.genaratedPlanModel.data?.nutritionalInfo?.protein} ${AppLocalizations.of(context)!.perPerson}",
                     ),
                   ],
                 ),
@@ -100,7 +101,7 @@ class _ZeroWasteRecipeResultPageState extends State<ZeroWasteRecipeResultPage> {
                           Padding(
                             padding: const EdgeInsets.only(top: 20, bottom: 15),
                             child: Text(
-                              "Vegetables: ",
+                              AppLocalizations.of(context)!.vegetables,
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
@@ -108,7 +109,7 @@ class _ZeroWasteRecipeResultPageState extends State<ZeroWasteRecipeResultPage> {
                             ),
                           ),
                           Text(
-                            "~${widget.genaratedPlanModel.data?.nutritionalInfo?.calories} per person",
+                            "~${widget.genaratedPlanModel.data?.nutritionalInfo?.calories} ${AppLocalizations.of(context)!.perPerson}",
                           ),
                         ],
                       ),
@@ -116,7 +117,7 @@ class _ZeroWasteRecipeResultPageState extends State<ZeroWasteRecipeResultPage> {
                       Padding(
                         padding: const EdgeInsets.only(left: 6),
                         child: Text(
-                          "Available Ingredients",
+                          AppLocalizations.of(context)!.availableIngredients,
                           style: TextStyle(
                             color: AppColor.primaryColor,
                             fontWeight: FontWeight.w600,
@@ -205,14 +206,14 @@ class _ZeroWasteRecipeResultPageState extends State<ZeroWasteRecipeResultPage> {
                 child: Row(
                   children: [
                     Text(
-                      "Carbs: ",
+                      "${AppLocalizations.of(context)!.carbs}: ",
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
                       ),
                     ),
                     Text(
-                      "~${widget.genaratedPlanModel.data?.nutritionalInfo?.carbs} per person",
+                      "~${widget.genaratedPlanModel.data?.nutritionalInfo?.carbs} ${AppLocalizations.of(context)!.perPerson}",
                     ),
                   ],
                 ),
@@ -244,7 +245,7 @@ class _ZeroWasteRecipeResultPageState extends State<ZeroWasteRecipeResultPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Center(
                   child: Text(
-                    "No food waste! These portions are just right for ${widget.genaratedPlanModel.data?.numberOfServings} people.",
+                    "${AppLocalizations.of(context)!.noFoodWasteThesePortionAreJustRightFor} ${widget.genaratedPlanModel.data?.numberOfServings} ${AppLocalizations.of(context)!.people}.",
                     style: TextStyle(fontSize: 16),
                   ),
                 ),

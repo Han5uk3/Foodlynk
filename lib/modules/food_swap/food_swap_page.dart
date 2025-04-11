@@ -268,8 +268,9 @@ class _FoodSwapPageState extends State<FoodSwapPage>
 
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return EmptyList(
-            message: "No available swaps",
-            subMessage: "Check back later for new listings",
+            message: AppLocalizations.of(context)!.noAvailableSwaps,
+            subMessage:
+                AppLocalizations.of(context)!.checkBackLaterForNewListings,
           );
         }
         final availableSwaps = snapshot.data!;
@@ -467,7 +468,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
           ),
         ),
         Text(
-          " Location: ",
+          AppLocalizations.of(context)!.location,
           style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
         ),
         SizedBox(width: 5),

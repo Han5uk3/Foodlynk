@@ -375,7 +375,7 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
 
   _showAddBottomSheet() {
     listNameController.clear();
-    String? errorText; // <--- Move outside the builder
+    String? errorText;
 
     showModalBottomSheet(
       isDismissible: false,

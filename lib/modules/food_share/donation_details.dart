@@ -129,9 +129,9 @@ class _DonationDetailsState extends State<DonationDetails>
                   unselectedLabelColor: Colors.grey,
                   indicatorColor: AppColor.primaryColor,
                   labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  tabs: const [
-                    Tab(text: "Incoming Requests"),
-                    Tab(text: "Details"),
+                  tabs: [
+                    Tab(text: AppLocalizations.of(context)!.incomingRequests),
+                    Tab(text: AppLocalizations.of(context)!.details),
                   ],
                 )
                 : null,

@@ -342,8 +342,7 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                 if (isBefore) {
                   context.read<ChallengeBloc>().add(RemoveBeforeImageEvent());
                   setState(() {
-                    _afterImageFile =
-                        null; // Reset after image too when before is removed
+                    _afterImageFile = null;
                   });
                 } else {
                   context.read<ChallengeBloc>().add(RemoveAfterImageEvent());

@@ -144,12 +144,7 @@ class DiagonalBackgroundPainter extends CustomPainter {
           ..lineTo(0, size.height)
           ..close();
 
-    paint.color = Color.fromARGB(
-      100,
-      246,
-      231,
-      178,
-    ); //rgba(246, 231, 178, 0.29)
+    paint.color = Color.fromARGB(100, 246, 231, 178);
     canvas.drawPath(topLeftPath, paint);
 
     Path bottomRightPath =

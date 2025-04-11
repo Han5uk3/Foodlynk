@@ -187,7 +187,7 @@ class _NotificationsPageState extends State<NotificationsPage>
             });
             SaverSnackBar.show(
               context: context,
-              message: "All notifications cleared successfully",
+              message: AppLocalizations.of(context)!.allNotificationClearedSuccessfully,
               isTrue: true,
             );
           }

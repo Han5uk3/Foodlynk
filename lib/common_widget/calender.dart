@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // For date formatting
+import 'package:intl/intl.dart';
 
 class ShowCalendar extends StatefulWidget {
   final bool isEdit;
-  final bool restrictBackDates;   // New boolean to restrict back dates
+  final bool restrictBackDates;
   final DateTime initialDate;
   final Function(DateTime) onDatePicked;
 
@@ -41,8 +41,8 @@ class _ShowCalendarState extends State<ShowCalendar> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: Colors.green,   // Use your AppColor.green
-              surface: Colors.white,   // Use your AppColor.white
+              primary: Colors.green,
+              surface: Colors.white,
             ),
           ),
           child: child!,
@@ -61,7 +61,7 @@ class _ShowCalendarState extends State<ShowCalendar> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: _pickDate, // Tap anywhere on the container to open the calendar
+      onTap: _pickDate,
       child: Container(
         height: 50,
         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -78,10 +78,7 @@ class _ShowCalendarState extends State<ShowCalendar> {
             ),
             IconButton(
               onPressed: widget.isEdit ? null : _pickDate,
-              icon: Icon(
-                Icons.calendar_month_outlined,
-                color: Colors.black, // Use your AppColor.black
-              ),
+              icon: Icon(Icons.calendar_month_outlined, color: Colors.black),
             ),
           ],
         ),

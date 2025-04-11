@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
+import 'package:saver_bbk_main/common_widget/localization.dart';
 import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
@@ -51,18 +52,36 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _imageView() {
     return Container(
-      margin: EdgeInsets.only(top: 150, bottom: 120),
-      child: Image.asset(
-        'assets/images/login.png',
-        height: 200,
-        fit: BoxFit.contain,
+      margin: EdgeInsets.only(top: 50, bottom: 40),
+      child: SizedBox(
+        height: 370,
+        width: double.infinity,
+        child: Stack(
+          children: [
+            Positioned(
+              top: 0,
+              right: 0,
+              child: IconButton(
+                onPressed: () => Localization.showLanguageDialog(context),
+                icon: Icon(Icons.language, color: Colors.black),
+              ),
+            ),
+            Center(
+              child: Image.asset(
+                'assets/images/login.png',
+                height: 200,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _loginForm() {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.45,
+      height: MediaQuery.of(context).size.height * 0.55,
       decoration: BoxDecoration(
         color: AppColor.white,
         borderRadius: BorderRadius.only(
@@ -101,9 +120,10 @@ class _LoginPageState extends State<LoginPage> {
                 LengthLimitingTextInputFormatter(8),
               ],
               keyboardType: TextInputType.phone,
-              decoration:  InputDecoration(
+              decoration: InputDecoration(
                 counterText: "",
-                hintText: AppLocalizations.of(context)!.enterEightDigitMobileNumber,
+                hintText:
+                    AppLocalizations.of(context)!.enterEightDigitMobileNumber,
                 prefixText: '+965 - ',
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(
@@ -132,13 +152,13 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(width: 8),
-               Text(
+              Text(
                 AppLocalizations.of(context)!.iAgreeWithThe,
                 style: TextStyle(color: AppColor.black),
               ),
               GestureDetector(
                 onTap: () {},
-                child:  Text(
+                child: Text(
                   AppLocalizations.of(context)!.termsAndConditions,
                   style: TextStyle(color: AppColor.primaryColor),
                 ),
@@ -174,13 +194,17 @@ class _LoginPageState extends State<LoginPage> {
                           )
                           : SaverSnackBar.show(
                             context: context,
-                            message: AppLocalizations.of(context)!.pleaseAcceptOurTermsAndConditions,
+                            message:
+                                AppLocalizations.of(
+                                  context,
+                                )!.pleaseAcceptOurTermsAndConditions,
                             isTrue: false,
                           );
                     } else {
                       SaverSnackBar.show(
                         context: context,
-                        message:AppLocalizations.of(context)!.enterMobileNumber,
+                        message:
+                            AppLocalizations.of(context)!.enterMobileNumber,
                         isTrue: false,
                       );
                     }
@@ -191,12 +215,15 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
           const SizedBox(height: 25),
-           Row(
+          Row(
             children: [
               Expanded(child: Divider()),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Text(AppLocalizations.of(context)!.or, style: TextStyle(color: Colors.grey)),
+                child: Text(
+                  AppLocalizations.of(context)!.or,
+                  style: TextStyle(color: Colors.grey),
+                ),
               ),
               Expanded(child: Divider()),
             ],
@@ -206,7 +233,7 @@ class _LoginPageState extends State<LoginPage> {
           Center(
             child: GestureDetector(
               onTap: _continueAsGuest,
-              child:  Text(
+              child: Text(
                 AppLocalizations.of(context)!.continueAsGuest,
                 style: TextStyle(color: AppColor.primaryColor),
               ),

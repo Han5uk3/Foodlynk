@@ -186,7 +186,6 @@ class Items {
     this.expiredDate,
   });
 
-  /// ✅ Renamed `fromJson` to `fromMap`
   factory Items.fromMap(Map<String, dynamic> map) {
     dynamic expDate = map['expiredDate'];
     return Items(
