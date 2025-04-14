@@ -48,66 +48,67 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
   void _deleteProfile(DeleteProfileEvent event, Emitter emit) async {
     emit(DeleteProfileLoadingState(isLoading: true));
-    try {
-      WriteBatch batch = FirebaseFirestore.instance.batch();
 
+    try {
+      await Future.microtask(() => null);
+
+      WriteBatch batch = FirebaseFirestore.instance.batch();
       batch.delete(Collections.users.doc(Services.uid));
 
-      QuerySnapshot foodSwapDocs =
-          await Collections.foodSwap
-              .where('uid', isEqualTo: Services.uid)
-              .get();
-      for (var doc in foodSwapDocs.docs) {
-        batch.delete(doc.reference);
-      }
-
-      QuerySnapshot smartShoppingDocs =
-          await Collections.smartShopping
-              .where('uid', isEqualTo: Services.uid)
-              .get();
-      for (var doc in smartShoppingDocs.docs) {
-        batch.delete(doc.reference);
-      }
-
-      QuerySnapshot notificationDocs =
-          await Collections.notifications
-              .where('uid', isEqualTo: Services.uid)
-              .get();
-      for (var doc in notificationDocs.docs) {
-        batch.delete(doc.reference);
-      }
-
-      QuerySnapshot donationDocs =
-          await Collections.donations
+      final foodSwapFuture =
+          Collections.foodSwap.where('uid', isEqualTo: Services.uid).get();
+      final smartShoppingFuture =
+          Collections.smartShopping.where('uid', isEqualTo: Services.uid).get();
+      final notificationsFuture =
+          Collections.notifications.where('uid', isEqualTo: Services.uid).get();
+      final donationsFuture =
+          Collections.donations
               .where('raisedBy', isEqualTo: Services.uid)
               .get();
-      for (var doc in donationDocs.docs) {
-        batch.delete(doc.reference);
+
+      final results = await Future.wait([
+        foodSwapFuture,
+        smartShoppingFuture,
+        notificationsFuture,
+        donationsFuture,
+      ]);
+
+      for (var i = 0; i < results.length; i++) {
+        for (var doc in results[i].docs) {
+          batch.delete(doc.reference);
+        }
       }
 
       final realtimeDb = FirebaseDatabase.instance;
       final chatRef = realtimeDb.ref('chats');
       final chatSnapshot = await chatRef.get();
+
       if (chatSnapshot.exists) {
         Map<dynamic, dynamic> chats =
             chatSnapshot.value as Map<dynamic, dynamic>;
+        List<Future> chatDeletions = [];
 
         chats.forEach((chatroomId, value) {
           if (chatroomId.toString().contains(Services.uid ?? "")) {
-            chatRef.child(chatroomId).remove();
+            chatDeletions.add(chatRef.child(chatroomId).remove());
           }
         });
+
+        if (chatDeletions.isNotEmpty) {
+          await Future.wait(chatDeletions);
+        }
       }
+
+      await batch.commit();
 
       await HiveHelper.removeUID();
       await HiveHelper.removeIsGuest();
-
-      await batch.commit();
 
       await FirebaseAuth.instance.currentUser?.delete();
 
       emit(DeleteProfileSuccessState());
     } catch (e) {
+      print("Profile deletion error: ${e.toString()}");
       emit(DeleteProfileErrorState(errorMessage: e.toString()));
     }
   }

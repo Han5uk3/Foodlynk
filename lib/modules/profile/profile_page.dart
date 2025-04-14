@@ -255,15 +255,25 @@ class _ProfilePageState extends State<ProfilePage> {
                               ? AppLocalizations.of(context)!.deleteProfile
                               : AppLocalizations.of(context)!.logout,
                       onPressed:
-                          toggler
-                              ? () => context.read<ProfileBloc>().add(
-                                DeleteProfileEvent(),
-                              )
-                              : () => context.read<ProfileBloc>().add(
-                                LogoutEvent(
-                                  communityBloc: context.read<CommunityBloc>(),
-                                ),
-                              ),
+                          _isLoading
+                              ? () {} // Disable button during loading
+                              : () {
+                                   setState(() {
+              _isLoading = true;
+            });
+                                if (toggler) {
+                                  context.read<ProfileBloc>().add(
+                                    DeleteProfileEvent(),
+                                  );
+                                } else {
+                                  context.read<ProfileBloc>().add(
+                                    LogoutEvent(
+                                      communityBloc:
+                                          context.read<CommunityBloc>(),
+                                    ),
+                                  );
+                                }
+                              },
                       color: AppColor.red,
                       textColor: AppColor.white,
                       isLoading: _isLoading,
