@@ -3,13 +3,20 @@ import 'package:flutter/material.dart';
 class Label extends StatelessWidget {
   final String text;
   final TextStyle? style;
-  const Label({super.key, required this.text, this.style});
+  final bool? isBold;
+  const Label({super.key, required this.text, this.style, this.isBold = false});
 
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: style ?? const TextStyle(color: Colors.black, fontSize: 14),
+      style:
+          style ??
+          TextStyle(
+            color: Colors.black,
+            fontSize: 14,
+            fontWeight: (isBold ?? false) ? FontWeight.bold : FontWeight.normal,
+          ),
     );
   }
 }

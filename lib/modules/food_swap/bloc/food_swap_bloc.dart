@@ -1,11 +1,14 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
+import 'package:saver_bbk_main/services/storage_services.dart';
 
 part 'food_swap_event.dart';
 part 'food_swap_state.dart';
@@ -27,11 +30,20 @@ class FoodSwapBloc extends Bloc<FoodSwapEvent, FoodSwapState> {
   ) async {
     try {
       emit(FoodSwapLoading(isLoading: true));
+      String? imageUrl;
       String foodswapId = Collections.foodSwap.doc().id;
+      if (event.imageFile != null) {
+        imageUrl = await StorageService.uploadFile(
+          filePath: event.imageFile!.path,
+          fileName:
+              "swap_item_$foodswapId${DateTime.now().millisecondsSinceEpoch}",
+        );
+      }
       final updatedItem = {
         ...event.item.toMap(),
         'id': foodswapId,
         'status': 'P',
+        'item_image': imageUrl,
         'uid': HiveHelper.getUID(),
       };
       await Collections.foodSwap
@@ -92,6 +104,7 @@ class FoodSwapBloc extends Bloc<FoodSwapEvent, FoodSwapState> {
     AcceptedFoodSwapRequestEvent event,
     Emitter<FoodSwapState> emit,
   ) async {
+    bool updateSuccessful = false;
     emit(RequestAcceptedLoadingState(isLoading: true));
     try {
       await Collections.foodSwap.doc(event.acceptedSwapItemId).update({
@@ -99,16 +112,20 @@ class FoodSwapBloc extends Bloc<FoodSwapEvent, FoodSwapState> {
       });
       await Collections.foodSwap.doc(event.swapId).update({'status': 'A'}).then(
         (value) {
-          event.communityBloc?.add(
-            InitializeChatRoomEvent(
-              receiverUid: event.reciverUid,
-              fcmToken: event.fcmToken,
-              isFoodSwapped: true,
-              isFromDonations: false,
-            ),
-          );
+          updateSuccessful = true;
         },
       );
+      if (updateSuccessful && event.communityBloc != null) {
+        event.communityBloc?.add(
+          InitializeChatRoomEvent(
+            receiverUid: event.reciverUid,
+            fcmToken: event.fcmToken,
+            isFoodSwapped: true,
+            isFromDonations: false,
+            localizedMessages: event.localizedMessages,
+          ),
+        );
+      }
     } catch (e) {
       emit(RequestAcceptedError(errorMessage: e.toString()));
     }

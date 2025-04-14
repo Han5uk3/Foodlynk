@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
 import 'package:saver_bbk_main/modules/home/home.dart';
 import 'package:saver_bbk_main/modules/login/login.dart';
+import 'package:saver_bbk_main/modules/profile/bloc/profile_bloc.dart';
 import 'package:saver_bbk_main/services/initilize_notification.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -20,6 +22,8 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(
       Duration(milliseconds: 500),
     ).then((value) => _checkUserStatus());
+    String savedLanguage = HiveHelper().getUserlanguage();
+    context.read<ProfileBloc>().add(ChangeLocale(languageCode: savedLanguage));
     super.initState();
   }
 
@@ -46,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
         (route) => false,
       );
     }
-     if (uid != null && isGuest == false) {
+    if (uid != null && isGuest == false) {
       InitilizeNotification.initializeFCM();
     }
   }

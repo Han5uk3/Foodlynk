@@ -8,6 +8,7 @@ import 'package:saver_bbk_main/modules/zero_waste_cooking/bloc/zero_waste_cookin
 import 'package:saver_bbk_main/modules/zero_waste_cooking/zero_waste_generated_result.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ZeroWasteCookingPage extends StatefulWidget {
   const ZeroWasteCookingPage({super.key, required this.onBack});
@@ -20,9 +21,7 @@ class ZeroWasteCookingPage extends StatefulWidget {
 
 class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
   int numberOfPeople = 1;
-  List<String> options = ["Breakfast", "Lunch", "Dinner", "Snack"];
-  List<String> meal = ["Daily Meal", "Family Gathering", "Party"];
-  List<String> preferances = ["Vegetarian", "Vegan", "No Preferances"];
+
   List<bool> checkboxValues = [false, false, false];
 
   int? selectedType;
@@ -32,9 +31,25 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
   bool checkbox3 = false;
   @override
   Widget build(BuildContext context) {
+    List<String> options = [
+      AppLocalizations.of(context)!.breakfast,
+      AppLocalizations.of(context)!.lunch,
+      AppLocalizations.of(context)!.dinner,
+      AppLocalizations.of(context)!.snack,
+    ];
+    List<String> meal = [
+      AppLocalizations.of(context)!.dailyMeal,
+      AppLocalizations.of(context)!.familyGathering,
+      AppLocalizations.of(context)!.party,
+    ];
+    List<String> preferances = [
+      AppLocalizations.of(context)!.vegetarian,
+      AppLocalizations.of(context)!.vegan,
+      AppLocalizations.of(context)!.noPreferances,
+    ];
     return Scaffold(
       appBar: saverAppBar(
-        "Zero Waste Cooking",
+        AppLocalizations.of(context)!.zeroWasteCooking,
         context,
         isneedtopop: true,
         iconColor: AppColor.white,
@@ -75,18 +90,21 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                 Padding(
                   padding: const EdgeInsets.only(top: 14),
                   child: Text(
-                    "Cook Smart, Reduce Waste!",
+                    AppLocalizations.of(context)!.cookSmartReduceWaste,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
                   ),
                 ),
                 Text(
-                  "Cook what just enough for your needs — no more, no less.",
+                  AppLocalizations.of(context)!.cookWhatJustEnoughForNeeds,
                   style: TextStyle(color: Colors.grey.shade500),
                 ),
                 SizedBox(height: 15),
                 Divider(color: Colors.grey.shade200, thickness: 2),
                 SizedBox(height: 15),
-                Text("What are you cooking?", style: TextStyle(fontSize: 16)),
+                Text(
+                  AppLocalizations.of(context)!.whatAreYouCooking,
+                  style: TextStyle(fontSize: 16),
+                ),
                 IntrinsicHeight(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -112,7 +130,7 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                 ),
 
                 Text(
-                  "To Whom are you cooking?",
+                  AppLocalizations.of(context)!.toWhomAreYouCooking,
                   style: TextStyle(fontSize: 16),
                 ),
                 IntrinsicHeight(
@@ -139,7 +157,7 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                   ),
                 ),
                 Text(
-                  "How many people are eating?",
+                  AppLocalizations.of(context)!.howManyPeopleAreEating,
                   style: TextStyle(fontSize: 16),
                 ),
                 SizedBox(height: 10),
@@ -165,7 +183,10 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                   ],
                 ),
                 SizedBox(height: 10),
-                Text("Dietary Preferances?", style: TextStyle(fontSize: 16)),
+                Text(
+                  AppLocalizations.of(context)!.dietaryPreferances,
+                  style: TextStyle(fontSize: 16),
+                ),
                 SizedBox(height: 10),
                 IntrinsicHeight(
                   child: Column(
@@ -201,8 +222,39 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                           bool isLoading = state is GeneratingLoadingState;
                           return SaverButton(
                             isLoading: isLoading,
-                            text: "Get Portion Plan",
+                            text: AppLocalizations.of(context)!.getPortionPlan,
                             onPressed: () async {
+                              if (selectedType == null) {
+                                SaverSnackBar.show(
+                                  context: context,
+                                  message:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.pleaseSelectAType,
+                                  isTrue: false,
+                                );
+                                return;
+                              }
+
+                              if (selectedMeal == null) {
+                                SaverSnackBar.show(
+                                  context: context,
+                                  message:
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.pleaseSelectAMeal,
+                                  isTrue: false,
+                                );
+                                return;
+                              }
+
+                              if (numberOfPeople == null) {
+                                SaverSnackBar.show(
+                                  context: context,
+                                  message: "Please select a number of people",
+                                  isTrue: false,
+                                );
+                              }
                               List<String> selectedPreferences = [];
                               for (int i = 0; i < checkboxValues.length; i++) {
                                 if (checkboxValues[i]) {
@@ -227,7 +279,9 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                                 SaverSnackBar.show(
                                   context: context,
                                   message:
-                                      "You don't have enough ingredients in your kitchen to generate the portion plan.",
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.youDontHaveEnoughIngredients,
                                   isTrue: false,
                                 );
                                 return;

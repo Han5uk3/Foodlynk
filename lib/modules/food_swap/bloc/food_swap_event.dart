@@ -9,13 +9,15 @@ sealed class FoodSwapEvent extends Equatable {
 
 class AddItemToFoodSwapEvent extends FoodSwapEvent {
   final Items item;
-  const AddItemToFoodSwapEvent({required this.item});
+  final File? imageFile;
+  const AddItemToFoodSwapEvent({required this.item, required this.imageFile});
   @override
-  List<Object> get props => [item];
+  List<Object> get props => [item, imageFile ?? ""];
 }
 
 class UpdateItemInFoodSwapEvent extends FoodSwapEvent {
   final Items item;
+
   const UpdateItemInFoodSwapEvent({required this.item});
   @override
   List<Object> get props => [item];
@@ -63,12 +65,16 @@ class AcceptedFoodSwapRequestEvent extends FoodSwapEvent {
   final String reciverUid;
   final String fcmToken;
   final CommunityBloc? communityBloc;
+  final BuildContext context;
+  final Map<String, String> localizedMessages;
   const AcceptedFoodSwapRequestEvent({
     required this.swapId,
     required this.reciverUid,
     required this.fcmToken,
     required this.acceptedSwapItemId,
     this.communityBloc,
+    required this.context,
+    required this.localizedMessages,
   });
   @override
   List<Object> get props => [swapId];

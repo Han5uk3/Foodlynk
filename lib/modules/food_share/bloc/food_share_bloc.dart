@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/models/donation_model.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
@@ -224,23 +225,28 @@ class FoodShareBloc extends Bloc<FoodShareEvent, FoodShareState> {
   ) async {
     try {
       emit(AcceptRequestLoadingState());
+      bool updateSuccessful = false;
       await Collections.donations
           .doc(event.reqId)
           .update({'status': 'A'})
           .then((value) {
-            event.communityBloc?.add(
-              InitializeChatRoomEvent(
-                receiverUid: event.reciverUid,
-                fcmToken: event.fcmToken,
-                isFoodSwapped: false,
-                isFromDonations: event.type == 'DONR',
-                isFromBeneficiary: event.type == 'BENF',
-              ),
-            );
+            updateSuccessful = true;
           })
           .onError((error, stackTrace) {
             emit(AcceptRequestFailedState(errorMessage: error.toString()));
           });
+      if (updateSuccessful && event.communityBloc != null) {
+        event.communityBloc!.add(
+          InitializeChatRoomEvent(
+            receiverUid: event.reciverUid,
+            fcmToken: event.fcmToken,
+            isFoodSwapped: false,
+            isFromDonations: event.type == 'DONR',
+            isFromBeneficiary: event.type == 'BENF',
+            localizedMessages: event.localizedMessages,
+          ),
+        );
+      }
     } catch (e) {
       emit(AcceptRequestFailedState(errorMessage: e.toString()));
     }

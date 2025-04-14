@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FoodExpiryTracker extends StatelessWidget {
   const FoodExpiryTracker({super.key});
@@ -69,7 +70,7 @@ class FoodExpiryTracker extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "You've consumed ${percentage.toStringAsFixed(0)}% of your food before expiry this month!",
+                          "${AppLocalizations.of(context)!.youveConsumed} ${percentage.toStringAsFixed(0)}% ${AppLocalizations.of(context)!.ofYourFoodBeforeExpiry}",
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,

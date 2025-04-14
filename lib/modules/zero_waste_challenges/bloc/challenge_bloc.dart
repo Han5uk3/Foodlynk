@@ -1,10 +1,11 @@
 import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/api/app_apis.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/services/storage_services.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 part 'challenge_event.dart';
 part 'challenge_state.dart';
 
@@ -40,7 +41,7 @@ class ChallengeBloc extends Bloc<ChallengeEvent, ChallengeState> {
           emit(
             BeforeUploadImageErrorState(
               errorMessage:
-                  "We couldn't verify food on the plate. Please try a clearer image.",
+                  AppLocalizations.of(event.context)!.weCouldntVerifyFood,
             ),
           );
         }
@@ -103,12 +104,12 @@ class ChallengeBloc extends Bloc<ChallengeEvent, ChallengeState> {
             emit(
               AfterUploadImageErrorState(
                 errorMessage:
-                    "The after image doesn't show a clean plate. Please try again.",
+                    AppLocalizations.of(event.context)!.theAfterimageDoesntShow,
               ),
             );
           }
         } else {
-          emit(
+          emit( 
             AfterUploadImageErrorState(
               errorMessage:
                   "Failed to retrieve before image. Please upload it again.",

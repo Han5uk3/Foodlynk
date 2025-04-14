@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RoleSelectionDialog extends StatefulWidget {
   final Function(bool isDonor) onRoleSelected;
@@ -68,7 +69,7 @@ class _RoleSelectionDialogState extends State<RoleSelectionDialog>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "How would you like to proceed?",
+                  AppLocalizations.of(context)!.howWouldYouLikeToProceed,
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w600,
@@ -82,8 +83,9 @@ class _RoleSelectionDialogState extends State<RoleSelectionDialog>
                     Expanded(
                       child: _buildRoleCard(
                         icon: Icons.volunteer_activism,
-                        title: "Donor",
-                        description: "Share food with others",
+                        title: AppLocalizations.of(context)!.donor,
+                        description:
+                            AppLocalizations.of(context)!.shareFoodWithOthers,
                         isSelected: _isDonor,
                         onTap: () => setState(() => _isDonor = true),
                       ),
@@ -92,8 +94,9 @@ class _RoleSelectionDialogState extends State<RoleSelectionDialog>
                     Expanded(
                       child: _buildRoleCard(
                         icon: Icons.people_alt_outlined,
-                        title: "Beneficiary",
-                        description: "Receive available food",
+                        title: AppLocalizations.of(context)!.beneficiary,
+                        description:
+                            AppLocalizations.of(context)!.receiveAvailableFood,
                         isSelected: !_isDonor,
                         onTap: () => setState(() => _isDonor = false),
                       ),
@@ -102,7 +105,7 @@ class _RoleSelectionDialogState extends State<RoleSelectionDialog>
                 ),
                 SizedBox(height: 25),
                 SaverButton(
-                  text: "Continue",
+                  text: AppLocalizations.of(context)!.continueText,
                   onPressed: () {
                     final selectedRole = _isDonor;
                     _animationController.reverse().then((_) {

@@ -47,6 +47,9 @@ class AcceptFoodShareRequest extends FoodShareEvent {
   final String reciverUid;
   final String fcmToken;
   final String type;
+  final BuildContext? context;
+  final Map<String, String> localizedMessages;
+
   final CommunityBloc? communityBloc;
 
   const AcceptFoodShareRequest({
@@ -54,6 +57,8 @@ class AcceptFoodShareRequest extends FoodShareEvent {
     required this.reciverUid,
     required this.fcmToken,
     required this.type,
+    required this.context,
+    required this.localizedMessages,
     this.communityBloc,
   });
   @override

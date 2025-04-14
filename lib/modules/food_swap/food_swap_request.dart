@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
@@ -14,6 +15,7 @@ import 'package:saver_bbk_main/models/food_swap_model.dart';
 import 'package:saver_bbk_main/modules/food_swap/bloc/food_swap_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FoodSwapRequest extends StatefulWidget {
   const FoodSwapRequest({super.key, required this.items});
@@ -58,9 +60,8 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: saverAppBar(
-        "Food Swap Request",
+        AppLocalizations.of(context)!.foodSwapRequest,
         context,
-
         isneedtopop: true,
         iswhite: true,
       ),
@@ -70,14 +71,17 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
             Navigator.pop(context);
             SaverSnackBar.show(
               context: context,
-              message: "Your request has been sent",
+              message: AppLocalizations.of(context)!.yourRequesthasBeenSent,
               isTrue: true,
             );
           }
           if (state is RequestFoodSwapError) {
             SaverSnackBar.show(
               context: context,
-              message: "Failed to send request. Please try again later.",
+              message:
+                  AppLocalizations.of(
+                    context,
+                  )!.failedToSentRequestPleaseTryAgainLater,
               isTrue: false,
             );
           }
@@ -97,26 +101,26 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                 ),
                 SizedBox(height: 20),
                 Text(
-                  "Your Swap Item",
+                  AppLocalizations.of(context)!.yourSwapItem,
                   style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                 ),
                 SizedBox(height: 10),
                 _buildSwapItemDropdown(),
                 SizedBox(height: 20),
                 Text(
-                  "Pickup Location",
+                  AppLocalizations.of(context)!.pickupLocation,
                   style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                 ),
                 SizedBox(height: 10),
                 SaverTextField(
-                  hintText: "Enter pickup location",
+                  hintText: AppLocalizations.of(context)!.enterPickupLocation,
                   controller: locationController,
                   suffixIcon: Icons.location_on_outlined,
                   suffixIconColor: AppColor.black,
                 ),
                 SizedBox(height: 20),
                 Text(
-                  "Pickup Date & Time",
+                  AppLocalizations.of(context)!.pickupDateAndTime,
                   style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                 ),
                 SizedBox(height: 10),
@@ -151,16 +155,23 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
           return Padding(
             padding: const EdgeInsets.only(left: 14, right: 14, bottom: 24),
             child: SaverButton(
-              text: "Submit Swap Request",
+              text: AppLocalizations.of(context)!.submitSwapRequest,
               isLoading: state is RequestFoodSwapLoadingState,
               onPressed: () {
                 if (selectedItem == null ||
                     locationController.text.isEmpty ||
                     selectedDate == null ||
-                    selectedTime == null) {
+                    selectedTime == null ||
+                    selectedItem ==
+                        AppLocalizations.of(context)!.noItemAvailable) {
+                  String message =
+                      selectedItem ==
+                              AppLocalizations.of(context)!.noItemAvailable
+                          ? AppLocalizations.of(context)!.youdontHaveToSwapItems
+                          : AppLocalizations.of(context)!.pleaseFillInAllFields;
                   SaverSnackBar.show(
                     context: context,
-                    message: "Please fill in all fields",
+                    message: message,
                     isTrue: false,
                   );
                   return;
@@ -201,7 +212,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
         List<String> dropdownItems =
             items.isNotEmpty
                 ? items.map((item) => item.name ?? "No Name").toList()
-                : ["No items available"];
+                : [AppLocalizations.of(context)!.noItemAvailable];
 
         String defaultValue =
             dropdownItems.contains(selectedItem)
@@ -209,7 +220,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                 : dropdownItems.first;
 
         return SaverDropdown(
-          hint: "Choose from my listings",
+          hint: AppLocalizations.of(context)!.chooseFromMyListing,
           items: dropdownItems,
           isLoading: snapshot.connectionState == ConnectionState.waiting,
           selectedItem: defaultValue,
@@ -217,13 +228,16 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
             setState(() {
               selectedItem = value;
 
-              // Find the selected item from the list
-              selectedSwapItem = items.firstWhere(
-                (item) => item.name == value,
-                orElse: () => FoodSwapModel(), // fallback in case not found
-              );
-
-              selectedItemId = selectedSwapItem?.id;
+              if (value != AppLocalizations.of(context)!.noItemAvailable) {
+                selectedSwapItem = items.firstWhere(
+                  (item) => item.name == value,
+                  orElse: () => FoodSwapModel(),
+                );
+                selectedItemId = selectedSwapItem?.id;
+              } else {
+                selectedSwapItem = null;
+                selectedItemId = null;
+              }
             });
           },
         );
@@ -248,8 +262,16 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
               border: Border.all(color: AppColor.lightGrey200),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Center(
-              child: Icon(Icons.image, color: AppColor.lightGrey200),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: CachedNetworkImage(
+                imageUrl: items.image ?? '',
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+
+                errorWidget: (context, url, error) => Icon(Icons.image),
+              ),
             ),
           ),
         ),
@@ -287,7 +309,9 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
           height: 27,
           child: Center(
             child: Text(
-              isPending ? "pending" : "available",
+              isPending
+                  ? AppLocalizations.of(context)!.pending
+                  : AppLocalizations.of(context)!.available,
               style: TextStyle(
                 fontSize: 12,
                 color: isPending ? AppColor.yellow : AppColor.green,
@@ -309,7 +333,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
           child: loadsvg("assets/icons/expiry.svg"),
         ),
         Text(
-          " Expiry Date: ${DateFormatHelper.ddmmyyyy(items.expiredDate ?? DateTime.now())}",
+          " ${AppLocalizations.of(context)!.expiryDate}: ${DateFormatHelper.ddmmyyyy(items.expiredDate ?? DateTime.now())}",
           style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
         ),
       ],
@@ -330,7 +354,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
           ),
         ),
         Text(
-          " Location: ",
+          AppLocalizations.of(context)!.location,
           style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
         ),
         SizedBox(width: 5),
@@ -340,7 +364,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
           child: Icon(size: 14, Icons.list_outlined, color: AppColor.red),
         ),
         Text(
-          " Quantity: ${items.quantity}",
+          " ${AppLocalizations.of(context)!.quantity}: ${items.quantity}",
           style: TextStyle(fontSize: 12, color: AppColor.lightGrey200),
         ),
       ],
@@ -376,7 +400,10 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: AppColor.white,
-          title: Text("Select Time", style: TextStyle(color: AppColor.black)),
+          title: Text(
+            AppLocalizations.of(context)!.selectTime,
+            style: TextStyle(color: AppColor.black),
+          ),
           content: IntrinsicHeight(child: hourMinute12H()),
           actions: [
             SizedBox(
@@ -385,7 +412,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                 children: [
                   Expanded(
                     child: SaverOutlineButton(
-                      text: "Cancel",
+                      text: AppLocalizations.of(context)!.cancel,
                       borderColor: AppColor.red,
                       textColor: AppColor.red,
                       onPressed: () {
@@ -396,7 +423,7 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                   SizedBox(width: 10),
                   Expanded(
                     child: SaverButton(
-                      text: "Done",
+                      text: AppLocalizations.of(context)!.done,
                       onPressed: () {
                         Navigator.pop(context);
                         setState(() {

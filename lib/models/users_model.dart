@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class UserModel {
   final String? uid;
   final String? title;
+  final String? profileImage;
   final String? firstName;
   final String? lastName;
   final String? email;
@@ -13,10 +14,6 @@ class UserModel {
   final String? gender;
   final String? fcmToken;
   final Timestamp? dob;
-  final String? nationality;
-  final String? country;
-  final String? state;
-  final String? city;
   final String? zipCode;
   final int? points;
   final List<Items>? kitchenItems;
@@ -28,6 +25,7 @@ class UserModel {
     this.uid,
     this.title,
     this.firstName,
+    this.profileImage,
     this.fcmToken,
     this.lastName,
     this.email,
@@ -35,10 +33,6 @@ class UserModel {
     this.address,
     this.gender,
     this.dob,
-    this.nationality,
-    this.country,
-    this.state,
-    this.city,
     this.zipCode,
     this.points,
     this.kitchenItems,
@@ -64,6 +58,7 @@ class UserModel {
     return UserModel(
       uid: data['uid'] ?? '',
       title: data['title'] ?? '',
+      profileImage: data['profileImage'] ?? '',
       firstName: data['firstName'] ?? '',
       fcmToken: data['fcmToken'] ?? '',
       lastName: data['lastName'] ?? '',
@@ -72,10 +67,6 @@ class UserModel {
       address: data['address'] ?? '',
       gender: data['gender'] ?? '',
       dob: data['dob'],
-      nationality: data['nationality'] ?? '',
-      country: data['country'] ?? '',
-      state: data['state'] ?? '',
-      city: data['city'] ?? '',
       zipCode: data['zipCode'] ?? '',
       points: data['points'] ?? 0,
       kitchenItems:
@@ -88,11 +79,54 @@ class UserModel {
       createdAt: parseTimestamp(data['createdAt']),
     );
   }
+  UserModel copyWith({
+    String? uid,
+    String? title,
+    String? profileImage,
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? phoneNumber,
+    String? address,
+    String? gender,
+    String? fcmToken,
+    Timestamp? dob,
+    String? zipCode,
+    int? points,
+    List<Items>? kitchenItems,
+    int? monthlyItemQuantityAddedCount,
+    int? monthlyItemQuantityRemovedCount,
+    DateTime? createdAt,
+  }) {
+    return UserModel(
+      uid: uid ?? this.uid,
+      title: title ?? this.title,
+      profileImage: profileImage ?? this.profileImage,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      email: email ?? this.email,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      address: address ?? this.address,
+      gender: gender ?? this.gender,
+      fcmToken: fcmToken ?? this.fcmToken,
+      dob: dob ?? this.dob,
+      zipCode: zipCode ?? this.zipCode,
+      points: points ?? this.points,
+      kitchenItems: kitchenItems ?? this.kitchenItems,
+      monthlyItemQuantityAddedCount:
+          monthlyItemQuantityAddedCount ?? this.monthlyItemQuantityAddedCount,
+      monthlyItemQuantityRemovedCount:
+          monthlyItemQuantityRemovedCount ??
+          this.monthlyItemQuantityRemovedCount,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 
   Map<String, dynamic> toFirestore({bool isNew = false}) {
     return {
       'uid': uid,
       'title': title,
+      'profileImage': profileImage,
       'firstName': firstName,
       'fcmToken': fcmToken,
       'lastName': lastName,
@@ -101,10 +135,6 @@ class UserModel {
       'address': address,
       'gender': gender,
       'dob': dob,
-      'nationality': nationality,
-      'country': country,
-      'state': state,
-      'city': city,
       'zipCode': zipCode,
       'points': points,
       'kitchenItems': kitchenItems?.map((item) => item).toList(),
@@ -121,6 +151,7 @@ class UserModel {
     return {
       'uid': uid,
       'title': title,
+      'profileImage': profileImage,
       'firstName': firstName,
       'fcmToken': fcmToken,
       'lastName': lastName,
@@ -129,10 +160,6 @@ class UserModel {
       'address': address,
       'gender': gender,
       'dob': dob,
-      'nationality': nationality,
-      'country': country,
-      'state': state,
-      'city': city,
       'zipCode': zipCode,
       'points': points,
       'kitchenItems': kitchenItems?.map((item) => item).toList() ?? [],
@@ -157,6 +184,7 @@ class UserModel {
     return UserModel(
       uid: json['uid'] ?? '',
       title: json['title'] ?? '',
+      profileImage: json['profileImage'] ?? '',
       firstName: json['firstName'] ?? '',
       fcmToken: json['fcmToken'] ?? '',
       lastName: json['lastName'] ?? '',
@@ -165,10 +193,6 @@ class UserModel {
       address: json['address'] ?? '',
       gender: json['gender'] ?? '',
       dob: json['dob'],
-      nationality: json['nationality'] ?? '',
-      country: json['country'] ?? '',
-      state: json['state'] ?? '',
-      city: json['city'] ?? '',
       zipCode: json['zipCode'] ?? '',
       points: json['points'] ?? 0,
       monthlyItemQuantityAddedCount: json['addedItemQuantityCount'] ?? 0,
@@ -204,7 +228,6 @@ class Items {
     this.expiredDate,
   });
 
-  /// ✅ Renamed `fromJson` to `fromMap`
   factory Items.fromMap(Map<String, dynamic> map) {
     dynamic expDate = map['expiredDate'];
     return Items(
@@ -230,6 +253,28 @@ class Items {
       'status': status,
       'expiredDate': Timestamp.fromDate(expiredDate ?? DateTime.now()),
     };
+  }
+
+  Items copyWith({
+    String? id,
+    String? name,
+    String? image,
+    String? category,
+    int? quantity,
+    String? unit,
+    String? status,
+    dynamic expiredDate,
+  }) {
+    return Items(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      image: image ?? this.image,
+      category: category ?? this.category,
+      quantity: quantity ?? this.quantity,
+      unit: unit ?? this.unit,
+      status: status ?? this.status,
+      expiredDate: expiredDate ?? this.expiredDate,
+    );
   }
 
   static String generateRandomId() {

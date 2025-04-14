@@ -5,6 +5,7 @@ import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/services/auth_services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String phoneNumber;
@@ -81,7 +82,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: saverAppBar("Verify Phone Number", context, isneedtopop: true),
+      appBar: saverAppBar(AppLocalizations.of(context)!.verifyPhoneNumber, context, isneedtopop: true),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -91,7 +92,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               const SizedBox(height: 20),
               RichText(
                 text: TextSpan(
-                  text: 'OTP has been sent to ',
+                  text: AppLocalizations.of(context)!.otpHasBeenSentTo,
                   style: const TextStyle(color: Colors.grey, fontSize: 16),
                   children: [
                     TextSpan(
@@ -157,7 +158,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 onTap: resendSeconds > 0 ? null : resendOTP,
                 child: Text(
                   resendSeconds > 0
-                      ? "Resend OTP in 00:${resendSeconds.toString().padLeft(2, '0')} s"
+                      ? "${AppLocalizations.of(context)!.resendOtpInS}00:${resendSeconds.toString().padLeft(2, '0')} s"
                       : "Resend OTP",
                   style: TextStyle(
                     color: resendSeconds > 0 ? Colors.grey : Colors.lightGreen,
@@ -169,7 +170,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               const SizedBox(height: 30),
               SizedBox(
                 width: double.infinity,
-                child: SaverButton(text: "Verify", onPressed: verifyOTP),
+                child: SaverButton(text: AppLocalizations.of(context)!.verify, onPressed: verifyOTP),
               ),
             ],
           ),

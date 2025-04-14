@@ -1,7 +1,11 @@
+import 'dart:developer';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/dropdown.dart';
@@ -15,11 +19,24 @@ import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/home/home.dart';
 import 'package:saver_bbk_main/modules/profile/bloc/profile_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
+import 'package:path/path.dart' as path;
+import 'package:saver_bbk_main/services/storage_services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({super.key, required this.isEdit, this.phoneNumber});
+  const EditProfilePage({
+    super.key,
+    required this.isEdit,
+    this.phoneNumber,
+    this.email,
+    this.password,
+    required this.isFromEmailLogin,
+  });
   final bool isEdit;
   final String? phoneNumber;
+  final String? email;
+  final String? password;
+  final bool isFromEmailLogin;
   @override
   State<EditProfilePage> createState() => _EditProfilePageState();
 }
@@ -27,14 +44,14 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   String? selectedTitle;
   String? selectedGender;
-  String? selectedCountry;
-  String? selectedState;
-  String? selectedCity;
-  String? selectedNationality;
   DateTime? selectedDate;
   String formattedDate = '';
   bool _isLoading = false;
   bool _isDataLoaded = false;
+  File? _imageFile;
+  String? _profileImageUrl;
+  bool _isUploadingImage = false;
+
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
@@ -43,24 +60,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _emailController = TextEditingController();
   final List<String> titles = ['Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Prof.'];
   final List<String> genders = ['Male', 'Female', 'Other'];
-  final List<String> countries = ['UAE', 'USA', 'UK', 'Canada', 'India'];
-  final List<String> states = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman'];
-  final List<String> cities = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman'];
-  final List<String> nationalities = [
-    'Emirati',
-    'American',
-    'British',
-    'Indian',
-    'Canadian',
-  ];
+  final currentLocale = HiveHelper().getUserlanguage();
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
-    super.initState();
-
     if (widget.isEdit) {
       _fetchUserProfile();
     }
+    if (widget.email != "") {
+      _emailController.text = widget.email ?? "";
+    }
+
+    super.initState();
   }
 
   @override
@@ -75,13 +87,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> _fetchUserProfile() async {
     try {
-      final snapshot =
-          await Services.getUserDetails(uid: HiveHelper.getUID()).first;
-      if (snapshot.docs.isNotEmpty) {
-        final userDoc = snapshot.docs.first;
-        final userData = userDoc.data();
-        final user = userData is UserModel ? userData : UserModel();
-        _populateFields(user);
+      final uid = Services.uid ?? "";
+      if (uid == null) {
+        debugPrint('No user is logged in.');
+        return;
+      }
+
+      log(uid);
+
+      final docSnapshot =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data();
+        if (data != null) {
+          final user = UserModel.fromJson(data);
+          _populateFields(user);
+        } else {
+          debugPrint('User data is null');
+        }
+      } else {
+        debugPrint('No user document found');
       }
     } catch (e) {
       debugPrint('Error fetching user profile: $e');
@@ -94,11 +120,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
       _isDataLoaded = true;
       selectedTitle = user.title?.isNotEmpty == true ? user.title : null;
       selectedGender = user.gender?.isNotEmpty == true ? user.gender : null;
-      selectedCountry = user.country?.isNotEmpty == true ? user.country : null;
-      selectedState = user.state?.isNotEmpty == true ? user.state : null;
-      selectedCity = user.city?.isNotEmpty == true ? user.city : null;
-      selectedNationality =
-          user.nationality?.isNotEmpty == true ? user.nationality : null;
       selectedDate = (user.dob as Timestamp).toDate();
       if (selectedDate != null) {
         formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate!);
@@ -108,16 +129,155 @@ class _EditProfilePageState extends State<EditProfilePage> {
       _addressController.text = user.address ?? '';
       _zipCodeController.text = user.zipCode ?? '';
       _emailController.text = user.email ?? '';
+      _profileImageUrl = user.profileImage;
     });
+  }
+
+  Future<void> _selectImage(ImageSource source) async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: source,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 80,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          _imageFile = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error picking image: $e');
+      }
+      SaverSnackBar.show(
+        context: context,
+        message: "Failed to select image",
+        isTrue: false,
+      );
+    }
+  }
+
+  Future<String?> _uploadProfileImage() async {
+    if (_imageFile == null) return _profileImageUrl;
+
+    setState(() {
+      _isUploadingImage = true;
+    });
+
+    try {
+      final String fileName =
+          '${HiveHelper.getUID()}_${DateTime.now().millisecondsSinceEpoch}${path.extension(_imageFile!.path)}';
+
+      final String uploadedUrl = await StorageService.uploadFile(
+        mainPath: 'profile_images',
+        filePath: _imageFile!.path,
+        fileName: fileName,
+      );
+
+      if (uploadedUrl.isNotEmpty) {
+        return uploadedUrl;
+      } else {
+        throw Exception('Failed to upload image');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error uploading profile image: $e');
+      }
+      SaverSnackBar.show(
+        context: context,
+        message: "Failed to upload profile image",
+        isTrue: false,
+      );
+      return _profileImageUrl;
+    } finally {
+      setState(() {
+        _isUploadingImage = false;
+      });
+    }
+  }
+
+  void _showImagePickerModal() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Gallery'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _selectImage(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_camera),
+                title: const Text('Camera'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _selectImage(ImageSource.camera);
+                },
+              ),
+              if (_profileImageUrl != null || _imageFile != null)
+                ListTile(
+                  leading: const Icon(Icons.delete, color: Colors.red),
+                  title: const Text(
+                    'Remove Photo',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      _imageFile = null;
+                      _profileImageUrl = null;
+                    });
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildProfileImage() {
+    if (_imageFile != null) {
+      return CircleAvatar(radius: 60, backgroundImage: FileImage(_imageFile!));
+    } else if (_profileImageUrl != null && _profileImageUrl!.isNotEmpty) {
+      return CircleAvatar(
+        radius: 60,
+        backgroundImage: NetworkImage(_profileImageUrl!),
+        onBackgroundImageError: (exception, stackTrace) {
+          if (kDebugMode) {
+            print('Error loading image: $exception');
+          }
+        },
+      );
+    } else {
+      return Container(
+        width: 120,
+        height: 120,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          shape: BoxShape.circle,
+        ),
+        child: Icon(Icons.person_outline, size: 60, color: Colors.grey[400]),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: saverAppBar(
-        widget.isEdit ? "My Profile" : "Create Profile",
+        widget.isEdit
+            ? AppLocalizations.of(context)!.myProfile
+            : AppLocalizations.of(context)!.createProfile,
         context,
-        isneedtopop: true,
+        isneedtopop: widget.isEdit,
       ),
       body: BlocConsumer<ProfileBloc, ProfileState>(
         listener: (context, state) {
@@ -134,8 +294,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
             Navigator.of(context).pop();
             SaverSnackBar.show(
               context: context,
-              message: "Profile Updated",
+              message: AppLocalizations.of(context)!.profileUpdated,
               isTrue: true,
+            );
+          }
+
+          if (state is CreateProfileErrorState) {
+            setState(() {
+              _isLoading = false;
+            });
+            SaverSnackBar.show(
+              context: context,
+              message: state.errorMessage,
+              isTrue: false,
             );
           }
 
@@ -157,6 +328,61 @@ class _EditProfilePageState extends State<EditProfilePage> {
           return _buildProfileForm();
         },
       ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SaverButton(
+          text:
+              widget.isEdit
+                  ? AppLocalizations.of(context)!.saveChanges
+                  : AppLocalizations.of(context)!.createProfile,
+          isLoading: _isLoading || _isUploadingImage,
+          onPressed:
+              _isUploadingImage
+                  ? () {}
+                  : () async {
+                    final String? imageUrl = await _uploadProfileImage();
+
+                    final userModel = UserModel(
+                      uid: HiveHelper.getUID(),
+                      gender: selectedGender,
+                      title: selectedTitle ?? "",
+                      firstName: _nameController.text,
+                      lastName: _lastNameController.text,
+                      phoneNumber: widget.phoneNumber ?? "",
+                      address: _addressController.text,
+                      zipCode: _zipCodeController.text,
+                      email: _emailController.text,
+                      dob: Timestamp.fromDate(selectedDate ?? DateTime.now()),
+                      profileImage: imageUrl,
+                      createdAt: DateTime.now(),
+                    );
+
+                    if (widget.isEdit) {
+                      context.read<ProfileBloc>().add(
+                        EditProfileEvent(
+                          userModel: userModel,
+                          preserveLocale: true,
+                          locale: HiveHelper().getUserlanguage(),
+                        ),
+                      );
+
+                      context.read<ProfileBloc>().add(
+                        ChangeLocale(
+                          languageCode: HiveHelper().getUserlanguage(),
+                        ),
+                      );
+                    } else {
+                      context.read<ProfileBloc>().add(
+                        CreateProfileEvent(
+                          userModel: userModel,
+                          password: widget.password ?? "",
+                          isEmailLogin: widget.isFromEmailLogin,
+                        ),
+                      );
+                    }
+                  },
+        ),
+      ),
     );
   }
 
@@ -172,30 +398,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
               Center(
                 child: Stack(
                   children: [
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.person_outline,
-                        size: 60,
-                        color: Colors.grey[400],
-                      ),
-                    ),
+                    _buildProfileImage(),
                     Positioned(
                       bottom: 0,
                       right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: Colors.grey[300]!),
-                          shape: BoxShape.circle,
+                      child: GestureDetector(
+                        onTap: _showImagePickerModal,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            border: Border.all(color: Colors.white, width: 2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            size: 20,
+                            color: Colors.white,
+                          ),
                         ),
-                        child: const Icon(Icons.camera_alt, size: 24),
                       ),
                     ),
                   ],
@@ -203,7 +424,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               const SizedBox(height: 24),
 
-              Label(text: 'First Name'),
+              Label(text: AppLocalizations.of(context)!.firstName),
 
               const SizedBox(height: 8),
               Row(
@@ -225,17 +446,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   Expanded(
                     child: SaverTextField(
                       controller: _nameController,
-                      hintText: 'Enter First Name',
+                      hintText: AppLocalizations.of(context)!.enterFirstName,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              Label(text: 'Last Name'),
+              Label(text: AppLocalizations.of(context)!.lastName),
               const SizedBox(height: 8),
               SaverTextField(
                 controller: _lastNameController,
-                hintText: 'Enter Last Name',
+                hintText: AppLocalizations.of(context)!.enterLastName,
               ),
               const SizedBox(height: 16),
               Row(
@@ -244,10 +465,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Label(text: 'Gender'),
+                        Label(text: AppLocalizations.of(context)!.gender),
                         const SizedBox(height: 8),
                         SaverDropdown(
-                          hint: "Male",
+                          hint: AppLocalizations.of(context)!.male,
                           items: genders,
                           onChanged: (value) {
                             setState(() {
@@ -264,8 +485,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'D.O.B',
+                        Text(
+                          AppLocalizations.of(context)!.dob,
                           style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                         const SizedBox(height: 8),
@@ -311,187 +532,30 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               const SizedBox(height: 16),
 
-              Label(text: 'Address'),
+              Label(text: AppLocalizations.of(context)!.address),
               const SizedBox(height: 8),
               SaverTextField(
-                hintText: 'Enter Address',
+                hintText: AppLocalizations.of(context)!.enterAddress,
                 controller: _addressController,
               ),
               const SizedBox(height: 16),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Label(text: 'Country'),
-                        const SizedBox(height: 8),
-                        SaverDropdown(
-                          hint: "Choose",
-                          items: countries,
-                          selectedItem: selectedCountry ?? "",
-                          onChanged: (value) {
-                            setState(() {
-                              selectedCountry = value;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Label(text: 'State'),
-                        const SizedBox(height: 8),
-                        SaverDropdown(
-                          hint: "Choose",
-                          items: states,
-                          selectedItem: selectedState ?? "",
-                          onChanged: (value) {
-                            setState(() {
-                              selectedState = value;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Label(text: 'City'),
-                        const SizedBox(height: 8),
-                        SaverDropdown(
-                          hint: "Choose",
-                          items: cities,
-                          selectedItem: selectedCity ?? "",
-                          onChanged: (value) {
-                            setState(() {
-                              selectedCity = value;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Label(text: 'Pin Code'),
-                        const SizedBox(height: 8),
-                        SaverTextField(
-                          hintText: 'Enter Pincode',
-                          controller: _zipCodeController,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              Label(text: 'Nationality'),
+              Label(text: AppLocalizations.of(context)!.emailId),
               const SizedBox(height: 8),
-              SaverDropdown(
-                items: nationalities,
-                hint: "Choose",
-                selectedItem: selectedNationality ?? "",
-                onChanged: (value) {
-                  setState(() {
-                    selectedNationality = value;
-                  });
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              Label(text: 'Email ID'),
-              const SizedBox(height: 8),
-              SaverTextField(
-                hintText: 'Enter Email ID',
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                    RegExp(r"[a-zA-Z0-9._%+-@]"),
-                  ),
-                ],
+              IgnorePointer(
+                ignoring: (widget.email != ""),
+                child: SaverTextField(
+                  hintText: AppLocalizations.of(context)!.enterEmailId,
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r"[a-zA-Z0-9._%+-@]"),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 24),
-              SaverButton(
-                text: widget.isEdit ? "Save Changes" : 'Create Profile',
-                isLoading: _isLoading,
-                onPressed:
-                    widget.isEdit
-                        ? () {
-                          if (!formKey.currentState!.validate()) {
-                            return;
-                          }
-                          context.read<ProfileBloc>().add(
-                            EditProfileEvent(
-                              userModel: UserModel(
-                                uid: HiveHelper.getUID(),
-                                gender: selectedGender,
-                                title: selectedTitle ?? "",
-                                firstName: _nameController.text,
-                                lastName: _lastNameController.text,
-                                phoneNumber: widget.phoneNumber ?? "",
-                                address: _addressController.text,
-                                country: selectedCountry ?? "",
-                                state: selectedState ?? "",
-                                city: selectedCity ?? "",
-                                zipCode: _zipCodeController.text,
-                                nationality: selectedNationality ?? "",
-                                email: _emailController.text,
-                                dob: Timestamp.fromDate(selectedDate!),
-                              ),
-                            ),
-                          );
-                        }
-                        : () {
-                          if (selectedDate == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Please select a date of birth'),
-                              ),
-                            );
-                            return;
-                          }
-                          if (!formKey.currentState!.validate()) {}
-
-                          context.read<ProfileBloc>().add(
-                            CreateProfileEvent(
-                              title: selectedTitle ?? "",
-                              firstName: _nameController.text,
-                              phoneNumber: widget.phoneNumber ?? "",
-                              lastName: _lastNameController.text,
-                              gender: selectedGender ?? "",
-                              dob: Timestamp.fromDate(selectedDate!),
-                              address: _addressController.text,
-                              country: selectedCountry ?? "",
-                              state: selectedState ?? "",
-                              city: selectedCity ?? "",
-                              zipCode: _zipCodeController.text,
-                              nationality: selectedNationality ?? "",
-                              email: _emailController.text,
-                            ),
-                          );
-                        },
-              ),
-              const SizedBox(height: 12),
             ],
           ),
         ),

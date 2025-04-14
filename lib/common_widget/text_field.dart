@@ -20,11 +20,11 @@ class SaverTextField extends StatelessWidget {
   final int maxlines;
   final VoidCallback? onEditingComplete;
   final String? Function(String?)? validator;
+  void Function(String)? onChanged;
 
-  const SaverTextField({
+   SaverTextField({
     super.key,
     required this.hintText,
-
     required this.controller,
     this.inputFormatters = const [],
     this.isPassword = false,
@@ -41,6 +41,7 @@ class SaverTextField extends StatelessWidget {
     this.onSuffixTap,
     this.borderColor = AppColor.lightGrey,
     this.borderRadius = 7.0,
+    this.onChanged
   });
 
   @override
@@ -55,7 +56,12 @@ class SaverTextField extends StatelessWidget {
       keyboardType: keyboardType,
       validator: validator,
       inputFormatters: inputFormatters,
+      onChanged: onChanged,
       decoration: InputDecoration(
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: AppColor.red),
+        ),
         hintText: hintText,
         hintStyle: TextStyle(color: AppColor.lightGrey200),
         prefixIcon:
@@ -76,6 +82,10 @@ class SaverTextField extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius),
           borderSide: BorderSide(color: borderColor, width: 2.0),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: AppColor.red),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 15.0,

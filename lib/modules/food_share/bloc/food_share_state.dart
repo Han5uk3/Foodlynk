@@ -31,10 +31,9 @@ final class NewBenificiaryFailedState extends FoodShareState {
   List<Object> get props => [errorMessage];
 }
 
-// Update these state classes in your food_share_bloc.dart file
 class RequestAddedSuccessState extends FoodShareState {
   final bool isIntrested;
-  final String itemId; // Add this field
+  final String itemId;
 
   const RequestAddedSuccessState({
     required this.isIntrested,
@@ -44,7 +43,7 @@ class RequestAddedSuccessState extends FoodShareState {
 
 class RequestAddedFailedState extends FoodShareState {
   final String errorMessage;
-  final String itemId; // Add this field
+  final String itemId;
 
   const RequestAddedFailedState({
     required this.errorMessage,

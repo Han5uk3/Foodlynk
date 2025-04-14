@@ -21,6 +21,7 @@ import 'package:saver_bbk_main/modules/community/chat_page.dart';
 import 'package:saver_bbk_main/modules/food_share/bloc/food_share_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DonationDetails extends StatefulWidget {
   final DonationModel model;
@@ -47,8 +48,6 @@ class _DonationDetailsState extends State<DonationDetails>
   TextEditingController yourNameController = TextEditingController();
   TextEditingController yourPhoneController = TextEditingController();
   TextEditingController serveCountController = TextEditingController();
-  String terms =
-      "I certify that the food I donated is safe to eat and has been stored in tightly sealed containers in accordance with health guidelines. I pledge to bear full and legal responsibility for all consequences of its use and disposal. I also release (Ne'ma Savers) from all liability for the food I donated.";
   File? _imageFile;
   bool tcvalue = false;
   List<String> items = [
@@ -63,22 +62,11 @@ class _DonationDetailsState extends State<DonationDetails>
   String selectedItem = "";
   String selectedCode = "+91";
   DateTime selectedDate = DateTime.now();
-  List<String> code = [
-    "+91",
-    "+966",
-    "+965",
-    "+974",
-    "+971",
-    "+970",
-    "+973",
-    "+98",
-    "+968",
-  ];
 
   late TabController _tabController;
   bool _isLoading = false;
 
-  Set<String> _processingRequests = {};
+  final Set<String> _processingRequests = {};
   bool _isNavigatingToChat = false;
 
   @override
@@ -93,9 +81,8 @@ class _DonationDetailsState extends State<DonationDetails>
       yourPhoneController.text = widget.model.contactMobile ?? "";
       serveCountController.text = widget.model.noOfServe?.toString() ?? "";
       tcvalue = widget.model.isAccpected ?? false;
-
       selectedItem = widget.model.foodType ?? "";
-      selectedCode = widget.model.contactContryCode ?? "+91";
+      selectedCode = widget.model.contactContryCode ?? "+965";
     }
     super.initState();
   }
@@ -114,10 +101,10 @@ class _DonationDetailsState extends State<DonationDetails>
       backgroundColor: Colors.grey[50],
       appBar: saverAppBar(
         widget.isFromCard
-            ? "Request Details"
+            ? AppLocalizations.of(context)!.requestDetails
             : widget.isDonor
-            ? "Add Donation"
-            : "Add Beneficiary",
+            ? AppLocalizations.of(context)!.addDonation
+            : AppLocalizations.of(context)!.addBeneficairy,
         context,
         isneedtopop: true,
         iswhite: true,
@@ -132,19 +119,18 @@ class _DonationDetailsState extends State<DonationDetails>
                   ),
                 ]
                 : [],
+
         bottom:
-            !widget.isDonor && widget.isFromCard
-                ? null
-                : widget.isFromCard
+            widget.isFromCard && widget.isDonor
                 ? TabBar(
                   controller: _tabController,
                   labelColor: AppColor.primaryColor,
                   unselectedLabelColor: Colors.grey,
                   indicatorColor: AppColor.primaryColor,
                   labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                  tabs: const [
-                    Tab(text: "Incoming Requests"),
-                    Tab(text: "Details"),
+                  tabs: [
+                    Tab(text: AppLocalizations.of(context)!.incomingRequests),
+                    Tab(text: AppLocalizations.of(context)!.details),
                   ],
                 )
                 : null,
@@ -167,7 +153,7 @@ class _DonationDetailsState extends State<DonationDetails>
             Navigator.pop(context);
             SaverSnackBar.show(
               context: context,
-              message: "Donation Added Successfully",
+              message: AppLocalizations.of(context)!.donationAddedSuccessfully,
               isTrue: true,
             );
           }
@@ -176,7 +162,7 @@ class _DonationDetailsState extends State<DonationDetails>
             Navigator.pop(context);
             SaverSnackBar.show(
               context: context,
-              message: "Request Added Successfully",
+              message: AppLocalizations.of(context)!.requestAddedSuccessfully,
               isTrue: true,
             );
           }
@@ -199,7 +185,7 @@ class _DonationDetailsState extends State<DonationDetails>
             Navigator.pop(context);
             SaverSnackBar.show(
               context: context,
-              message: "Request Deleted Successfully",
+              message: AppLocalizations.of(context)!.requestDeletedSuccessfully,
               isTrue: true,
             );
           }
@@ -214,7 +200,8 @@ class _DonationDetailsState extends State<DonationDetails>
             Navigator.pop(context);
             SaverSnackBar.show(
               context: context,
-              message: "Request Declined Successfully",
+              message:
+                  AppLocalizations.of(context)!.requestDeclinedSuccessfully,
               isTrue: true,
             );
           }
@@ -227,9 +214,7 @@ class _DonationDetailsState extends State<DonationDetails>
           }
         },
         child:
-            !widget.isDonor && widget.isFromCard
-                ? _buildIncomingRequestsTab()
-                : widget.isFromCard
+            widget.isFromCard && widget.isDonor
                 ? TabBarView(
                   controller: _tabController,
                   children: [
@@ -237,12 +222,13 @@ class _DonationDetailsState extends State<DonationDetails>
                     _buildDonorBody(widget.isView),
                   ],
                 )
+                : widget.isFromCard && !widget.isDonor
+                ? _buildIncomingRequestsTab()
                 : widget.isDonor
                 ? _buildDonorBody(widget.isView)
                 : _buildBeneficiaryBody(widget.isView),
       ),
-      bottomNavigationBar:
-          widget.isDonor || !widget.isFromCard ? _buildSubmitButton() : null,
+      bottomNavigationBar: !widget.isFromCard ? _buildSubmitButton() : null,
     );
   }
 
@@ -260,7 +246,10 @@ class _DonationDetailsState extends State<DonationDetails>
         ],
       ),
       child: SaverButton(
-        text: widget.isDonor ? "Submit Donation" : "Submit Request",
+        text:
+            widget.isDonor
+                ? AppLocalizations.of(context)!.submitDonation
+                : AppLocalizations.of(context)!.submitRequest,
         isLoading: _isLoading,
         onPressed: _validateAndSubmit,
       ),
@@ -275,7 +264,7 @@ class _DonationDetailsState extends State<DonationDetails>
           locationNameController.text.isEmpty) {
         SaverSnackBar.show(
           context: context,
-          message: "Please fill in all required fields",
+          message: AppLocalizations.of(context)!.pleaseFillInAllRequiredFields,
           isTrue: false,
         );
         return;
@@ -284,7 +273,8 @@ class _DonationDetailsState extends State<DonationDetails>
       if (!tcvalue) {
         SaverSnackBar.show(
           context: context,
-          message: "Please accept the terms and conditions",
+          message:
+              AppLocalizations.of(context)!.pleaseAcceptTheTermsAndConditions,
           isTrue: false,
         );
         return;
@@ -309,7 +299,8 @@ class _DonationDetailsState extends State<DonationDetails>
       if (selectedItem.isEmpty || locationNameController.text.isEmpty) {
         SaverSnackBar.show(
           context: context,
-          message: "Please select food type and location",
+          message:
+              AppLocalizations.of(context)!.pleaseSelectFoodTypeAndLocation,
           isTrue: false,
         );
         return;
@@ -339,12 +330,12 @@ class _DonationDetailsState extends State<DonationDetails>
               setState(() {
                 _isNavigatingToChat = true;
               });
-
+              final BuildContext currentContext = context;
               showDialog(
-                context: context,
+                context: currentContext,
                 barrierDismissible: false,
                 builder:
-                    (context) => Center(
+                    (dialogContext) => Center(
                       child: Container(
                         padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -359,7 +350,7 @@ class _DonationDetailsState extends State<DonationDetails>
                             ),
                             SizedBox(height: 16),
                             Text(
-                              "Opening chat...",
+                              "Chat Opening.....",
                               style: TextStyle(fontWeight: FontWeight.w500),
                             ),
                           ],
@@ -369,11 +360,9 @@ class _DonationDetailsState extends State<DonationDetails>
               );
 
               Future.delayed(Duration(milliseconds: 800), () {
-                if (mounted) {
-                  Navigator.pop(context);
-
+                if (currentContext.mounted) {
                   Navigator.push(
-                    context,
+                    currentContext,
                     MaterialPageRoute(
                       builder:
                           (context) => ChatPage(isFromNotifications: false),
@@ -387,6 +376,10 @@ class _DonationDetailsState extends State<DonationDetails>
                     }
                   });
                 }
+              }).then((_) {
+                setState(() {
+                  _isNavigatingToChat = false;
+                });
               });
             }
 
@@ -394,7 +387,6 @@ class _DonationDetailsState extends State<DonationDetails>
               setState(() {
                 _isNavigatingToChat = false;
               });
-
               SaverSnackBar.show(
                 context: context,
                 message: state.errorMessage ?? 'An error occurred',
@@ -435,9 +427,9 @@ class _DonationDetailsState extends State<DonationDetails>
 
           if (incomingRequests == null || incomingRequests.isEmpty) {
             return EmptyList(
-              message: "No requests available yet",
+              message: AppLocalizations.of(context)!.noRequestAvailableYet,
               subMessage:
-                  "When someone requests this donation, they will appear here",
+                  AppLocalizations.of(context)!.whenSomeoneRequestsThisDonation,
             );
           }
 
@@ -505,7 +497,9 @@ class _DonationDetailsState extends State<DonationDetails>
                     child: Icon(Icons.person_off, color: Colors.grey),
                   ),
                   SizedBox(width: 12),
-                  Text("User information not available"),
+                  Text(
+                    AppLocalizations.of(context)!.userInformationNotAvailable,
+                  ),
                 ],
               ),
             );
@@ -548,7 +542,7 @@ class _DonationDetailsState extends State<DonationDetails>
                             ),
                           ),
                           Text(
-                            "Request received ${_getTimeAgo(request['timestamp'])}",
+                            "${AppLocalizations.of(context)!.requestReceivedRecently} ${_getTimeAgo(request['timestamp'])}",
                             style: TextStyle(
                               color: Colors.grey[600],
                               fontSize: 12,
@@ -568,12 +562,21 @@ class _DonationDetailsState extends State<DonationDetails>
                   ),
                   child: Column(
                     children: [
-                      if (hasEmail) _infoRow(Icons.email, "Email", user.email!),
+                      if (hasEmail)
+                        _infoRow(
+                          Icons.email,
+                          AppLocalizations.of(context)!.email,
+                          user.email!,
+                        ),
                       if (hasPhone)
-                        _infoRow(Icons.phone, "Phone", user.phoneNumber!),
+                        _infoRow(
+                          Icons.phone,
+                          AppLocalizations.of(context)!.phone,
+                          user.phoneNumber!,
+                        ),
                       _infoRow(
                         Icons.calendar_today,
-                        "Date",
+                        AppLocalizations.of(context)!.date,
                         DateFormatHelper.ddmmyyyyString(request['timestamp']),
                       ),
                     ],
@@ -584,7 +587,7 @@ class _DonationDetailsState extends State<DonationDetails>
                   children: [
                     Expanded(
                       child: SaverButton(
-                        text: "Decline",
+                        text: AppLocalizations.of(context)!.decline,
                         color: Colors.grey[300]!,
                         textColor: Colors.black87,
                         isLoading: isDeclineProcessing,
@@ -601,7 +604,7 @@ class _DonationDetailsState extends State<DonationDetails>
                     SizedBox(width: 12),
                     Expanded(
                       child: SaverButton(
-                        text: "Accept",
+                        text: AppLocalizations.of(context)!.accept,
                         isLoading: isAcceptProcessing,
                         onPressed:
                             isDeclineProcessing ||
@@ -609,20 +612,58 @@ class _DonationDetailsState extends State<DonationDetails>
                                     _isNavigatingToChat
                                 ? () {}
                                 : () {
+                                  final String requestId =
+                                      widget.model.id ?? '';
+                                  final String requestType =
+                                      widget.model.type ?? '';
+                                  final String userFcmToken =
+                                      user.fcmToken ?? "";
+                                  final String receiverUid = raisedUid;
+                                  final localizedMessages = {
+                                    'hello':
+                                        AppLocalizations.of(context)!.hello,
+                                    'acceptFoodSwap':
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.iAcceptYourFoodSwap,
+                                    'donateFoodMessage':
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.iWantToDonateMyFoodWithYou,
+                                    'receiveFoodMessage':
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.iWantToReceiveFoodWithYou,
+
+                                    'foodSwapAccepted':
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.foodSwapAccepted,
+                                    'beneficiaryAccepted':
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.beneficiaryAccepted,
+                                  };
                                   setState(() {
                                     _processingRequests.add(
                                       "accept_$requestId",
                                     );
                                   });
 
-                                  context.read<FoodShareBloc>().add(
+                                  final foodShareBloc =
+                                      context.read<FoodShareBloc>();
+                                  final communityBloc =
+                                      context.read<CommunityBloc>();
+
+                                  foodShareBloc.add(
                                     AcceptFoodShareRequest(
-                                      reqId: widget.model.id ?? '',
-                                      type: widget.model.type ?? '',
-                                      fcmToken: user.fcmToken ?? "",
-                                      reciverUid: raisedUid,
-                                      communityBloc:
-                                          context.read<CommunityBloc>(),
+                                      reqId: requestId,
+                                      type: requestType,
+                                      fcmToken: userFcmToken,
+                                      reciverUid: receiverUid,
+                                      communityBloc: communityBloc,
+                                      context: context,
+                                      localizedMessages: localizedMessages,
                                     ),
                                   );
                                 },
@@ -647,18 +688,18 @@ class _DonationDetailsState extends State<DonationDetails>
         final Duration difference = DateTime.now().difference(dateTime);
 
         if (difference.inDays > 0) {
-          return "${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago";
+          return "${difference.inDays} ${AppLocalizations.of(context)!.day}${difference.inDays > 1 ? 's' : ''} ${AppLocalizations.of(context)!.ago}";
         } else if (difference.inHours > 0) {
-          return "${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago";
+          return "${difference.inHours} ${AppLocalizations.of(context)!.hour}${difference.inHours > 1 ? 's' : ''} ${AppLocalizations.of(context)!.ago}";
         } else if (difference.inMinutes > 0) {
-          return "${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''} ago";
+          return "${difference.inMinutes} ${AppLocalizations.of(context)!.minute}${difference.inMinutes > 1 ? 's' : ''} ${AppLocalizations.of(context)!.ago}";
         } else {
-          return "just now";
+          return AppLocalizations.of(context)!.justNow;
         }
       }
-      return "recently";
+      return AppLocalizations.of(context)!.recently;
     } catch (e) {
-      return "recently";
+      return AppLocalizations.of(context)!.recently;
     }
   }
 
@@ -669,14 +710,14 @@ class _DonationDetailsState extends State<DonationDetails>
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text("Decline Request"),
+            title: Text(AppLocalizations.of(context)!.declineRequest),
             content: Text(
-              "Are you sure you want to decline the request from ${user.firstName ?? 'this user'}?",
+              "${AppLocalizations.of(context)!.areYouSureYouWantToDeclineTheRequestFrom} ${user.firstName ?? 'this user'}?",
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text("Cancel"),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               TextButton(
                 onPressed: () {
@@ -691,7 +732,10 @@ class _DonationDetailsState extends State<DonationDetails>
                     ),
                   );
                 },
-                child: Text("Decline", style: TextStyle(color: Colors.red)),
+                child: Text(
+                  AppLocalizations.of(context)!.decline,
+                  style: TextStyle(color: Colors.red),
+                ),
               ),
             ],
           ),
@@ -736,29 +780,29 @@ class _DonationDetailsState extends State<DonationDetails>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle("Food Information"),
+              _buildSectionTitle(AppLocalizations.of(context)!.foodInformation),
               _buildCard([
                 Label(
-                  text: "Food Name",
+                  text: AppLocalizations.of(context)!.foodName,
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
                 SizedBox(height: 8),
                 SaverTextField(
-                  hintText: "Enter food name",
+                  hintText: AppLocalizations.of(context)!.enterFoodName,
                   controller: foodNameController,
                   keyboardType: TextInputType.text,
                   prefixIcon: Icons.fastfood,
                 ),
                 SizedBox(height: 16),
                 Label(
-                  text: "Food Type",
+                  text: AppLocalizations.of(context)!.foodType,
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
                 SizedBox(height: 8),
                 SaverDropdown(
                   items: items,
                   selectedItem: selectedItem,
-                  hint: "Select food type",
+                  hint: AppLocalizations.of(context)!.selectFoodType,
                   onChanged: (value) {
                     setState(() {
                       selectedItem = value!;
@@ -767,12 +811,12 @@ class _DonationDetailsState extends State<DonationDetails>
                 ),
                 SizedBox(height: 16),
                 Label(
-                  text: "Number of Serves",
+                  text: AppLocalizations.of(context)!.numberOfServes,
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
                 SizedBox(height: 8),
                 SaverTextField(
-                  hintText: "Enter number of serves",
+                  hintText: AppLocalizations.of(context)!.enterNumberOfServes,
                   controller: serveCountController,
                   keyboardType: TextInputType.number,
                   prefixIcon: Icons.people,
@@ -781,10 +825,12 @@ class _DonationDetailsState extends State<DonationDetails>
               ]),
 
               SizedBox(height: 24),
-              _buildSectionTitle("Description & Expiry"),
+              _buildSectionTitle(
+                AppLocalizations.of(context)!.descriptionAndExpiry,
+              ),
               _buildCard([
                 Label(
-                  text: "Description",
+                  text: AppLocalizations.of(context)!.description,
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
                 SizedBox(height: 8),
@@ -793,13 +839,16 @@ class _DonationDetailsState extends State<DonationDetails>
                   child: SaverTextField(
                     minLines: 7,
                     maxlines: 10,
-                    hintText: "Describe why you are donating it...",
+                    hintText:
+                        AppLocalizations.of(
+                          context,
+                        )!.describeWhyYouAreDonatingIt,
                     controller: descriptionController,
                   ),
                 ),
                 SizedBox(height: 16),
                 Label(
-                  text: "Expiry Date",
+                  text: AppLocalizations.of(context)!.expiryDate,
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
                 SizedBox(height: 8),
@@ -812,15 +861,17 @@ class _DonationDetailsState extends State<DonationDetails>
               ]),
 
               SizedBox(height: 24),
-              _buildSectionTitle("Location & Image"),
+              _buildSectionTitle(
+                AppLocalizations.of(context)!.locationAndImage,
+              ),
               _buildCard([
                 Label(
-                  text: "Pickup Location",
+                  text: AppLocalizations.of(context)!.pickupLocation,
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
                 SizedBox(height: 8),
                 SaverTextField(
-                  hintText: "Enter pickup location",
+                  hintText: AppLocalizations.of(context)!.enterPickupLocation,
                   controller: locationNameController,
                   prefixIcon: Icons.location_on_outlined,
                   suffixIcon: Icons.map,
@@ -829,7 +880,7 @@ class _DonationDetailsState extends State<DonationDetails>
                 if (!widget.isFromCard) ...[
                   SizedBox(height: 16),
                   Label(
-                    text: "Food Image",
+                    text: AppLocalizations.of(context)!.foodImage,
                     style: TextStyle(fontWeight: FontWeight.w500),
                   ),
                   SizedBox(height: 8),
@@ -944,7 +995,7 @@ class _DonationDetailsState extends State<DonationDetails>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Terms & Conditions",
+              AppLocalizations.of(context)!.termsAndConditions,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             SizedBox(height: 8),
@@ -965,7 +1016,7 @@ class _DonationDetailsState extends State<DonationDetails>
                   child: Padding(
                     padding: const EdgeInsets.only(top: 12),
                     child: Text(
-                      terms,
+                      AppLocalizations.of(context)!.iCertifyThatTheFood,
                       style: TextStyle(color: Colors.black87, fontSize: 13),
                       textAlign: TextAlign.justify,
                     ),
@@ -1001,16 +1052,18 @@ class _DonationDetailsState extends State<DonationDetails>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle("Request Information"),
+              _buildSectionTitle(
+                AppLocalizations.of(context)!.requestInformation,
+              ),
               _buildCard([
                 Label(
-                  text: "Food Type Required",
+                  text: AppLocalizations.of(context)!.foodTypeRequired,
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
                 SizedBox(height: 8),
                 SaverDropdown(
                   items: items,
-                  hint: "Select food type",
+                  hint: AppLocalizations.of(context)!.selectFoodType,
                   selectedItem: selectedItem,
                   onChanged: (value) {
                     setState(() {
@@ -1020,12 +1073,13 @@ class _DonationDetailsState extends State<DonationDetails>
                 ),
                 SizedBox(height: 16),
                 Label(
-                  text: "Preferred Pickup Location",
+                  text: AppLocalizations.of(context)!.preferredPickupLocation,
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
                 SizedBox(height: 8),
                 SaverTextField(
-                  hintText: "Enter preferred location",
+                  hintText:
+                      AppLocalizations.of(context)!.enterPreferredLocation,
                   controller: locationNameController,
                   prefixIcon: Icons.location_on_outlined,
                   suffixIcon: Icons.map,
@@ -1034,10 +1088,12 @@ class _DonationDetailsState extends State<DonationDetails>
               ]),
 
               SizedBox(height: 24),
-              _buildSectionTitle("Contact Information"),
+              _buildSectionTitle(
+                AppLocalizations.of(context)!.contactInformation,
+              ),
               _buildCard([
                 Text(
-                  "This information will be shared with the donor when they accept your request",
+                  AppLocalizations.of(context)!.thisInformationWillBeShared,
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.grey[600],
@@ -1046,49 +1102,50 @@ class _DonationDetailsState extends State<DonationDetails>
                 ),
                 SizedBox(height: 16),
                 Label(
-                  text: "Your Name",
+                  text: AppLocalizations.of(context)!.yourName,
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
                 SizedBox(height: 8),
                 SaverTextField(
-                  hintText: "Enter your name",
+                  hintText: AppLocalizations.of(context)!.enterYourName,
                   controller: yourNameController,
                   prefixIcon: Icons.person,
                 ),
                 SizedBox(height: 16),
                 Label(
-                  text: "Mobile Number",
+                  text: AppLocalizations.of(context)!.mobileNumber,
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
-                Row(
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.21,
-                      child: SaverDropdown(
-                        items: code,
-                        hint: "+91",
-                        selectedItem: selectedCode,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedCode = value!;
-                          });
-                        },
+                SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: TextField(
+                    controller: yourPhoneController,
+                    maxLength: 8,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(8),
+                    ],
+                    keyboardType: TextInputType.phone,
+                    decoration: InputDecoration(
+                      counterText: "",
+                      hintText:
+                          AppLocalizations.of(
+                            context,
+                          )!.enterEightDigitMobileNumber,
+                      prefixText: '+965 - ',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 15,
                       ),
+                      hintStyle: TextStyle(color: Colors.grey),
                     ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: SaverTextField(
-                        hintText: "Enter mobile number",
-
-                        controller: yourPhoneController,
-                        keyboardType: TextInputType.phone,
-                        inputFormatters: [
-                          LengthLimitingTextInputFormatter(10),
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ]),
             ],
@@ -1105,18 +1162,24 @@ class _DonationDetailsState extends State<DonationDetails>
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          title: Text(isDonor ? 'Delete Donation' : 'Delete Request'),
+          title: Text(
+            isDonor
+                ? AppLocalizations.of(context)!.deleteDonation
+                : AppLocalizations.of(context)!.deleteRequest,
+          ),
           content: Text(
             isDonor
                 ? 'Are you sure you want to delete this donation?'
-                : 'Are you sure you want to delete this request?',
+                : AppLocalizations.of(
+                  context,
+                )!.areYouSureWantToDeletThisRequest,
           ),
           actions: [
             Row(
               children: [
                 Expanded(
                   child: SaverButton(
-                    text: "No",
+                    text: AppLocalizations.of(context)!.no,
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -1126,7 +1189,7 @@ class _DonationDetailsState extends State<DonationDetails>
                 Expanded(
                   child: SaverButton(
                     color: AppColor.red,
-                    text: "Yes",
+                    text: AppLocalizations.of(context)!.yes,
                     onPressed:
                         () => context.read<FoodShareBloc>().add(
                           DeleteFoodShareRequest(reqId: widget.model.id ?? ""),

@@ -6,6 +6,7 @@ import 'package:saver_bbk_main/styles/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saver_bbk_main/modules/food_share/bloc/food_share_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FoodShareDetailBottomSheet extends StatelessWidget {
   final DonationModel item;
@@ -45,11 +46,11 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
                   if (!isBenificiary || item.image!.isEmpty)
                     _buildImageSection(),
                   SizedBox(height: 16),
-                  _buildInfoSection(),
+                  _buildInfoSection(context),
                   SizedBox(height: 16),
-                  _buildDescriptionSection(),
+                  _buildDescriptionSection(context),
                   SizedBox(height: 16),
-                  _buildAddressSection(),
+                  _buildAddressSection(context),
                   if (!itsMy) ...[
                     SizedBox(height: 16),
                     _buildInterestButton(context),
@@ -76,7 +77,9 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              isBenificiary ? "Beneficiary Details" : "Donation Details",
+              isBenificiary
+                  ? AppLocalizations.of(context)!.beneficiary
+                  : AppLocalizations.of(context)!.donationDetails,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -132,7 +135,7 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoSection() {
+  Widget _buildInfoSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -150,7 +153,7 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
                 ),
               ),
             ),
-            _buildStatusBadge(),
+            _buildStatusBadge(context),
           ],
         ),
         SizedBox(height: 16),
@@ -160,8 +163,8 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
           iconBgColor: AppColor.greenshade,
           text:
               isBenificiary
-                  ? "Received On: ${DateFormatHelper.ddmmyyyy(item.createdAt ?? DateTime.now())}"
-                  : "Donated On: ${DateFormatHelper.ddmmyyyy(item.createdAt ?? DateTime.now())}",
+                  ? "${AppLocalizations.of(context)!.receivedOn} ${DateFormatHelper.ddmmyyyy(item.createdAt ?? DateTime.now())}"
+                  : "${AppLocalizations.of(context)!.donatedOn} ${DateFormatHelper.ddmmyyyy(item.createdAt ?? DateTime.now())}",
         ),
         SizedBox(height: 12),
 
@@ -175,8 +178,8 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
           iconColor: AppColor.blue,
           text:
               isBenificiary
-                  ? "Donated By: ${item.contactName ?? "Anonymous"}"
-                  : "Serves: ${item.noOfServe ?? 0}",
+                  ? "${AppLocalizations.of(context)!.donatedBy} ${item.contactName ?? AppLocalizations.of(context)!.anonymous}"
+                  : "${AppLocalizations.of(context)!.serves} ${item.noOfServe ?? 0}",
         ),
 
         if (item.expiredDate != null) ...[
@@ -184,7 +187,8 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
           _buildInfoRow(
             icon: "assets/icons/expiry.svg",
             iconBgColor: Colors.red.withOpacity(0.2),
-            text: "Expires On: ${DateFormatHelper.ddmmyyyy(item.expiredDate!)}",
+            text:
+                "${AppLocalizations.of(context)!.expiresOn} ${DateFormatHelper.ddmmyyyy(item.expiredDate!)}",
             textColor: Colors.red,
           ),
         ],
@@ -197,14 +201,14 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
             iconBgColor: Colors.amber.withOpacity(0.2),
             iconColor: Colors.orange,
             text:
-                "Contact: ${item.contactName ?? ""} ${item.contactMobile != null ? '(${item.contactContryCode ?? ""}${item.contactMobile})' : ''}",
+                "${AppLocalizations.of(context)!.contact} ${item.contactName ?? ""} ${item.contactMobile != null ? '(${item.contactContryCode ?? ""}${item.contactMobile})' : ''}",
           ),
         ],
       ],
     );
   }
 
-  Widget _buildDescriptionSection() {
+  Widget _buildDescriptionSection(BuildContext context) {
     if (item.discription == null || item.discription!.isEmpty) {
       return SizedBox.shrink();
     }
@@ -213,7 +217,7 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Description",
+          AppLocalizations.of(context)!.description,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -229,7 +233,7 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildAddressSection() {
+  Widget _buildAddressSection(BuildContext context) {
     if (item.pickUpLocation == null || item.pickUpLocation!.isEmpty) {
       return SizedBox.shrink();
     }
@@ -238,7 +242,7 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Pickup Location",
+          AppLocalizations.of(context)!.pickupLocation,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -294,7 +298,7 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBadge() {
+  Widget _buildStatusBadge(BuildContext context) {
     final bool isPending = item.status == "P";
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -312,7 +316,9 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
           ),
           SizedBox(width: 4),
           Text(
-            isPending ? "Pending" : "Picked",
+            isPending
+                ? AppLocalizations.of(context)!.pending
+                : AppLocalizations.of(context)!.picked,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -362,7 +368,9 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
               size: 20,
             ),
             label: Text(
-              isInterested ? "Already Interested" : "I'm Interested",
+              isInterested
+                  ? AppLocalizations.of(context)!.alreadyInterested
+                  : AppLocalizations.of(context)!.imInterested,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 16,

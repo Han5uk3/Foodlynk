@@ -9,11 +9,10 @@ import 'package:saver_bbk_main/helpers/hive_helper.dart';
 import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
 import 'package:saver_bbk_main/modules/login/login.dart';
 import 'package:saver_bbk_main/modules/profile/bloc/profile_bloc.dart';
-
 import 'package:saver_bbk_main/modules/profile/edit_profile.dart';
-import 'package:saver_bbk_main/modules/profile/password_page.dart';
-
+import 'package:saver_bbk_main/modules/profile/terms_and_conditions_page.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -34,10 +33,18 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: saverAppBar('Profile', context),
+      appBar: saverAppBar(AppLocalizations.of(context)!.profile, context),
       body: BlocConsumer<ProfileBloc, ProfileState>(
         listener: (context, state) {
           if (state is LogoutStateSuccess) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => LoginPage()),
+                (route) => false,
+              );
+            });
+          }
+          if (state is DeleteProfileSuccessState) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (context) => LoginPage()),
@@ -50,54 +57,50 @@ class _ProfilePageState extends State<ProfilePage> {
           if (state is LogoutStateLoading) {
             _isLoading = state.isLoading;
           }
+          if (state is DeleteProfileLoadingState) {
+            _isLoading = state.isLoading;
+          }
           return Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
               children: [
                 _buildProfileTile(
-                  label: "My Profile",
+                  label: AppLocalizations.of(context)!.myProfile,
                   path: "assets/icons/Icon.svg",
-
                   color: AppColor.lightblue,
-
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => EditProfilePage(isEdit: true),
+                        builder:
+                            (context) => EditProfilePage(
+                              isEdit: true,
+                              email: "",
+                              isFromEmailLogin: false,
+                            ),
                       ),
                     );
                   },
                 ),
 
                 _buildProfileTile(
-                  label: "Password",
-                  path: "assets/icons/password.svg",
-
-                  color: AppColor.lightPurple,
-
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PasswordPage(isEdit: true),
-                      ),
-                    );
-                  },
-                ),
-
-                _buildProfileTile(
-                  label: "Terms & Conditions",
+                  label: AppLocalizations.of(context)!.termsAndConditions,
                   path: "assets/icons/terms.svg",
 
                   color: Colors.green.shade50,
 
-                  onTap: () {},
+                  onTap:
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TermsAndConditionsPage(),
+                        ),
+                      ),
                 ),
 
                 isGuestUser
                     ? SizedBox()
                     : _buildProfileTile(
-                      label: "Delete Profile",
+                      label: AppLocalizations.of(context)!.deleteProfile,
                       path: "assets/icons/deleteaccount.svg",
                       color: Colors.red.shade50,
                       onTap: () {
@@ -106,7 +109,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
 
                 _buildProfileTile(
-                  label: isGuestUser ? "Login" : "Logout",
+                  label:
+                      isGuestUser
+                          ? AppLocalizations.of(context)!.logIn
+                          : AppLocalizations.of(context)!.logout,
                   path: "assets/icons/logout.svg",
                   color: AppColor.lightPink,
                   onTap: () {
@@ -118,7 +124,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Version: beta v1.0.4",
+                      "Version: v1.0.7",
                       style: TextStyle(
                         color: AppColor.lightGrey200,
                         fontSize: 13,
@@ -145,25 +151,32 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         ListTile(
           minTileHeight: 85,
-          onTap:
-              label == "Login"
-                  ? () async {
-                    await HiveHelper.putisGuest(false);
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginPage()),
-                      (_) => false,
-                    );
-                  }
-                  : isGuestUser
-                  ? () {
-                    SaverSnackBar.show(
-                      context: context,
-                      message: "Create an account first",
-                      isTrue: false,
-                    );
-                  }
-                  : onTap,
+          onTap: () async {
+            if (label == AppLocalizations.of(context)!.logIn) {
+              await HiveHelper.putisGuest(false);
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+                (_) => false,
+              );
+            } else if (label ==
+                AppLocalizations.of(context)!.termsAndConditions) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TermsAndConditionsPage(),
+                ),
+              );
+            } else if (isGuestUser) {
+              SaverSnackBar.show(
+                context: context,
+                message: "Create an account first",
+                isTrue: false,
+              );
+            } else {
+              onTap?.call();
+            }
+          },
           leading: Container(
             height: 40,
             width: 40,
@@ -197,7 +210,9 @@ class _ProfilePageState extends State<ProfilePage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                toggler ? "Delete Profile" : "Logout",
+                toggler
+                    ? AppLocalizations.of(context)!.deleteProfile
+                    : AppLocalizations.of(context)!.logout,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
@@ -208,8 +223,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 height: toggler ? 40 : 40,
                 child: Text(
                   toggler
-                      ? "Are you sure you want to delete your profile with Saver?"
-                      : "Are you sure you want to logout?",
+                      ? AppLocalizations.of(
+                        context,
+                      )!.areYouSureYouWantToDeleteYourProfile
+                      : AppLocalizations.of(context)!.areYouSureYouWantToLogout,
                   style: TextStyle(fontSize: 16),
                 ),
               ),
@@ -223,7 +240,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   Expanded(
                     child: SaverOutlineButton(
-                      text: "Cancel",
+                      text: AppLocalizations.of(context)!.cancel,
                       onPressed: () {
                         Navigator.pop(context);
                       },
@@ -233,15 +250,30 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   Expanded(
                     child: SaverButton(
-                      text: toggler ? "Delete Profile" : "Logout",
-                      onPressed:
+                      text:
                           toggler
-                              ? () {}
-                              : () => context.read<ProfileBloc>().add(
-                                LogoutEvent(
-                                  communityBloc: context.read<CommunityBloc>(),
-                                ),
-                              ),
+                              ? AppLocalizations.of(context)!.deleteProfile
+                              : AppLocalizations.of(context)!.logout,
+                      onPressed:
+                          _isLoading
+                              ? () {} // Disable button during loading
+                              : () {
+                                   setState(() {
+              _isLoading = true;
+            });
+                                if (toggler) {
+                                  context.read<ProfileBloc>().add(
+                                    DeleteProfileEvent(),
+                                  );
+                                } else {
+                                  context.read<ProfileBloc>().add(
+                                    LogoutEvent(
+                                      communityBloc:
+                                          context.read<CommunityBloc>(),
+                                    ),
+                                  );
+                                }
+                              },
                       color: AppColor.red,
                       textColor: AppColor.white,
                       isLoading: _isLoading,

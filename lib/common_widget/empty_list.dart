@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class EmptyList extends StatelessWidget {
   final String? message;
@@ -15,7 +16,7 @@ class EmptyList extends StatelessWidget {
           Icon(Icons.info_outline, size: 48, color: AppColor.lightGrey200),
           SizedBox(height: 12),
           Text(
-            message ?? "No items found",
+            message ?? AppLocalizations.of(context)!.noItemsFound,
             style: TextStyle(fontSize: 16, color: AppColor.lightGrey200),
           ),
           if (subMessage != null) ...[

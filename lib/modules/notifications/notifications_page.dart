@@ -8,6 +8,7 @@ import 'package:saver_bbk_main/models/notification_model.dart';
 import 'package:saver_bbk_main/modules/notifications/bloc/notification_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -18,9 +19,32 @@ class NotificationsPage extends StatefulWidget {
 
 class _NotificationsPageState extends State<NotificationsPage>
     with SingleTickerProviderStateMixin {
-  List<Map<String, dynamic>> getIconData = [
-    {
+  final Map<String, Map<String, dynamic>> _notificationTypeIcons = {
+    "message": {
+      "icon": Icons.message_outlined,
+      "color": AppColor.blue,
+      "bgcolor": AppColor.lightblue,
+    },
+    "food": {
       "icon": Icons.food_bank_outlined,
+      "color": AppColor.red,
+      "bgcolor": AppColor.lightRed,
+    },
+    "alert": {
+      "icon": Icons.notifications_outlined,
+      "color": AppColor.red,
+      "bgcolor": AppColor.lightRed,
+    },
+    "event": {
+      "icon": Icons.date_range_outlined,
+      "color": AppColor.green,
+      "bgcolor": AppColor.lightGreen,
+    },
+  };
+
+  final List<Map<String, dynamic>> _fallbackIconData = [
+    {
+      "icon": Icons.info_outline,
       "color": AppColor.blue,
       "bgcolor": AppColor.lightblue,
     },
@@ -52,6 +76,10 @@ class _NotificationsPageState extends State<NotificationsPage>
       begin: 1.0,
       end: 0.0,
     ).animate(_fadeController);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotificationBloc>().add(FetchNotificationsEvent());
+    });
   }
 
   @override
@@ -61,15 +89,17 @@ class _NotificationsPageState extends State<NotificationsPage>
   }
 
   void _handleClearAllNotifications() {
+    if (notifications.isEmpty) return;
+
     setState(() {
       isClearing = true;
     });
+
     _fadeController.forward().then((_) {
       context.read<NotificationBloc>().add(
         ClearAllNotificationsEvent(uid: Services.uid ?? ""),
       );
 
-      // Reset animation after a short delay to show the empty state
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) {
           setState(() {
@@ -81,39 +111,64 @@ class _NotificationsPageState extends State<NotificationsPage>
     });
   }
 
+  Map<String, dynamic> _getIconDataForType(String? type, int index) {
+    if (type != null && _notificationTypeIcons.containsKey(type)) {
+      return _notificationTypeIcons[type]!;
+    }
+
+    return _fallbackIconData[index % _fallbackIconData.length];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: saverAppBar(
-        "Notifications",
+        AppLocalizations.of(context)!.notification,
         context,
         isneedtopop: false,
         actions: [
-          notifications.isEmpty
-              ? Container()
-              : TextButton.icon(
-                onPressed: isClearing ? null : _handleClearAllNotifications,
-                icon:
-                    isClearing
-                        ? SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              AppColor.red,
+          StreamBuilder<List<NotificationModel>>(
+            stream: Services.getUserNotifications(),
+            builder: (context, snapshot) {
+              final hasNotifications =
+                  snapshot.hasData &&
+                  (snapshot.data?.isNotEmpty ?? false) &&
+                  !isClearing;
+
+              if (!hasNotifications) {
+                return Container();
+              }
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: TextButton.icon(
+                  onPressed: isClearing ? null : _handleClearAllNotifications,
+                  icon:
+                      isClearing
+                          ? SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColor.red,
+                              ),
                             ),
-                          ),
-                        )
-                        : Icon(Icons.delete_outlined, color: AppColor.red),
-                label: Text(
-                  isClearing ? "Clearing..." : "Clear",
-                  style: TextStyle(color: AppColor.red),
+                          )
+                          : Icon(Icons.delete_outlined, color: AppColor.red),
+                  label: Text(
+                    isClearing
+                        ? "Clearing..."
+                        : AppLocalizations.of(context)!.clearAll,
+                    style: TextStyle(color: AppColor.red),
+                  ),
                 ),
-              ),
+              );
+            },
+          ),
         ],
       ),
-      body: BlocListener<NotificationBloc, NotificationState>(
+      body: BlocConsumer<NotificationBloc, NotificationState>(
         listener: (context, state) {
           if (state is NotificationDeleteError) {
             setState(() {
@@ -126,40 +181,65 @@ class _NotificationsPageState extends State<NotificationsPage>
               isTrue: false,
             );
           } else if (state is NotificationsClearedSuccessfully) {
+            setState(() {
+              notifications = [];
+              isClearing = false;
+            });
             SaverSnackBar.show(
               context: context,
-              message: "All notifications cleared successfully",
+              message: AppLocalizations.of(context)!.allNotificationClearedSuccessfully,
               isTrue: true,
             );
           }
         },
-        child: Padding(
-          padding: EdgeInsets.only(top: 15, bottom: 15),
-          child: _buildbody(),
-        ),
+        builder: (context, state) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+            child: _buildbody(state),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildbody() {
+  Widget _buildbody([NotificationState? state]) {
     return StreamBuilder<List<NotificationModel>>(
       stream: Services.getUserNotifications(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting &&
-            !isClearing) {
-          return SaverLoader();
+        if ((snapshot.connectionState == ConnectionState.waiting &&
+                !isClearing) ||
+            state is NotificationsLoading) {
+          return const Center(child: SaverLoader());
         }
 
         if (snapshot.hasError) {
           return Center(
-            child: Text(
-              "Something went wrong: ${snapshot.error}",
-              style: TextStyle(color: Colors.red),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, color: AppColor.red, size: 48),
+                const SizedBox(height: 16),
+                Text(
+                  "Something went wrong",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "${snapshot.error}",
+                  style: const TextStyle(color: Colors.red, fontSize: 14),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           );
         }
 
-        notifications = snapshot.data ?? [];
+        if (snapshot.hasData) {
+          notifications = snapshot.data ?? [];
+        }
 
         if (notifications.isEmpty) {
           return Center(
@@ -177,8 +257,8 @@ class _NotificationsPageState extends State<NotificationsPage>
                             ),
                           ),
                         ),
-                        SizedBox(height: 16),
-                        Text(
+                        const SizedBox(height: 16),
+                        const Text(
                           "Clearing notifications...",
                           style: TextStyle(
                             fontSize: 16,
@@ -187,12 +267,24 @@ class _NotificationsPageState extends State<NotificationsPage>
                         ),
                       ],
                     )
-                    : Text(
-                      "No notifications found",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.notifications_off_outlined,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          AppLocalizations.of(context)!.noNotificationsFound,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
                     ),
           );
         }
@@ -201,20 +293,20 @@ class _NotificationsPageState extends State<NotificationsPage>
           opacity:
               isClearing ? _fadeAnimation : const AlwaysStoppedAnimation(1.0),
           child: ListView.builder(
+            padding: const EdgeInsets.only(bottom: 20),
             itemCount: notifications.length,
             itemBuilder: (context, index) {
               NotificationModel model = notifications[index];
-              final iconIndex = index % getIconData.length;
-
+              final iconData = _getIconDataForType(model.type, index);
               return Padding(
                 padding: const EdgeInsets.symmetric(
                   vertical: 5,
-                  horizontal: 14,
+                  horizontal: 10,
                 ),
                 child: Dismissible(
                   key: Key(model.notificationId ?? index.toString()),
                   direction: DismissDirection.endToStart,
-                  onDismissed: (direction) async {
+                  onDismissed: (direction) {
                     context.read<NotificationBloc>().add(
                       DeleteNotificationEvent(
                         notificationId: model.notificationId ?? "",
@@ -227,7 +319,7 @@ class _NotificationsPageState extends State<NotificationsPage>
                       borderRadius: BorderRadius.circular(16),
                     ),
                     alignment: Alignment.centerRight,
-                    padding: EdgeInsets.only(right: 12),
+                    padding: const EdgeInsets.only(right: 20),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -236,10 +328,15 @@ class _NotificationsPageState extends State<NotificationsPage>
                           color: Colors.white,
                           size: 25,
                         ),
+                        SizedBox(width: 8),
                         Text(
-                          "Remove Notification",
-                          style: TextStyle(color: Colors.white),
+                          AppLocalizations.of(context)!.remove,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
+                        SizedBox(width: 10),
                       ],
                     ),
                   ),
@@ -247,32 +344,29 @@ class _NotificationsPageState extends State<NotificationsPage>
                     decoration: BoxDecoration(
                       color: AppColor.white,
                       border: Border.all(
-                        width: 3,
-                        color:
-                            model.type == "message"
-                                ? AppColor.lightblue
-                                : getIconData[iconIndex]["bgcolor"] as Color,
+                        width: 2,
+                        color: iconData["bgcolor"] as Color,
                       ),
                       borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 5,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     padding: const EdgeInsets.all(12),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CircleAvatar(
-                          radius: 36,
-                          backgroundColor:
-                              model.type == "message"
-                                  ? AppColor.lightblue
-                                  : getIconData[iconIndex]["bgcolor"] as Color,
+                          radius: 32,
+                          backgroundColor: iconData["bgcolor"],
                           child: Icon(
-                            model.type == "message"
-                                ? Icons.message_outlined
-                                : getIconData[iconIndex]["icon"] as IconData,
-                            size: 30,
-                            color:
-                                model.type == "message"
-                                    ? AppColor.blue
-                                    : getIconData[iconIndex]["color"] as Color,
+                            iconData["icon"],
+                            size: 28,
+                            color: iconData["color"],
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -284,35 +378,39 @@ class _NotificationsPageState extends State<NotificationsPage>
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    model.title ?? "",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
+                                  Flexible(
+                                    flex: 3,
+                                    child: Text(
+                                      model.title ?? "",
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                  Text(
-                                    "",
-                                    // DateFormatHelper.ddmmyyyy(
-                                    //   model.timestamp as DateTime,
-                                    // ),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w200,
+                                  const SizedBox(width: 8),
+                                  if (model.timestamp != null)
+                                    Text(
+                                      _formatTimestamp(model.timestamp),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.grey[600],
+                                      ),
                                     ),
-                                  ),
                                 ],
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: Text(
-                                  model.body ?? "",
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w100,
-                                  ),
+                              const SizedBox(height: 6),
+                              Text(
+                                model.body ?? "",
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.grey[800],
+                                  height: 1.3,
                                 ),
                               ),
                             ],
@@ -328,5 +426,12 @@ class _NotificationsPageState extends State<NotificationsPage>
         );
       },
     );
+  }
+
+  String _formatTimestamp(dynamic timestamp) {
+    if (timestamp is DateTime) {
+      return "${timestamp.day}/${timestamp.month}/${timestamp.year}";
+    }
+    return "";
   }
 }
