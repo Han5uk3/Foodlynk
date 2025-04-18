@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
@@ -17,32 +19,33 @@ class SaverTextField extends StatelessWidget {
   final double borderRadius;
   final FocusNode? focus;
   final int minLines;
+  bool isDark;
   final int maxlines;
   final VoidCallback? onEditingComplete;
   final String? Function(String?)? validator;
   void Function(String)? onChanged;
 
-   SaverTextField({
-    super.key,
-    required this.hintText,
-    required this.controller,
-    this.inputFormatters = const [],
-    this.isPassword = false,
-    this.keyboardType = TextInputType.text,
-    this.prefixIcon,
-    this.focus,
-    this.maxlines = 1,
-    this.onEditingComplete,
-    this.prefixIconColor = AppColor.lightGrey,
-    this.suffixIcon,
-    this.suffixIconColor = AppColor.lightGrey,
-    this.validator,
-    this.minLines = 1,
-    this.onSuffixTap,
-    this.borderColor = AppColor.lightGrey,
-    this.borderRadius = 7.0,
-    this.onChanged
-  });
+  SaverTextField(
+      {super.key,
+      required this.hintText,
+      required this.controller,
+      this.inputFormatters = const [],
+      this.isPassword = false,
+      this.keyboardType = TextInputType.text,
+      this.prefixIcon,
+      this.isDark = false,
+      this.focus,
+      this.maxlines = 1,
+      this.onEditingComplete,
+      this.prefixIconColor = AppColor.lightGrey,
+      this.suffixIcon,
+      this.suffixIconColor = AppColor.lightGrey,
+      this.validator,
+      this.minLines = 1,
+      this.onSuffixTap,
+      this.borderColor = AppColor.lightGrey,
+      this.borderRadius = 7.0,
+      this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -63,18 +66,17 @@ class SaverTextField extends StatelessWidget {
           borderSide: BorderSide(color: AppColor.red),
         ),
         hintText: hintText,
-        hintStyle: TextStyle(color: AppColor.lightGrey200),
-        prefixIcon:
-            prefixIcon != null
-                ? Icon(prefixIcon, color: prefixIconColor)
-                : null,
-        suffixIcon:
-            suffixIcon != null
-                ? GestureDetector(
-                  onTap: onSuffixTap,
-                  child: Icon(suffixIcon, color: suffixIconColor),
-                )
-                : null,
+        hintStyle: TextStyle(
+            color: isDark ? Colors.grey.shade800 : AppColor.lightGrey200),
+        prefixIcon: prefixIcon != null
+            ? Icon(prefixIcon, color: prefixIconColor)
+            : null,
+        suffixIcon: suffixIcon != null
+            ? GestureDetector(
+                onTap: onSuffixTap,
+                child: Icon(suffixIcon, color: suffixIconColor),
+              )
+            : null,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius),
           borderSide: BorderSide(color: borderColor),
