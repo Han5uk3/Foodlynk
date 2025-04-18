@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:number_selector/number_selector.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
+import 'package:saver_bbk_main/common_widget/label.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
+import 'package:saver_bbk_main/common_widget/text_field.dart';
 import 'package:saver_bbk_main/modules/zero_waste_cooking/bloc/zero_waste_cooking_bloc.dart';
 import 'package:saver_bbk_main/modules/zero_waste_cooking/zero_waste_generated_result.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
@@ -23,7 +25,7 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
   int numberOfPeople = 1;
 
   List<bool> checkboxValues = [false, false, false];
-
+  TextEditingController nameController = TextEditingController();
   int? selectedType;
   int? selectedMeal;
   bool checkbox1 = false;
@@ -64,11 +66,10 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder:
-                      (context) => ZeroWasteRecipeResultPage(
-                        genaratedPlanModel: state.generatedPortionPlan,
-                        selectedMeal: options[selectedMeal!],
-                      ),
+                  builder: (context) => ZeroWasteRecipeResultPage(
+                    genaratedPlanModel: state.generatedPortionPlan,
+                    selectedMeal: options[selectedMeal!],
+                  ),
                 ),
               );
             }
@@ -128,34 +129,6 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                     }),
                   ),
                 ),
-
-                Text(
-                  AppLocalizations.of(context)!.toWhomAreYouCooking,
-                  style: TextStyle(fontSize: 16),
-                ),
-                IntrinsicHeight(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: List.generate(3, (index) {
-                      return ListTile(
-                        title: Text(
-                          meal[index],
-                          style: TextStyle(color: Colors.grey.shade500),
-                        ),
-                        trailing: Radio<int>(
-                          value: index,
-                          activeColor: AppColor.primaryColor,
-                          groupValue: selectedMeal,
-                          onChanged: (int? value) {
-                            setState(() {
-                              selectedMeal = value;
-                            });
-                          },
-                        ),
-                      );
-                    }),
-                  ),
-                ),
                 Text(
                   AppLocalizations.of(context)!.howManyPeopleAreEating,
                   style: TextStyle(fontSize: 16),
@@ -182,6 +155,50 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                     ),
                   ],
                 ),
+                numberOfPeople == 1
+                    ? Column(children: [
+                        Text(
+                          AppLocalizations.of(context)!.toWhomAreYouCooking,
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        Label(
+                          text: "Enter name",
+                        ),
+                        SaverTextField(
+                            hintText: "Enter name", controller: nameController)
+                      ])
+                    : Column(
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.toWhomAreYouCooking,
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          IntrinsicHeight(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: List.generate(3, (index) {
+                                return ListTile(
+                                  title: Text(
+                                    meal[index],
+                                    style:
+                                        TextStyle(color: Colors.grey.shade500),
+                                  ),
+                                  trailing: Radio<int>(
+                                    value: index,
+                                    activeColor: AppColor.primaryColor,
+                                    groupValue: selectedMeal,
+                                    onChanged: (int? value) {
+                                      setState(() {
+                                        selectedMeal = value;
+                                      });
+                                    },
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
+                        ],
+                      ),
                 SizedBox(height: 10),
                 Text(
                   AppLocalizations.of(context)!.dietaryPreferances,
@@ -214,10 +231,8 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                 Row(
                   children: [
                     Expanded(
-                      child: BlocBuilder<
-                        ZeroWasteCookingBloc,
-                        ZeroWasteCookingState
-                      >(
+                      child: BlocBuilder<ZeroWasteCookingBloc,
+                          ZeroWasteCookingState>(
                         builder: (context, state) {
                           bool isLoading = state is GeneratingLoadingState;
                           return SaverButton(
@@ -227,10 +242,10 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                               if (selectedType == null) {
                                 SaverSnackBar.show(
                                   context: context,
-                                  message:
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.pleaseSelectAType,
+                                  message: AppLocalizations.of(
+                                    context,
+                                  )!
+                                      .pleaseSelectAType,
                                   isTrue: false,
                                 );
                                 return;
@@ -239,10 +254,10 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                               if (selectedMeal == null) {
                                 SaverSnackBar.show(
                                   context: context,
-                                  message:
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.pleaseSelectAMeal,
+                                  message: AppLocalizations.of(
+                                    context,
+                                  )!
+                                      .pleaseSelectAMeal,
                                   isTrue: false,
                                 );
                                 return;
@@ -263,25 +278,25 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                               }
                               List<String> kitchenItemNames =
                                   await Services.getKitchenItemNames(
-                                    selectedPreferences,
-                                  );
+                                selectedPreferences,
+                              );
                               if (kitchenItemNames.length >= 5) {
                                 context.read<ZeroWasteCookingBloc>().add(
-                                  GeneratePortionPlanEvent(
-                                    options[selectedType!],
-                                    meal[selectedMeal!],
-                                    numberOfPeople,
-                                    selectedPreferences,
-                                    kitchenItemNames,
-                                  ),
-                                );
+                                      GeneratePortionPlanEvent(
+                                        options[selectedType!],
+                                        meal[selectedMeal!],
+                                        numberOfPeople,
+                                        selectedPreferences,
+                                        kitchenItemNames,
+                                      ),
+                                    );
                               } else {
                                 SaverSnackBar.show(
                                   context: context,
-                                  message:
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.youDontHaveEnoughIngredients,
+                                  message: AppLocalizations.of(
+                                    context,
+                                  )!
+                                      .youDontHaveEnoughIngredients,
                                   isTrue: false,
                                 );
                                 return;
