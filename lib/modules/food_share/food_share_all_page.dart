@@ -61,7 +61,7 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
       builder: (BuildContext context) {
         return RoleSelectionDialog(
           onRoleSelected: (isDonor) {
-            _tabController.animateTo(isDonor ? 0 : 1);
+            _tabController.animateTo(isDonor ? 1 : 0);
           },
         );
       },
@@ -81,11 +81,13 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
         onpop: widget.onBack,
         actions: [
           TextButton.icon(
-            onPressed:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => FoodShareHomePage()),
-                ),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => FoodShareHomePage(
+                        isDonor: _tabController.index == 0,
+                      )),
+            ),
             label: Label(
               text: AppLocalizations.of(context)!.myRequests,
               style: TextStyle(fontSize: 13, color: AppColor.white),
@@ -147,17 +149,17 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
             return DonnationCards(
               isBenificiary: false,
               item: donation,
-              tabIndex: _tabController.index,
+              isDonor: _tabController.index == 0,
               itsMy: false,
               isFromHomePage: true,
               onInterestToggled: (isIntrested, id, type) {
                 context.read<FoodShareBloc>().add(
-                  IntrestedFoodShareEvent(
-                    id: id,
-                    type: type,
-                    isInterested: true,
-                  ),
-                );
+                      IntrestedFoodShareEvent(
+                        id: id,
+                        type: type,
+                        isInterested: true,
+                      ),
+                    );
               },
             );
           },
@@ -191,7 +193,7 @@ class _FoodShareAllPageState extends State<FoodShareAllPage>
               itsMy: false,
               isBenificiary: true,
               item: beneficiary,
-              tabIndex: _tabController.index,
+              isDonor: _tabController.index == 1,
             );
           },
         );
