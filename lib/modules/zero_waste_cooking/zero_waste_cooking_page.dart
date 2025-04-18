@@ -26,8 +26,10 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
 
   List<bool> checkboxValues = [false, false, false];
   TextEditingController nameController = TextEditingController();
+  TextEditingController weightController = TextEditingController();
   int? selectedType;
   int? selectedMeal;
+  String? selectedOption;
   bool checkbox1 = false;
   bool checkbox2 = false;
   bool checkbox3 = false;
@@ -156,19 +158,74 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                   ],
                 ),
                 numberOfPeople == 1
-                    ? Column(children: [
-                        Text(
-                          AppLocalizations.of(context)!.toWhomAreYouCooking,
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        Label(
-                          text: "Enter name",
-                        ),
-                        SaverTextField(
-                            hintText: "Enter name", controller: nameController)
-                      ])
-                    : Column(
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                            SizedBox(height: 16),
+                            Text(
+                              AppLocalizations.of(context)!.toWhomAreYouCooking,
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            SizedBox(height: 16),
+                            Label(
+                              text: "Enter Name",
+                            ),
+                            SizedBox(height: 8),
+                            SaverTextField(
+                                hintText: "Enter name",
+                                controller: nameController),
+                            SizedBox(height: 8),
+                            Label(
+                              text: "Enter Weight",
+                            ),
+                            SizedBox(height: 8),
+                            SaverTextField(
+                                hintText: "Enter weight in Kg",
+                                controller: weightController),
+                            SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Label(
+                                  text: "Are you on a diet?",
+                                ),
+                                const Spacer(),
+                                Row(
+                                  children: [
+                                    Checkbox(
+                                      activeColor: AppColor.green,
+                                      value: selectedOption == "yes",
+                                      onChanged: (_) {
+                                        setState(() {
+                                          selectedOption = "yes";
+                                        });
+                                      },
+                                    ),
+                                    const Text("Yes"),
+                                  ],
+                                ),
+                                const SizedBox(width: 16),
+                                Row(
+                                  children: [
+                                    Checkbox(
+                                      activeColor: AppColor.green,
+                                      value: selectedOption == "no",
+                                      onChanged: (_) {
+                                        setState(() {
+                                          selectedOption = "no";
+                                        });
+                                      },
+                                    ),
+                                    const Text("No"),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 8),
+                          ])
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 8),
                           Text(
                             AppLocalizations.of(context)!.toWhomAreYouCooking,
                             style: TextStyle(fontSize: 16),
