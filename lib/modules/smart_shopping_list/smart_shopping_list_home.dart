@@ -8,7 +8,7 @@ import 'package:saver_bbk_main/common_widget/text_field.dart';
 import 'package:saver_bbk_main/helpers/date_format.dart';
 import 'package:saver_bbk_main/models/smart_shopping_model.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_bloc.dart';
-import 'package:saver_bbk_main/modules/smart_shopping_list/questionnaire.dart';
+import 'package:saver_bbk_main/modules/smart_shopping_list/question_for_generate_item.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/shopping_list.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
@@ -101,23 +101,31 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: saverAppBar(
-          AppLocalizations.of(context)!.smartShoppingList, context,
-          isneedtopop: true,
-          iswhite: false,
-          iconColor: AppColor.white,
-          textColor: AppColor.white,
-          onpop: widget.onBack,
-          actions: [
-            IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => Questionnaire()));
-                },
-                icon: Icon(
-                  Icons.cake,
-                  color: AppColor.white,
-                ))
-          ]),
+        AppLocalizations.of(context)!.smartShoppingList,
+        context,
+        isneedtopop: true,
+        iswhite: false,
+        iconColor: AppColor.white,
+        textColor: AppColor.white,
+        onpop: widget.onBack,
+        actions: [
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => Questionnaire()));
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Image.asset(
+                "assets/icons/ai.png",
+                color: AppColor.white,
+                height: 34,
+                width: 34,
+              ),
+            ),
+          )
+        ],
+      ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         elevation: 3,

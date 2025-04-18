@@ -502,7 +502,18 @@ class _FoodSwapPageState extends State<FoodSwapPage>
             child: SaverOutlineButton(
               text:
                   "${myListings![index].requests?.length} ${AppLocalizations.of(context)!.requestsPending}",
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => MyListingsPage(
+                      isEdit: true,
+                      items: myListings![index],
+                      index: 1,
+                      
+                    ),
+                  ),
+                );
+              },
               borderColor: AppColor.yellow600,
               textColor: AppColor.yellow600,
             ),

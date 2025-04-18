@@ -105,3 +105,22 @@ class RemoveItemFromSmartListFailureState extends SmartShoppingState {
   @override
   List<Object> get props => [errorMessage];
 }
+
+class GenerateSmartShoppingListItemsLoadingState extends SmartShoppingState {}
+
+class GenerateSmartShoppingListItemsSuccessState extends SmartShoppingState {
+  final GnerateSmartShoppingList generatedSmartShoppingList;
+  final String recipeName;
+  const GenerateSmartShoppingListItemsSuccessState(
+      {required this.generatedSmartShoppingList, required this.recipeName});
+  @override
+  List<Object> get props => [generatedSmartShoppingList, recipeName];
+}
+
+class GenerateSmartShoppingListItemsFailureState extends SmartShoppingState {
+  final String errorMessage;
+  const GenerateSmartShoppingListItemsFailureState(
+      {required this.errorMessage});
+  @override
+  List<Object> get props => [errorMessage];
+}

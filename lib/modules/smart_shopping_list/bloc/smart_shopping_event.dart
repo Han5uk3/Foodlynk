@@ -83,3 +83,12 @@ class RemoveItemSmartShoppingEvent extends SmartShoppingEvent {
   @override
   List<Object> get props => [listId, itemId];
 }
+
+class GenerateItemAddSmartShoppingListEvent extends SmartShoppingEvent {
+  final String recipeName;
+  final int numberOfServings;
+  const GenerateItemAddSmartShoppingListEvent(
+      {required this.recipeName, required this.numberOfServings});
+  @override
+  List<Object> get props => [recipeName, numberOfServings];
+}

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:saver_bbk_main/models/generated_smart_shopping_list.dart';
 import 'package:saver_bbk_main/models/protein_plan_model.dart';
 import 'package:saver_bbk_main/models/smart_recipe_model.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
@@ -14,8 +15,11 @@ class AppApis {
     int numberOfServings,
     List<String> dietaryPreferences,
     List<String> ingredients,
+    String weight,
+    bool isDieting,
   ) async {
-    final url = Uri.parse("$apiUrl/api-features/generate-protein-plan");
+    final url =
+        Uri.parse("$apiUrl/api-features/generate-protein-plan");
     try {
       final response = await http.post(
         url,
@@ -29,6 +33,8 @@ class AppApis {
           "numberOfServings": numberOfServings,
           "dietaryPreferences": dietaryPreferences,
           "ingredients": ingredients,
+          "weight": weight,
+          "isDieting": isDieting,
         }),
       );
       if (response.statusCode == 200) {
@@ -134,6 +140,32 @@ class AppApis {
       return json['status'];
     } else {
       throw Exception('Failed to compare two plates: ${response.statusCode}');
+    }
+  }
+
+  Future<GnerateSmartShoppingList> generateSmartShoppingList(
+      String recipeName, int numberOfServings) async {
+    final url = Uri.parse("$apiUrl/api-features/generate-smart-shopping-list");
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': dotenv.env['GOOGLE_GEMINI_API_KEY'] ?? "",
+        },
+        body: jsonEncode(
+            {"recipeName": recipeName, "noServings": numberOfServings}),
+      );
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        return GnerateSmartShoppingList.fromJson(json);
+      } else {
+        throw Exception(
+          'Failed to generate smart shopping list: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 }

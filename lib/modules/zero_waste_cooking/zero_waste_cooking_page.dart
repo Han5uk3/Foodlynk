@@ -29,7 +29,7 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
   TextEditingController weightController = TextEditingController();
   int? selectedType;
   int? selectedMeal;
-  String? selectedOption;
+  bool? selectedOption;
   bool checkbox1 = false;
   bool checkbox2 = false;
   bool checkbox3 = false;
@@ -70,7 +70,10 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                 MaterialPageRoute(
                   builder: (context) => ZeroWasteRecipeResultPage(
                     genaratedPlanModel: state.generatedPortionPlan,
-                    selectedMeal: options[selectedMeal!],
+                    isForOnePerson:
+                        state.generatedPortionPlan.data?.numberOfServings == 1,
+                    selectedMeal: options[selectedMeal ?? 0],
+                    enteredName: nameController.text,
                   ),
                 ),
               );
@@ -193,10 +196,10 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                                   children: [
                                     Checkbox(
                                       activeColor: AppColor.green,
-                                      value: selectedOption == "yes",
+                                      value: selectedOption == true,
                                       onChanged: (_) {
                                         setState(() {
-                                          selectedOption = "yes";
+                                          selectedOption = true;
                                         });
                                       },
                                     ),
@@ -208,10 +211,10 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                                   children: [
                                     Checkbox(
                                       activeColor: AppColor.green,
-                                      value: selectedOption == "no",
+                                      value: selectedOption == false,
                                       onChanged: (_) {
                                         setState(() {
-                                          selectedOption = "no";
+                                          selectedOption = false;
                                         });
                                       },
                                     ),
@@ -308,7 +311,7 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                                 return;
                               }
 
-                              if (selectedMeal == null) {
+                              if (numberOfPeople != 1 && selectedMeal == null) {
                                 SaverSnackBar.show(
                                   context: context,
                                   message: AppLocalizations.of(
@@ -327,6 +330,33 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                                   isTrue: false,
                                 );
                               }
+                              if (numberOfPeople == 1 &&
+                                  selectedOption == null) {
+                                SaverSnackBar.show(
+                                  context: context,
+                                  message: "Please select a diet option",
+                                  isTrue: false,
+                                );
+                                return;
+                              }
+                              if (numberOfPeople == 1 &&
+                                  nameController.text.isEmpty) {
+                                SaverSnackBar.show(
+                                  context: context,
+                                  message: "Please enter a name",
+                                  isTrue: false,
+                                );
+                                return;
+                              }
+                              if (numberOfPeople == 1 &&
+                                  weightController.text.isEmpty) {
+                                SaverSnackBar.show(
+                                  context: context,
+                                  message: "Please enter a weight",
+                                  isTrue: false,
+                                );
+                                return;
+                              }
                               List<String> selectedPreferences = [];
                               for (int i = 0; i < checkboxValues.length; i++) {
                                 if (checkboxValues[i]) {
@@ -341,10 +371,12 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                                 context.read<ZeroWasteCookingBloc>().add(
                                       GeneratePortionPlanEvent(
                                         options[selectedType!],
-                                        meal[selectedMeal!],
+                                        meal[selectedMeal ?? 0],
                                         numberOfPeople,
                                         selectedPreferences,
                                         kitchenItemNames,
+                                        weightController.text,
+                                        selectedOption ?? false,
                                       ),
                                     );
                               } else {

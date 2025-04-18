@@ -29,8 +29,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class MyListingsPage extends StatefulWidget {
   final bool isEdit;
   final FoodSwapModel? items;
+  final int? index;
 
-  const MyListingsPage({super.key, required this.isEdit, this.items});
+  const MyListingsPage({super.key, required this.isEdit, this.items, this.index});
 
   @override
   State<MyListingsPage> createState() => _MyListingsPageState();
@@ -42,8 +43,11 @@ class _MyListingsPageState extends State<MyListingsPage>
   DateTime selectedExpiryDate = DateTime.now();
   @override
   void initState() {
-    super.initState();
     tabController = TabController(length: 2, vsync: this);
+    if(widget.index != null) {
+      tabController.index = widget.index!;
+    }
+    super.initState();
   }
 
   @override
@@ -689,17 +693,10 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                                     fontSize: 16,
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 14),
-                                  child: Icon(
-                                    Icons.messenger_outline,
-                                    color: AppColor.black,
-                                  ),
-                                ),
                               ],
                             ),
                             Text(
-                              "swap Item Name",
+                              "Swaped with: ${item.acceptedSwapItem ?? ""}",
                               style: const TextStyle(
                                 fontSize: 14,
                               ),

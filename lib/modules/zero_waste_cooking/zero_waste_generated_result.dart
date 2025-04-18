@@ -6,12 +6,16 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ZeroWasteRecipeResultPage extends StatefulWidget {
   final GenaratedProteinPlanModel genaratedPlanModel;
-  final String selectedMeal;
+  final bool isForOnePerson;
+  final String? enteredName;
+  final String? selectedMeal;
 
   const ZeroWasteRecipeResultPage({
     super.key,
     required this.genaratedPlanModel,
-    required this.selectedMeal,
+    required this.isForOnePerson,
+    this.enteredName,
+    this.selectedMeal,
   });
 
   @override
@@ -24,7 +28,9 @@ class _ZeroWasteRecipeResultPageState extends State<ZeroWasteRecipeResultPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: saverAppBar(
-        AppLocalizations.of(context)!.portionPlan,
+        widget.isForOnePerson
+            ? "${AppLocalizations.of(context)!.portionPlan} ${widget.enteredName != null && widget.enteredName!.isNotEmpty ? '${AppLocalizations.of(context)!.forText} ${widget.enteredName!}' : ''}"
+            : AppLocalizations.of(context)!.portionPlan,
         context,
         iswhite: true,
         isneedtopop: true,
@@ -47,15 +53,21 @@ class _ZeroWasteRecipeResultPageState extends State<ZeroWasteRecipeResultPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 6),
-            _buildBanner(),
+            if (!widget.isForOnePerson) _buildBanner(),
+            if (!widget.isForOnePerson) SizedBox(height: 10),
+            if (widget.isForOnePerson &&
+                widget.selectedMeal != null &&
+                widget.selectedMeal!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 5.0),
+                child: Text(
+                  "Meal: ${widget.selectedMeal}",
+                  style: TextStyle(fontSize: 15),
+                ),
+              ),
             SizedBox(height: 10),
             Text(
-              "${widget.selectedMeal} ${AppLocalizations.of(context)!.forText} ${widget.genaratedPlanModel.data?.numberOfServings} ${AppLocalizations.of(context)!.people}",
-              style: TextStyle(fontSize: 15),
-            ),
-            SizedBox(height: 10),
-            Text(
-              "${AppLocalizations.of(context)!.recipeName}:${widget.genaratedPlanModel.data?.recipeName}",
+              "${AppLocalizations.of(context)!.recipeName}: ${widget.genaratedPlanModel.data?.recipeName}",
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
             ),
             SizedBox(height: 10),
@@ -77,7 +89,9 @@ class _ZeroWasteRecipeResultPageState extends State<ZeroWasteRecipeResultPage> {
                       ),
                     ),
                     Text(
-                      "~${widget.genaratedPlanModel.data?.nutritionalInfo?.protein} ${AppLocalizations.of(context)!.perPerson}",
+                      widget.isForOnePerson
+                          ? "~${widget.genaratedPlanModel.data?.nutritionalInfo?.protein}"
+                          : "~${widget.genaratedPlanModel.data?.nutritionalInfo?.protein} ${AppLocalizations.of(context)!.perPerson}",
                     ),
                   ],
                 ),
@@ -109,7 +123,9 @@ class _ZeroWasteRecipeResultPageState extends State<ZeroWasteRecipeResultPage> {
                             ),
                           ),
                           Text(
-                            "~${widget.genaratedPlanModel.data?.nutritionalInfo?.calories} ${AppLocalizations.of(context)!.perPerson}",
+                            widget.isForOnePerson
+                                ? "~${widget.genaratedPlanModel.data?.nutritionalInfo?.calories}"
+                                : "~${widget.genaratedPlanModel.data?.nutritionalInfo?.calories} ${AppLocalizations.of(context)!.perPerson}",
                           ),
                         ],
                       ),
@@ -126,28 +142,17 @@ class _ZeroWasteRecipeResultPageState extends State<ZeroWasteRecipeResultPage> {
                         ),
                       ),
                       SizedBox(
-                        height:
-                            widget
-                                .genaratedPlanModel
-                                .data!
-                                .ingredients!
-                                .length *
+                        height: widget
+                                .genaratedPlanModel.data!.ingredients!.length *
                             85,
                         child: ListView.builder(
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
-                          itemCount:
-                              widget
-                                  .genaratedPlanModel
-                                  .data
-                                  ?.ingredients!
-                                  .length,
+                          itemCount: widget
+                              .genaratedPlanModel.data?.ingredients!.length,
                           itemBuilder: (context, index) {
-                            final ingredient =
-                                widget
-                                    .genaratedPlanModel
-                                    .data!
-                                    .ingredients![index];
+                            final ingredient = widget
+                                .genaratedPlanModel.data!.ingredients![index];
                             return Padding(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 5,
@@ -213,7 +218,9 @@ class _ZeroWasteRecipeResultPageState extends State<ZeroWasteRecipeResultPage> {
                       ),
                     ),
                     Text(
-                      "~${widget.genaratedPlanModel.data?.nutritionalInfo?.carbs} ${AppLocalizations.of(context)!.perPerson}",
+                      widget.isForOnePerson
+                          ? "~${widget.genaratedPlanModel.data?.nutritionalInfo?.carbs}"
+                          : "~${widget.genaratedPlanModel.data?.nutritionalInfo?.carbs} ${AppLocalizations.of(context)!.perPerson}",
                     ),
                   ],
                 ),
@@ -263,24 +270,22 @@ class DiagonalBackgroundPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     var paint = Paint();
 
-    Path topLeftPath =
-        Path()
-          ..moveTo(0, 0)
-          ..lineTo(size.width * 0.53, 0)
-          ..lineTo(size.width * 0.76, size.height)
-          ..lineTo(0, size.height)
-          ..close();
+    Path topLeftPath = Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width * 0.53, 0)
+      ..lineTo(size.width * 0.76, size.height)
+      ..lineTo(0, size.height)
+      ..close();
 
     paint.color = Color.fromARGB(100, 246, 231, 178);
     canvas.drawPath(topLeftPath, paint);
 
-    Path bottomRightPath =
-        Path()
-          ..moveTo(size.width, 0)
-          ..lineTo(size.width * 0.53, 0)
-          ..lineTo(size.width * 0.76, size.height)
-          ..lineTo(size.width, size.height)
-          ..close();
+    Path bottomRightPath = Path()
+      ..moveTo(size.width, 0)
+      ..lineTo(size.width * 0.53, 0)
+      ..lineTo(size.width * 0.76, size.height)
+      ..lineTo(size.width, size.height)
+      ..close();
 
     paint.color = Color.fromARGB(200, 246, 231, 178);
     canvas.drawPath(bottomRightPath, paint);

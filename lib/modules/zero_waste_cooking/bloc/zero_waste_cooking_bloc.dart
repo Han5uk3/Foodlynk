@@ -24,6 +24,8 @@ class ZeroWasteCookingBloc
             event.numberOfServings,
             event.dietaryPreferences,
             event.ingredients,
+            event.weight,
+            event.isDieting,
           );
       if (genPortionPlan.success == true) {
         emit(GeneratedSuccessState(generatedPortionPlan: genPortionPlan));
