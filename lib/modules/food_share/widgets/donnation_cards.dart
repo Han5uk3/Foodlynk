@@ -13,8 +13,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DonnationCards extends StatefulWidget {
   final DonationModel item;
-  final int tabIndex;
   final bool isBenificiary;
+  final bool isDonor;
   final bool itsMy;
   final bool isFromHomePage;
   final Function(bool, String, String)? onInterestToggled;
@@ -22,8 +22,8 @@ class DonnationCards extends StatefulWidget {
   const DonnationCards({
     super.key,
     required this.item,
-    required this.tabIndex,
     required this.isBenificiary,
+    required this.isDonor,
     this.onInterestToggled,
     required this.itsMy,
     this.isFromHomePage = false,
@@ -67,45 +67,42 @@ class _DonnationCardsState extends State<DonnationCards> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder:
-          (context) => DraggableScrollableSheet(
-            initialChildSize: 0.7,
-            minChildSize: 0.5,
-            maxChildSize: 0.9,
-            builder: (_, scrollController) {
-              return FoodShareDetailBottomSheet(
-                item: widget.item,
-                isBenificiary: widget.isBenificiary,
-                itsMy: widget.itsMy,
-                onInterestToggled: widget.onInterestToggled,
-              );
-            },
-          ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.9,
+        builder: (_, scrollController) {
+          return FoodShareDetailBottomSheet(
+            item: widget.item,
+            isBenificiary: widget.isBenificiary,
+            itsMy: widget.itsMy,
+            onInterestToggled: widget.onInterestToggled,
+          );
+        },
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap:
-          widget.isFromHomePage
-              ? _showDetailBottomSheet
-              : widget.item.status == "A"
+      onTap: widget.isFromHomePage
+          ? _showDetailBottomSheet
+          : widget.item.status == "A"
               ? null
               : () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) => DonationDetails(
-                          isDonor: !widget.isBenificiary,
-                          isView: true,
-                          isFromCard: true,
-                          model: widget.item,
-                        ),
-                  ),
-                );
-              },
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DonationDetails(
+                        isDonor: !widget.isBenificiary,
+                        isView: true,
+                        isFromCard: true,
+                        model: widget.item,
+                      ),
+                    ),
+                  );
+                },
       child: Card(
         color: Colors.white,
         shape: RoundedRectangleBorder(
@@ -135,22 +132,20 @@ class _DonnationCardsState extends State<DonnationCards> {
                         child: CachedNetworkImage(
                           imageUrl: widget.item.image ?? "",
                           fit: BoxFit.cover,
-                          placeholder:
-                              (context, url) => Center(
-                                child: Icon(
-                                  Icons.restaurant,
-                                  color: AppColor.primaryColor.withOpacity(0.5),
-                                  size: 32,
-                                ),
-                              ),
-                          errorWidget:
-                              (context, url, error) => Center(
-                                child: Icon(
-                                  Icons.restaurant,
-                                  color: AppColor.primaryColor.withOpacity(0.5),
-                                  size: 32,
-                                ),
-                              ),
+                          placeholder: (context, url) => Center(
+                            child: Icon(
+                              Icons.restaurant,
+                              color: AppColor.primaryColor.withOpacity(0.5),
+                              size: 32,
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Center(
+                            child: Icon(
+                              Icons.restaurant,
+                              color: AppColor.primaryColor.withOpacity(0.5),
+                              size: 32,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -192,19 +187,14 @@ class _DonnationCardsState extends State<DonnationCards> {
                             _buildStatusBadge(),
                           ],
                         ),
-
                         SizedBox(height: 8),
-
-                        widget.tabIndex == 0
+                        widget.isDonor
                             ? _buildDonatedDateRow()
                             : _buildReceivedOnDateRow(),
-
                         SizedBox(height: 8),
-
-                        widget.tabIndex == 0
+                        widget.isDonor
                             ? _buildServesRow()
                             : _buildDonatedByRow(),
-
                         if (widget.isBenificiary &&
                             widget.item.contactName != null &&
                             widget.item.contactName!.isNotEmpty)
@@ -244,10 +234,9 @@ class _DonnationCardsState extends State<DonnationCards> {
 
           SaverSnackBar.show(
             context: context,
-            message:
-                isInterested
-                    ? AppLocalizations.of(context)!.requestSent
-                    : "Request Withdrawn",
+            message: isInterested
+                ? AppLocalizations.of(context)!.requestSent
+                : "Request Withdrawn",
             isTrue: true,
           );
           return;
@@ -266,30 +255,29 @@ class _DonnationCardsState extends State<DonnationCards> {
         return SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed:
-                isInterested
-                    ? _showAlreadyInterestedAlert
-                    : () {
-                      setState(() {
-                        isInterested = true;
-                      });
+            onPressed: isInterested
+                ? _showAlreadyInterestedAlert
+                : () {
+                    setState(() {
+                      isInterested = true;
+                    });
 
-                      if (widget.onInterestToggled != null) {
-                        widget.onInterestToggled!(
-                          true,
-                          widget.item.id ?? "",
-                          widget.item.type ?? "",
-                        );
-                      } else {
-                        context.read<FoodShareBloc>().add(
-                          IntrestedFoodShareEvent(
-                            id: widget.item.id ?? "",
-                            type: widget.item.type ?? "",
-                            isInterested: true,
-                          ),
-                        );
-                      }
-                    },
+                    if (widget.onInterestToggled != null) {
+                      widget.onInterestToggled!(
+                        true,
+                        widget.item.id ?? "",
+                        widget.item.type ?? "",
+                      );
+                    } else {
+                      context.read<FoodShareBloc>().add(
+                            IntrestedFoodShareEvent(
+                              id: widget.item.id ?? "",
+                              type: widget.item.type ?? "",
+                              isInterested: true,
+                            ),
+                          );
+                    }
+                  },
             icon: Icon(
               isInterested ? Icons.favorite : Icons.favorite_border,
               color: isInterested ? Colors.red : AppColor.blue,
@@ -312,10 +300,9 @@ class _DonnationCardsState extends State<DonnationCards> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
                 side: BorderSide(
-                  color:
-                      isInterested
-                          ? Colors.transparent
-                          : AppColor.blue.withOpacity(0.5),
+                  color: isInterested
+                      ? Colors.transparent
+                      : AppColor.blue.withOpacity(0.5),
                   width: 1,
                 ),
               ),
