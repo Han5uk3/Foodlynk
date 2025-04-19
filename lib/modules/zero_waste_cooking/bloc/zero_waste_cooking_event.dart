@@ -13,6 +13,8 @@ class GeneratePortionPlanEvent extends ZeroWasteCookingEvent {
   final int numberOfServings;
   final List<String> dietaryPreferences;
   final List<String> ingredients;
+  final String weight;
+  final bool isDieting;
 
   const GeneratePortionPlanEvent(
     this.whatareyoucooking,
@@ -20,6 +22,8 @@ class GeneratePortionPlanEvent extends ZeroWasteCookingEvent {
     this.numberOfServings,
     this.dietaryPreferences,
     this.ingredients,
+    this.weight,
+    this.isDieting,
   );
   @override
   List<Object> get props => [
@@ -28,5 +32,7 @@ class GeneratePortionPlanEvent extends ZeroWasteCookingEvent {
     numberOfServings,
     dietaryPreferences,
     ingredients,
+    weight,
+    isDieting,
   ];
 }

@@ -71,48 +71,40 @@ class _ProfilePageState extends State<ProfilePage> {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder:
-                            (context) => EditProfilePage(
-                              isEdit: true,
-                              email: "",
-                              isFromEmailLogin: false,
-                            ),
+                        builder: (context) => EditProfilePage(
+                          isEdit: true,
+                          email: "",
+                          isFromEmailLogin: false,
+                        ),
                       ),
                     );
                   },
                 ),
-
                 _buildProfileTile(
                   label: AppLocalizations.of(context)!.termsAndConditions,
                   path: "assets/icons/terms.svg",
-
                   color: Colors.green.shade50,
-
-                  onTap:
-                      () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => TermsAndConditionsPage(),
-                        ),
-                      ),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TermsAndConditionsPage(),
+                    ),
+                  ),
                 ),
-
                 isGuestUser
                     ? SizedBox()
                     : _buildProfileTile(
-                      label: AppLocalizations.of(context)!.deleteProfile,
-                      path: "assets/icons/deleteaccount.svg",
-                      color: Colors.red.shade50,
-                      onTap: () {
-                        _showDeleteBottomSheet(context, true);
-                      },
-                    ),
-
+                        label: AppLocalizations.of(context)!.deleteProfile,
+                        path: "assets/icons/deleteaccount.svg",
+                        color: Colors.red.shade50,
+                        onTap: () {
+                          _showDeleteBottomSheet(context, true);
+                        },
+                      ),
                 _buildProfileTile(
-                  label:
-                      isGuestUser
-                          ? AppLocalizations.of(context)!.logIn
-                          : AppLocalizations.of(context)!.logout,
+                  label: isGuestUser
+                      ? AppLocalizations.of(context)!.logIn
+                      : AppLocalizations.of(context)!.logout,
                   path: "assets/icons/logout.svg",
                   color: AppColor.lightPink,
                   onTap: () {
@@ -124,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Version: v1.0.7",
+                      "Version: v1.0.4",
                       style: TextStyle(
                         color: AppColor.lightGrey200,
                         fontSize: 13,
@@ -144,7 +136,6 @@ class _ProfilePageState extends State<ProfilePage> {
     VoidCallback? onTap,
     required String path,
     required Color color,
-
     required String label,
   }) {
     return Column(
@@ -191,7 +182,6 @@ class _ProfilePageState extends State<ProfilePage> {
           title: Text(label, style: TextStyle(fontSize: 16)),
           trailing: Icon(Icons.chevron_right, size: 35),
         ),
-
         Divider(height: 1, thickness: 0.5, color: Colors.grey.shade500),
       ],
     );
@@ -224,8 +214,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Text(
                   toggler
                       ? AppLocalizations.of(
-                        context,
-                      )!.areYouSureYouWantToDeleteYourProfile
+                          context,
+                        )!
+                          .areYouSureYouWantToDeleteYourProfile
                       : AppLocalizations.of(context)!.areYouSureYouWantToLogout,
                   style: TextStyle(fontSize: 16),
                 ),
@@ -250,30 +241,28 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   Expanded(
                     child: SaverButton(
-                      text:
-                          toggler
-                              ? AppLocalizations.of(context)!.deleteProfile
-                              : AppLocalizations.of(context)!.logout,
-                      onPressed:
-                          _isLoading
-                              ? () {} // Disable button during loading
-                              : () {
-                                   setState(() {
-              _isLoading = true;
-            });
-                                if (toggler) {
-                                  context.read<ProfileBloc>().add(
-                                    DeleteProfileEvent(),
-                                  );
-                                } else {
-                                  context.read<ProfileBloc>().add(
-                                    LogoutEvent(
-                                      communityBloc:
-                                          context.read<CommunityBloc>(),
-                                    ),
-                                  );
-                                }
-                              },
+                      text: toggler
+                          ? AppLocalizations.of(context)!.deleteProfile
+                          : AppLocalizations.of(context)!.logout,
+                      onPressed: _isLoading
+                          ? () {} // Disable button during loading
+                          : () {
+                              setState(() {
+                                _isLoading = true;
+                              });
+                              if (toggler) {
+                                context.read<ProfileBloc>().add(
+                                      DeleteProfileEvent(),
+                                    );
+                              } else {
+                                context.read<ProfileBloc>().add(
+                                      LogoutEvent(
+                                        communityBloc:
+                                            context.read<CommunityBloc>(),
+                                      ),
+                                    );
+                              }
+                            },
                       color: AppColor.red,
                       textColor: AppColor.white,
                       isLoading: _isLoading,

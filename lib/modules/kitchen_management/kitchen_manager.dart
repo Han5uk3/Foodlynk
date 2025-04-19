@@ -138,8 +138,7 @@ class _KitchenManagerState extends State<KitchenManager> {
         }
       }
 
-      bool matchesSearch =
-          searchQuery.isEmpty ||
+      bool matchesSearch = searchQuery.isEmpty ||
           item.name!.toLowerCase().contains(searchQuery.toLowerCase());
       return matchesFilter && matchesSearch;
     }).toList();
@@ -212,10 +211,9 @@ class _KitchenManagerState extends State<KitchenManager> {
             SizedBox(height: 20),
             _buildFilterTitle(filteredItems!),
             Expanded(
-              child:
-                  filteredItems!.isEmpty
-                      ? EmptyList()
-                      : _buildItemsList(filteredItems!),
+              child: filteredItems!.isEmpty
+                  ? EmptyList()
+                  : _buildItemsList(filteredItems!),
             ),
           ],
         ),
@@ -248,15 +246,14 @@ class _KitchenManagerState extends State<KitchenManager> {
                 borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide(color: AppColor.lightGrey200),
               ),
-              suffixIcon:
-                  searchQuery.isNotEmpty
-                      ? IconButton(
-                        icon: Icon(Icons.clear, color: Colors.grey.shade600),
-                        onPressed: () {
-                          searchController.clear();
-                        },
-                      )
-                      : Icon(Icons.search, color: Colors.grey.shade600),
+              suffixIcon: searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: Icon(Icons.clear, color: Colors.grey.shade600),
+                      onPressed: () {
+                        searchController.clear();
+                      },
+                    )
+                  : Icon(Icons.search, color: Colors.grey.shade600),
               hintStyle: TextStyle(color: AppColor.lightGrey200),
               hintText: AppLocalizations.of(context)!.serachItems,
             ),
@@ -308,12 +305,12 @@ class _KitchenManagerState extends State<KitchenManager> {
       selectedFilter.isEmpty && searchQuery.isEmpty
           ? AppLocalizations.of(context)!.allItems
           : searchQuery.isNotEmpty && selectedFilter.isNotEmpty
-          ? "${AppLocalizations.of(context)!.searchResultsFor} '$searchQuery' ${AppLocalizations.of(context)!.inText} $selectedFilter ${AppLocalizations.of(context)!.items}"
-          : searchQuery.isNotEmpty
-          ? "${AppLocalizations.of(context)!.searchResultsFor} '$searchQuery'"
-          : selectedFilter == AppLocalizations.of(context)!.expiringSoon
-          ? "${AppLocalizations.of(context)!.items} $selectedFilter"
-          : "$selectedFilter ${AppLocalizations.of(context)!.items}",
+              ? "${AppLocalizations.of(context)!.searchResultsFor} '$searchQuery' ${AppLocalizations.of(context)!.inText} $selectedFilter ${AppLocalizations.of(context)!.items}"
+              : searchQuery.isNotEmpty
+                  ? "${AppLocalizations.of(context)!.searchResultsFor} '$searchQuery'"
+                  : selectedFilter == AppLocalizations.of(context)!.expiringSoon
+                      ? "${AppLocalizations.of(context)!.items} $selectedFilter"
+                      : "$selectedFilter ${AppLocalizations.of(context)!.items}",
       style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w600,
@@ -365,12 +362,12 @@ class _KitchenManagerState extends State<KitchenManager> {
         onDismissed: (direction) {
           if (direction == DismissDirection.endToStart) {
             context.read<KitchenManagerBloc>().add(
-              RemoveItemEvent(
-                itemId: item.id ?? "",
-                beforeExpiry: !itemRemovedBeforeExpiry(item),
-                itemCount: item.quantity ?? 0,
-              ),
-            );
+                  RemoveItemEvent(
+                    itemId: item.id ?? "",
+                    beforeExpiry: !itemRemovedBeforeExpiry(item),
+                    itemCount: item.quantity ?? 0,
+                  ),
+                );
           }
         },
         background: ClipRRect(
@@ -420,19 +417,16 @@ class _KitchenManagerState extends State<KitchenManager> {
             ],
           ),
         ),
-
         child: GestureDetector(
-          onTap:
-              () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder:
-                      (context) => AddItem(
-                        isEdit: true,
-                        item: item,
-                        dateString: dateString,
-                      ),
-                ),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AddItem(
+                isEdit: true,
+                item: item,
+                dateString: dateString,
               ),
+            ),
+          ),
           child: _buildItemCardContent(item, days, daysLeft),
         ),
       ),
@@ -460,15 +454,18 @@ class _KitchenManagerState extends State<KitchenManager> {
                 border: Border.all(color: AppColor.lightGrey200),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child:
-                  item.image == null || item.image == ""
-                      ? Center(
-                        child: Icon(Icons.image, color: AppColor.lightGrey200),
-                      )
-                      : CachedNetworkImage(
+              child: item.image == null || item.image == ""
+                  ? Center(
+                      child: Icon(Icons.image, color: AppColor.lightGrey200),
+                    )
+                  : ClipRRect(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                      child: CachedNetworkImage(
+                        fit: BoxFit.cover,
                         imageUrl: item.image ?? "",
                         placeholder: (context, url) => Icon(Icons.image),
                       ),
+                    ),
             ),
           ),
           Expanded(
@@ -505,10 +502,9 @@ class _KitchenManagerState extends State<KitchenManager> {
       margin: EdgeInsets.only(right: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color:
-            days < 0
-                ? AppColor.lightRed
-                : days >= 0 && days <= 4
+        color: days < 0
+            ? AppColor.lightRed
+            : days >= 0 && days <= 4
                 ? AppColor.lightYellow
                 : AppColor.greenshade,
       ),
@@ -523,13 +519,12 @@ class _KitchenManagerState extends State<KitchenManager> {
               days < 0
                   ? Icons.sentiment_neutral_outlined
                   : days >= 0 && days <= 4
-                  ? Icons.sentiment_satisfied_alt_outlined
-                  : Icons.sentiment_very_satisfied_outlined,
+                      ? Icons.sentiment_satisfied_alt_outlined
+                      : Icons.sentiment_very_satisfied_outlined,
               size: 14,
-              color:
-                  days < 0
-                      ? AppColor.red
-                      : days >= 0 && days <= 4
+              color: days < 0
+                  ? AppColor.red
+                  : days >= 0 && days <= 4
                       ? AppColor.yellow
                       : AppColor.green,
             ),
@@ -537,10 +532,9 @@ class _KitchenManagerState extends State<KitchenManager> {
               "$daysLeft d",
               style: TextStyle(
                 fontSize: 12,
-                color:
-                    days < 0
-                        ? AppColor.red
-                        : days >= 0 && days <= 4
+                color: days < 0
+                    ? AppColor.red
+                    : days >= 0 && days <= 4
                         ? AppColor.yellow
                         : AppColor.green,
               ),

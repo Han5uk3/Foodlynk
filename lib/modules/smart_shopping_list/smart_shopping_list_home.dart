@@ -8,6 +8,7 @@ import 'package:saver_bbk_main/common_widget/text_field.dart';
 import 'package:saver_bbk_main/helpers/date_format.dart';
 import 'package:saver_bbk_main/models/smart_shopping_model.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_bloc.dart';
+import 'package:saver_bbk_main/modules/smart_shopping_list/question_for_generate_item.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/shopping_list.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
@@ -87,13 +88,12 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
     if (searchQuery.isEmpty) {
       _filteredLists = List.from(_allLists!);
     } else {
-      _filteredLists =
-          _allLists!
-              .where(
-                (list) =>
-                    (list.listName?.toLowerCase() ?? "").contains(searchQuery),
-              )
-              .toList();
+      _filteredLists = _allLists!
+          .where(
+            (list) =>
+                (list.listName?.toLowerCase() ?? "").contains(searchQuery),
+          )
+          .toList();
     }
   }
 
@@ -108,6 +108,23 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
         iconColor: AppColor.white,
         textColor: AppColor.white,
         onpop: widget.onBack,
+        actions: [
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => Questionnaire()));
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Image.asset(
+                "assets/icons/ai.png",
+                color: AppColor.white,
+                height: 34,
+                width: 34,
+              ),
+            ),
+          )
+        ],
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
@@ -196,16 +213,15 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
                 borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide(color: AppColor.lightGrey200),
               ),
-              suffixIcon:
-                  searchController.text.isNotEmpty
-                      ? IconButton(
-                        icon: Icon(Icons.clear, color: Colors.grey.shade600),
-                        onPressed: () {
-                          searchController.clear();
-                          _onSearchChanged("");
-                        },
-                      )
-                      : Icon(Icons.search, color: Colors.grey.shade600),
+              suffixIcon: searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: Icon(Icons.clear, color: Colors.grey.shade600),
+                      onPressed: () {
+                        searchController.clear();
+                        _onSearchChanged("");
+                      },
+                    )
+                  : Icon(Icons.search, color: Colors.grey.shade600),
               hintStyle: TextStyle(color: AppColor.lightGrey200),
               hintText: AppLocalizations.of(context)!.searchList,
             ),
@@ -236,30 +252,31 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
   Widget _buildListCard() {
     return _allLists == null
         ? StreamBuilder<List<SmartShoppingModel>>(
-          stream: Services.getSmartList(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return SaverLoader();
-            }
+            stream: Services.getSmartList(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return SaverLoader();
+              }
 
-            if (snapshot.hasError) {
-              return Center(child: Text("Error loading lists"));
-            }
+              if (snapshot.hasError) {
+                return Center(child: Text("Error loading lists"));
+              }
 
-            if (snapshot.data?.isEmpty ?? true) {
-              return Center(
-                child: Text(AppLocalizations.of(context)!.noShppingListsFound),
-              );
-            }
+              if (snapshot.data?.isEmpty ?? true) {
+                return Center(
+                  child:
+                      Text(AppLocalizations.of(context)!.noShppingListsFound),
+                );
+              }
 
-            if (_allLists == null) {
-              _allLists = snapshot.data;
-              _filterLists();
-            }
+              if (_allLists == null) {
+                _allLists = snapshot.data;
+                _filterLists();
+              }
 
-            return _buildListView();
-          },
-        )
+              return _buildListView();
+            },
+          )
         : _buildListView();
   }
 
@@ -291,11 +308,10 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder:
-                      (context) => ShoppingList(
-                        listId: item.listId ?? '',
-                        listName: item.listName ?? '',
-                      ),
+                  builder: (context) => ShoppingList(
+                    listId: item.listId ?? '',
+                    listName: item.listName ?? '',
+                  ),
                 ),
               ).then((_) {
                 _subscribeToListStream();
@@ -343,13 +359,10 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
                     ),
                     SizedBox(height: 6),
                     LinearProgressIndicator(
-                      value:
-                          item.items?.isEmpty ?? true
-                              ? 0
-                              : (item.items!
-                                      .where((e) => e.status == "PR")
-                                      .length /
-                                  item.items!.length),
+                      value: item.items?.isEmpty ?? true
+                          ? 0
+                          : (item.items!.where((e) => e.status == "PR").length /
+                              item.items!.length),
                       color: Colors.orange,
                       backgroundColor: AppColor.lightGrey,
                     ),
@@ -477,26 +490,26 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
                       child: SaverButton(
                         text: AppLocalizations.of(context)!.saveChanges,
                         isLoading: _isLoading,
-                        onPressed:
-                            (_isLoading)
-                                ? () {}
-                                : () {
-                                  if (listNameController.text.trim().isEmpty) {
-                                    setModalState(() {
-                                      errorText =
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.pleaseEnterAListName;
-                                    });
-                                    return;
-                                  }
+                        onPressed: (_isLoading)
+                            ? () {}
+                            : () {
+                                if (listNameController.text.trim().isEmpty) {
+                                  setModalState(() {
+                                    errorText = AppLocalizations.of(
+                                      context,
+                                    )!
+                                        .pleaseEnterAListName;
+                                  });
+                                  return;
+                                }
 
-                                  context.read<SmartShoppingBloc>().add(
-                                    CreateNewSmartShoppingEvent(
-                                      listName: listNameController.text.trim(),
-                                    ),
-                                  );
-                                },
+                                context.read<SmartShoppingBloc>().add(
+                                      CreateNewSmartShoppingEvent(
+                                        listName:
+                                            listNameController.text.trim(),
+                                      ),
+                                    );
+                              },
                       ),
                     ),
                   ],

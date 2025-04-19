@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:number_selector/number_selector.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
+import 'package:saver_bbk_main/common_widget/label.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
+import 'package:saver_bbk_main/common_widget/text_field.dart';
 import 'package:saver_bbk_main/modules/zero_waste_cooking/bloc/zero_waste_cooking_bloc.dart';
 import 'package:saver_bbk_main/modules/zero_waste_cooking/zero_waste_generated_result.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
@@ -23,9 +25,11 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
   int numberOfPeople = 1;
 
   List<bool> checkboxValues = [false, false, false];
-
+  TextEditingController nameController = TextEditingController();
+  TextEditingController weightController = TextEditingController();
   int? selectedType;
   int? selectedMeal;
+  bool? selectedOption;
   bool checkbox1 = false;
   bool checkbox2 = false;
   bool checkbox3 = false;
@@ -64,11 +68,13 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder:
-                      (context) => ZeroWasteRecipeResultPage(
-                        genaratedPlanModel: state.generatedPortionPlan,
-                        selectedMeal: options[selectedMeal!],
-                      ),
+                  builder: (context) => ZeroWasteRecipeResultPage(
+                    genaratedPlanModel: state.generatedPortionPlan,
+                    isForOnePerson:
+                        state.generatedPortionPlan.data?.numberOfServings == 1,
+                    selectedMeal: options[selectedMeal ?? 0],
+                    enteredName: nameController.text,
+                  ),
                 ),
               );
             }
@@ -128,34 +134,6 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                     }),
                   ),
                 ),
-
-                Text(
-                  AppLocalizations.of(context)!.toWhomAreYouCooking,
-                  style: TextStyle(fontSize: 16),
-                ),
-                IntrinsicHeight(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: List.generate(3, (index) {
-                      return ListTile(
-                        title: Text(
-                          meal[index],
-                          style: TextStyle(color: Colors.grey.shade500),
-                        ),
-                        trailing: Radio<int>(
-                          value: index,
-                          activeColor: AppColor.primaryColor,
-                          groupValue: selectedMeal,
-                          onChanged: (int? value) {
-                            setState(() {
-                              selectedMeal = value;
-                            });
-                          },
-                        ),
-                      );
-                    }),
-                  ),
-                ),
                 Text(
                   AppLocalizations.of(context)!.howManyPeopleAreEating,
                   style: TextStyle(fontSize: 16),
@@ -182,6 +160,105 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                     ),
                   ],
                 ),
+                numberOfPeople == 1
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                            SizedBox(height: 16),
+                            Text(
+                              AppLocalizations.of(context)!.toWhomAreYouCooking,
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            SizedBox(height: 16),
+                            Label(
+                              text: "Enter Name",
+                            ),
+                            SizedBox(height: 8),
+                            SaverTextField(
+                                hintText: "Enter name",
+                                controller: nameController),
+                            SizedBox(height: 8),
+                            Label(
+                              text: "Enter Weight",
+                            ),
+                            SizedBox(height: 8),
+                            SaverTextField(
+                                hintText: "Enter weight in Kg",
+                                controller: weightController),
+                            SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Label(
+                                  text: "Are you on a diet?",
+                                ),
+                                const Spacer(),
+                                Row(
+                                  children: [
+                                    Checkbox(
+                                      activeColor: AppColor.green,
+                                      value: selectedOption == true,
+                                      onChanged: (_) {
+                                        setState(() {
+                                          selectedOption = true;
+                                        });
+                                      },
+                                    ),
+                                    const Text("Yes"),
+                                  ],
+                                ),
+                                const SizedBox(width: 16),
+                                Row(
+                                  children: [
+                                    Checkbox(
+                                      activeColor: AppColor.green,
+                                      value: selectedOption == false,
+                                      onChanged: (_) {
+                                        setState(() {
+                                          selectedOption = false;
+                                        });
+                                      },
+                                    ),
+                                    const Text("No"),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 8),
+                          ])
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 8),
+                          Text(
+                            AppLocalizations.of(context)!.toWhomAreYouCooking,
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          IntrinsicHeight(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: List.generate(3, (index) {
+                                return ListTile(
+                                  title: Text(
+                                    meal[index],
+                                    style:
+                                        TextStyle(color: Colors.grey.shade500),
+                                  ),
+                                  trailing: Radio<int>(
+                                    value: index,
+                                    activeColor: AppColor.primaryColor,
+                                    groupValue: selectedMeal,
+                                    onChanged: (int? value) {
+                                      setState(() {
+                                        selectedMeal = value;
+                                      });
+                                    },
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
+                        ],
+                      ),
                 SizedBox(height: 10),
                 Text(
                   AppLocalizations.of(context)!.dietaryPreferances,
@@ -214,10 +291,8 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                 Row(
                   children: [
                     Expanded(
-                      child: BlocBuilder<
-                        ZeroWasteCookingBloc,
-                        ZeroWasteCookingState
-                      >(
+                      child: BlocBuilder<ZeroWasteCookingBloc,
+                          ZeroWasteCookingState>(
                         builder: (context, state) {
                           bool isLoading = state is GeneratingLoadingState;
                           return SaverButton(
@@ -227,22 +302,22 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                               if (selectedType == null) {
                                 SaverSnackBar.show(
                                   context: context,
-                                  message:
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.pleaseSelectAType,
+                                  message: AppLocalizations.of(
+                                    context,
+                                  )!
+                                      .pleaseSelectAType,
                                   isTrue: false,
                                 );
                                 return;
                               }
 
-                              if (selectedMeal == null) {
+                              if (numberOfPeople != 1 && selectedMeal == null) {
                                 SaverSnackBar.show(
                                   context: context,
-                                  message:
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.pleaseSelectAMeal,
+                                  message: AppLocalizations.of(
+                                    context,
+                                  )!
+                                      .pleaseSelectAMeal,
                                   isTrue: false,
                                 );
                                 return;
@@ -255,6 +330,33 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                                   isTrue: false,
                                 );
                               }
+                              if (numberOfPeople == 1 &&
+                                  selectedOption == null) {
+                                SaverSnackBar.show(
+                                  context: context,
+                                  message: "Please select a diet option",
+                                  isTrue: false,
+                                );
+                                return;
+                              }
+                              if (numberOfPeople == 1 &&
+                                  nameController.text.isEmpty) {
+                                SaverSnackBar.show(
+                                  context: context,
+                                  message: "Please enter a name",
+                                  isTrue: false,
+                                );
+                                return;
+                              }
+                              if (numberOfPeople == 1 &&
+                                  weightController.text.isEmpty) {
+                                SaverSnackBar.show(
+                                  context: context,
+                                  message: "Please enter a weight",
+                                  isTrue: false,
+                                );
+                                return;
+                              }
                               List<String> selectedPreferences = [];
                               for (int i = 0; i < checkboxValues.length; i++) {
                                 if (checkboxValues[i]) {
@@ -263,25 +365,27 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
                               }
                               List<String> kitchenItemNames =
                                   await Services.getKitchenItemNames(
-                                    selectedPreferences,
-                                  );
+                                selectedPreferences,
+                              );
                               if (kitchenItemNames.length >= 5) {
                                 context.read<ZeroWasteCookingBloc>().add(
-                                  GeneratePortionPlanEvent(
-                                    options[selectedType!],
-                                    meal[selectedMeal!],
-                                    numberOfPeople,
-                                    selectedPreferences,
-                                    kitchenItemNames,
-                                  ),
-                                );
+                                      GeneratePortionPlanEvent(
+                                        options[selectedType!],
+                                        meal[selectedMeal ?? 0],
+                                        numberOfPeople,
+                                        selectedPreferences,
+                                        kitchenItemNames,
+                                        weightController.text,
+                                        selectedOption ?? false,
+                                      ),
+                                    );
                               } else {
                                 SaverSnackBar.show(
                                   context: context,
-                                  message:
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.youDontHaveEnoughIngredients,
+                                  message: AppLocalizations.of(
+                                    context,
+                                  )!
+                                      .youDontHaveEnoughIngredients,
                                   isTrue: false,
                                 );
                                 return;

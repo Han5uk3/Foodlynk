@@ -4,7 +4,9 @@ import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:saver_bbk_main/api/app_apis.dart';
 import 'package:saver_bbk_main/helpers/collections.dart';
+import 'package:saver_bbk_main/models/generated_smart_shopping_list.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/kitchen_management/bloc/kitchen_manager_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
@@ -22,6 +24,8 @@ class SmartShoppingBloc extends Bloc<SmartShoppingEvent, SmartShoppingState> {
     on<MoveFromKitchenToSmartListEvent>(_moveToSmartShoppingList);
     on<UpdateSmartShopingListNameEvent>(_chnageNewListName);
     on<RemoveItemSmartShoppingEvent>(_removeItemSmartShoppingList);
+    on<GenerateItemAddSmartShoppingListEvent>(
+        _generateItemAddSmartShoppingList);
   }
 
   void _createNewSmartShoppingList(
@@ -31,25 +35,21 @@ class SmartShoppingBloc extends Bloc<SmartShoppingEvent, SmartShoppingState> {
     try {
       emit(CreateNewSmartShoppingListLoadingState());
       final listId = Collections.smartShopping.doc().id;
-      await Collections.smartShopping
-          .doc(listId)
-          .set({
-            'listId': listId,
-            'listName': event.listName,
-            'items': [],
-            'createdAt': DateTime.now(),
-            'uid': Services.uid,
-          })
-          .then((value) {
-            emit(CreateNewSmartShoppingListSuccessState());
-          })
-          .catchError((e) {
-            emit(
-              CreateNewSmartShoppingListFailureState(
-                errorMessage: e.toString(),
-              ),
-            );
-          });
+      await Collections.smartShopping.doc(listId).set({
+        'listId': listId,
+        'listName': event.listName,
+        'items': [],
+        'createdAt': DateTime.now(),
+        'uid': Services.uid,
+      }).then((value) {
+        emit(CreateNewSmartShoppingListSuccessState());
+      }).catchError((e) {
+        emit(
+          CreateNewSmartShoppingListFailureState(
+            errorMessage: e.toString(),
+          ),
+        );
+      });
     } catch (e) {
       emit(CreateNewSmartShoppingListFailureState(errorMessage: e.toString()));
     }
@@ -70,14 +70,13 @@ class SmartShoppingBloc extends Bloc<SmartShoppingEvent, SmartShoppingState> {
           ((docSnapshot.data() as Map<String, dynamic>?)?['items'] ?? [])
               as List<dynamic>;
 
-      var newItem =
-          Items(
-            id: Items.generateRandomId(),
-            name: event.itemName,
-            unit: event.itemUnit,
-            quantity: event.itemQuantity,
-            status: 'AL',
-          ).toMap();
+      var newItem = Items(
+        id: Items.generateRandomId(),
+        name: event.itemName,
+        unit: event.itemUnit,
+        quantity: event.itemQuantity,
+        status: 'AL',
+      ).toMap();
       currentItems.add(newItem);
       await Collections.smartShopping.doc(event.listId).update({
         'items': currentItems,
@@ -102,26 +101,25 @@ class SmartShoppingBloc extends Bloc<SmartShoppingEvent, SmartShoppingState> {
         );
       }
       final updatedItem =
-         imageUrl != null ? event.item.copyWith(image: imageUrl) : event.item;
+          imageUrl != null ? event.item.copyWith(image: imageUrl) : event.item;
       final docRef = Collections.smartShopping.doc(event.listId);
       final docSnapshot = await docRef.get();
       final data = docSnapshot.data() as Map<String, dynamic>?;
-      final currentItems =
-          (data!['items'] as List<dynamic>).map((item) {
-            if (item['id'] == event.item.id) {
-              return {
-                ...item,
-                'status': 'PR',
-                if (imageUrl != null) 'item_image': imageUrl,
-              };
-            }
-            return item;
-          }).toList();
+      final currentItems = (data!['items'] as List<dynamic>).map((item) {
+        if (item['id'] == event.item.id) {
+          return {
+            ...item,
+            'status': 'PR',
+            if (imageUrl != null) 'item_image': imageUrl,
+          };
+        }
+        return item;
+      }).toList();
       await docRef.update({'items': currentItems});
       emit(PurchasedItemSuccessState(item: updatedItem));
       context.read<KitchenManagerBloc>().add(
-        AddNewItemEvent(item: updatedItem, imageFile: event.image),
-      );
+            AddNewItemEvent(item: updatedItem, imageFile: event.image),
+          );
     } catch (e) {
       log("Error in markAsPurchased: $e");
       emit(PurchasedItemFailureState(errorMessage: e.toString()));
@@ -195,6 +193,23 @@ class SmartShoppingBloc extends Bloc<SmartShoppingEvent, SmartShoppingState> {
       emit(RemoveItemFromSmartListSuccessState());
     } catch (e) {
       emit(RemoveItemFromSmartListFailureState(errorMessage: e.toString()));
+    }
+  }
+
+  void _generateItemAddSmartShoppingList(
+      GenerateItemAddSmartShoppingListEvent event,
+      Emitter<SmartShoppingState> emit) async {
+    try {
+      emit(GenerateSmartShoppingListItemsLoadingState());
+      final response = await AppApis().generateSmartShoppingList(
+        event.recipeName,
+        event.numberOfServings,
+      );
+      emit(GenerateSmartShoppingListItemsSuccessState(
+          generatedSmartShoppingList: response, recipeName: event.recipeName));
+    } catch (e) {
+      emit(GenerateSmartShoppingListItemsFailureState(
+          errorMessage: e.toString()));
     }
   }
 }

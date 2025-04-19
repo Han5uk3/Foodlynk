@@ -422,5 +422,20 @@
     "ifYouHaveAnyQuestions":"If you have any questions or concerns about these Terms and Conditions, please contact us at",
     "close":"Close",
     "pleaseEnterYourPassword":"Please enter your password",
-    "youdontHaveToSwapItems":"You don't have to swap items"
+    "youdontHaveToSwapItems":"You don't have to swap items",
+    "recipePlanner":"Recipe Planner",
+"letsCreateYourShoppinList":"Let's create your shopping list",
+"whatRecipeAreYouLookingFor":"What Recipe are you looking for?",
+"enterYourRecipeName":"Enter your recipe name",
+"howManyPeopleAreYouServing":"How many people are you serving?",
+"enterNumberOfServes":"Enter number of serves",
+"generateList":"Generate List",
+"pleaseEnterARecipeName":"Please enter a recipe name",
+"pleaseEnterNumberOfServes":"Please enter number of serves",
+"numberOfServesMustBeGreaterThanZero":"Number of serves must be greater than 0",
+"generatedShoppingItems":"Generated Shopping items",
+"noIngredientsFound":"No ingredients found",
+"shoppingListFor":"Shopping List for",
+"ingredients":"Ingredients",
+"addToList":"Add to List"
 }

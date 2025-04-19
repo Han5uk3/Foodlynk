@@ -29,8 +29,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class MyListingsPage extends StatefulWidget {
   final bool isEdit;
   final FoodSwapModel? items;
+  final int? index;
 
-  const MyListingsPage({super.key, required this.isEdit, this.items});
+  const MyListingsPage({super.key, required this.isEdit, this.items, this.index});
 
   @override
   State<MyListingsPage> createState() => _MyListingsPageState();
@@ -42,8 +43,11 @@ class _MyListingsPageState extends State<MyListingsPage>
   DateTime selectedExpiryDate = DateTime.now();
   @override
   void initState() {
-    super.initState();
     tabController = TabController(length: 2, vsync: this);
+    if(widget.index != null) {
+      tabController.index = widget.index!;
+    }
+    super.initState();
   }
 
   @override
@@ -61,71 +65,69 @@ class _MyListingsPageState extends State<MyListingsPage>
             : AppLocalizations.of(context)!.addNewItem,
         context,
         isneedtopop: false,
-        actions:
-            widget.isEdit
-                ? [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 14),
-                    child: IconButton(
-                      style: ButtonStyle(
-                        shape: const WidgetStatePropertyAll(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
+        actions: widget.isEdit
+            ? [
+                Padding(
+                  padding: const EdgeInsets.only(right: 14),
+                  child: IconButton(
+                    style: ButtonStyle(
+                      shape: const WidgetStatePropertyAll(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                       ),
-                      icon: const Icon(CupertinoIcons.trash),
-                      color: AppColor.red,
-                      onPressed:
-                          () => _showDeleteFoodSwap(context, widget.items!),
                     ),
+                    icon: const Icon(CupertinoIcons.trash),
+                    color: AppColor.red,
+                    onPressed: () =>
+                        _showDeleteFoodSwap(context, widget.items!),
                   ),
-                ]
-                : [],
-        bottom:
-            widget.isEdit
-                ? PreferredSize(
-                  preferredSize: const Size.fromHeight(kToolbarHeight),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    child: Column(
-                      children: [
-                        Divider(color: Colors.grey.shade200, thickness: 1),
-                        SizedBox(
-                          height: 40,
-                          child: TabBar(
-                            isScrollable: false,
-                            physics: const BouncingScrollPhysics(),
-                            tabs: [
-                              Tab(
-                                text: AppLocalizations.of(context)!.foodDeatils,
-                              ),
-                              Tab(text: AppLocalizations.of(context)!.requests),
-                            ],
-                            indicatorColor: AppColor.appbarColor,
-                            labelStyle: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                            labelColor: AppColor.black,
-                            unselectedLabelColor: Colors.grey,
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            indicator: UnderlineTabIndicator(
-                              borderSide: BorderSide(
-                                width: 5,
-                                color: AppColor.appbarColor,
-                              ),
-                            ),
-                            controller: tabController,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-                : const PreferredSize(
-                  preferredSize: Size.fromHeight(0),
-                  child: SizedBox(),
                 ),
+              ]
+            : [],
+        bottom: widget.isEdit
+            ? PreferredSize(
+                preferredSize: const Size.fromHeight(kToolbarHeight),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: Column(
+                    children: [
+                      Divider(color: Colors.grey.shade200, thickness: 1),
+                      SizedBox(
+                        height: 40,
+                        child: TabBar(
+                          isScrollable: false,
+                          physics: const BouncingScrollPhysics(),
+                          tabs: [
+                            Tab(
+                              text: AppLocalizations.of(context)!.foodDeatils,
+                            ),
+                            Tab(text: AppLocalizations.of(context)!.requests),
+                          ],
+                          indicatorColor: AppColor.appbarColor,
+                          labelStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          labelColor: AppColor.black,
+                          unselectedLabelColor: Colors.grey,
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          indicator: UnderlineTabIndicator(
+                            borderSide: BorderSide(
+                              width: 5,
+                              color: AppColor.appbarColor,
+                            ),
+                          ),
+                          controller: tabController,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            : const PreferredSize(
+                preferredSize: Size.fromHeight(0),
+                child: SizedBox(),
+              ),
       ),
       body: BlocListener<FoodSwapBloc, FoodSwapState>(
         listener: (context, state) {
@@ -172,16 +174,15 @@ class _MyListingsPageState extends State<MyListingsPage>
             );
           }
         },
-        child:
-            widget.isEdit
-                ? TabBarView(
-                  controller: tabController,
-                  children: [
-                    FoodDetails(isEditable: true, items: widget.items!),
-                    RequestsDetails(foodSwapModel: widget.items!),
-                  ],
-                )
-                : FoodDetails(isEditable: false, items: widget.items!),
+        child: widget.isEdit
+            ? TabBarView(
+                controller: tabController,
+                children: [
+                  FoodDetails(isEditable: true, items: widget.items!),
+                  RequestsDetails(foodSwapModel: widget.items!),
+                ],
+              )
+            : FoodDetails(isEditable: false, items: widget.items!),
       ),
     );
   }
@@ -213,25 +214,23 @@ class _MyListingsPageState extends State<MyListingsPage>
                   ),
                 ),
                 TextButton(
-                  onPressed:
-                      isLoadingDelete
-                          ? null
-                          : () {
-                            context.read<FoodSwapBloc>().add(
-                              RemoveItemFromFoodSwapEvent(
-                                swapId: items.id ?? "",
-                              ),
-                            );
-                            Navigator.of(context).pop();
-                            Navigator.of(context).pop();
-                          },
-                  child:
-                      isLoadingDelete
-                          ? SaverLoader()
-                          : Text(
-                            AppLocalizations.of(context)!.delete,
-                            style: TextStyle(color: AppColor.red),
-                          ),
+                  onPressed: isLoadingDelete
+                      ? null
+                      : () {
+                          context.read<FoodSwapBloc>().add(
+                                RemoveItemFromFoodSwapEvent(
+                                  swapId: items.id ?? "",
+                                ),
+                              );
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pop();
+                        },
+                  child: isLoadingDelete
+                      ? SaverLoader()
+                      : Text(
+                          AppLocalizations.of(context)!.delete,
+                          style: TextStyle(color: AppColor.red),
+                        ),
                 ),
               ],
             );
@@ -336,8 +335,8 @@ class _FoodDetailsState extends State<FoodDetails> {
       context.read<FoodSwapBloc>().add(UpdateItemInFoodSwapEvent(item: item));
     } else {
       context.read<FoodSwapBloc>().add(
-        AddItemToFoodSwapEvent(item: item, imageFile: _imageFile),
-      );
+            AddItemToFoodSwapEvent(item: item, imageFile: _imageFile),
+          );
     }
   }
 
@@ -410,65 +409,65 @@ class _FoodDetailsState extends State<FoodDetails> {
               widget.isEditable
                   ? SizedBox()
                   : Text(
-                    AppLocalizations.of(context)!.uploadImage,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                      AppLocalizations.of(context)!.uploadImage,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
               const SizedBox(height: 10),
               widget.isEditable
                   ? SizedBox()
                   : Row(
-                    children: [
-                      if (_imageFile != null)
-                        Stack(
-                          children: [
-                            SizedBox(
-                              height: 100,
-                              width: 100,
-                              child: Center(
-                                child: Container(
-                                  height: 90,
-                                  width: 90,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    image: DecorationImage(
-                                      image: FileImage(_imageFile!),
-                                      fit: BoxFit.cover,
+                      children: [
+                        if (_imageFile != null)
+                          Stack(
+                            children: [
+                              SizedBox(
+                                height: 100,
+                                width: 100,
+                                child: Center(
+                                  child: Container(
+                                    height: 90,
+                                    width: 90,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      image: DecorationImage(
+                                        image: FileImage(_imageFile!),
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                            Positioned(
-                              child: SizedBox(
-                                width: 100,
-                                child: Align(
-                                  alignment: Alignment.topRight,
-                                  child: GestureDetector(
-                                    onTap: _removeImage,
-                                    child: CircleAvatar(
-                                      radius: 10,
-                                      backgroundColor: Colors.white70,
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.close,
-                                          color: AppColor.black,
-                                          size: 15,
+                              Positioned(
+                                child: SizedBox(
+                                  width: 100,
+                                  child: Align(
+                                    alignment: Alignment.topRight,
+                                    child: GestureDetector(
+                                      onTap: _removeImage,
+                                      child: CircleAvatar(
+                                        radius: 10,
+                                        backgroundColor: Colors.white70,
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.close,
+                                            color: AppColor.black,
+                                            size: 15,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      if (_imageFile == null)
-                        ImagePickerButton(
-                          isFood: false,
-                          onImageSelected: _setImage,
-                        ),
-                    ],
-                  ),
+                            ],
+                          ),
+                        if (_imageFile == null)
+                          ImagePickerButton(
+                            isFood: false,
+                            onImageSelected: _setImage,
+                          ),
+                      ],
+                    ),
             ],
           ),
         ),
@@ -486,10 +485,9 @@ class _FoodDetailsState extends State<FoodDetails> {
                 state is FoodSwapLoading ? state.isLoading : false;
             return SaverButton(
               isLoading: isButtonLoading,
-              text:
-                  widget.isEditable
-                      ? AppLocalizations.of(context)!.saveChanges
-                      : AppLocalizations.of(context)!.addToListing,
+              text: widget.isEditable
+                  ? AppLocalizations.of(context)!.saveChanges
+                  : AppLocalizations.of(context)!.addToListing,
               onPressed: isButtonLoading ? () {} : _saveChanges,
             );
           },
@@ -532,8 +530,8 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder:
-                          (context) => ChatPage(isFromNotifications: false),
+                      builder: (context) =>
+                          ChatPage(isFromNotifications: false),
                     ),
                   );
                 }
@@ -549,53 +547,51 @@ class _RequestsDetailsState extends State<RequestsDetails> {
             },
           ),
         ],
-        child:
-            widget.foodSwapModel.status == "A"
-                ? EmptyList(
-                  message: AppLocalizations.of(context)!.alreadyAccepted,
-                )
-                : Padding(
-                  padding: const EdgeInsets.only(top: 14, left: 14, right: 14),
-                  child: StreamBuilder<List<AcceptedSwapItem>>(
-                    stream: Services.getRequestSwapListStream(
-                      widget.foodSwapModel.id ?? "",
-                    ),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.none) {
-                        return Text(
-                          AppLocalizations.of(context)!.noRequestsFound,
-                        );
-                      }
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return SaverLoader();
-                      }
-                      if (snapshot.hasError) {
-                        return Text(
-                          "Error fetching requests: ${snapshot.error}",
-                        );
-                      }
-
-                      if (snapshot.data!.isEmpty) {
-                        return EmptyList(
-                          message:
-                              AppLocalizations.of(context)!.noRequestsFound,
-                          subMessage:
-                              AppLocalizations.of(
-                                context,
-                              )!.checkBackLaterForNewRequests,
-                        );
-                      }
-                      final acceptedSwapItem = snapshot.data!;
-                      return ListView.builder(
-                        itemCount: acceptedSwapItem.length,
-                        itemBuilder: (context, index) {
-                          final AcceptedSwapItem item = acceptedSwapItem[index];
-                          return _buildRequestItem(context, item);
-                        },
-                      );
-                    },
+        child: widget.foodSwapModel.status == "A"
+            ? EmptyList(
+                message: AppLocalizations.of(context)!.alreadyAccepted,
+              )
+            : Padding(
+                padding: const EdgeInsets.only(top: 14, left: 14, right: 14),
+                child: StreamBuilder<List<AcceptedSwapItem>>(
+                  stream: Services.getRequestSwapListStream(
+                    widget.foodSwapModel.id ?? "",
                   ),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.none) {
+                      return Text(
+                        AppLocalizations.of(context)!.noRequestsFound,
+                      );
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return SaverLoader();
+                    }
+                    if (snapshot.hasError) {
+                      return Text(
+                        "Error fetching requests: ${snapshot.error}",
+                      );
+                    }
+
+                    if (snapshot.data!.isEmpty) {
+                      return EmptyList(
+                        message: AppLocalizations.of(context)!.noRequestsFound,
+                        subMessage: AppLocalizations.of(
+                          context,
+                        )!
+                            .checkBackLaterForNewRequests,
+                      );
+                    }
+                    final acceptedSwapItem = snapshot.data!;
+                    return ListView.builder(
+                      itemCount: acceptedSwapItem.length,
+                      itemBuilder: (context, index) {
+                        final AcceptedSwapItem item = acceptedSwapItem[index];
+                        return _buildRequestItem(context, item);
+                      },
+                    );
+                  },
                 ),
+              ),
       ),
     );
   }
@@ -620,6 +616,7 @@ class _RequestsDetailsState extends State<RequestsDetails> {
             final userData = userSnapshot.data?.data() as Map<String, dynamic>?;
             final userName =
                 "${userData?['firstName']} ${userData?['lastName']}";
+
             final userProfilePic = userData?['profilePicUrl'];
             final fcmToken = userData?['fcmToken'] ?? "";
 
@@ -632,6 +629,9 @@ class _RequestsDetailsState extends State<RequestsDetails> {
               ),
               child: Column(
                 children: [
+                  SizedBox(
+                    height: 3,
+                  ),
                   Row(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -643,37 +643,36 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                           right: 12,
                         ),
                         child: Container(
-                          height: 55,
-                          width: 55,
+                          height: 70,
+                          width: 70,
                           decoration: BoxDecoration(
                             color: AppColor.white,
                             border: Border.all(color: AppColor.lightGrey200),
                             borderRadius: BorderRadius.circular(50),
                           ),
                           child: Center(
-                            child:
-                                userProfilePic != null
-                                    ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(50),
-                                      child: Image.network(
-                                        userProfilePic,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (
-                                          context,
-                                          error,
-                                          stackTrace,
-                                        ) {
-                                          return Icon(
-                                            Icons.person,
-                                            color: AppColor.lightGrey200,
-                                          );
-                                        },
-                                      ),
-                                    )
-                                    : Icon(
-                                      Icons.person,
-                                      color: AppColor.lightGrey200,
+                            child: userProfilePic != null
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(50),
+                                    child: Image.network(
+                                      userProfilePic,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (
+                                        context,
+                                        error,
+                                        stackTrace,
+                                      ) {
+                                        return Icon(
+                                          Icons.person,
+                                          color: AppColor.lightGrey200,
+                                        );
+                                      },
                                     ),
+                                  )
+                                : Icon(
+                                    Icons.person,
+                                    color: AppColor.lightGrey200,
+                                  ),
                           ),
                         ),
                       ),
@@ -694,14 +693,13 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                                     fontSize: 16,
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 14),
-                                  child: Icon(
-                                    Icons.messenger_outline,
-                                    color: AppColor.black,
-                                  ),
-                                ),
                               ],
+                            ),
+                            Text(
+                              "Swaped with: ${item.acceptedSwapItem ?? ""}",
+                              style: const TextStyle(
+                                fontSize: 14,
+                              ),
                             ),
                             Text(
                               "${AppLocalizations.of(context)!.requestedOn} ${DateFormatHelper.ddmmyyyyString(item.pickupDate ?? "")}",
@@ -734,47 +732,47 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                                 width: double.infinity,
                                 child: SaverOutlineButton(
                                   isLoading: _isLoading,
-
                                   text: AppLocalizations.of(context)!.accept,
                                   onPressed: () {
                                     final localizedMessages = {
                                       'hello':
                                           AppLocalizations.of(context)!.hello,
-                                      'acceptFoodSwap':
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.iAcceptYourFoodSwap,
-                                      'donateFoodMessage':
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.iWantToDonateMyFoodWithYou,
-                                      'receiveFoodMessage':
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.iWantToReceiveFoodWithYou,
-
-                                      'foodSwapAccepted':
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.foodSwapAccepted,
+                                      'acceptFoodSwap': AppLocalizations.of(
+                                        context,
+                                      )!
+                                          .iAcceptYourFoodSwap,
+                                      'donateFoodMessage': AppLocalizations.of(
+                                        context,
+                                      )!
+                                          .iWantToDonateMyFoodWithYou,
+                                      'receiveFoodMessage': AppLocalizations.of(
+                                        context,
+                                      )!
+                                          .iWantToReceiveFoodWithYou,
+                                      'foodSwapAccepted': AppLocalizations.of(
+                                        context,
+                                      )!
+                                          .foodSwapAccepted,
                                       'beneficiaryAccepted':
                                           AppLocalizations.of(
-                                            context,
-                                          )!.beneficiaryAccepted,
+                                        context,
+                                      )!
+                                              .beneficiaryAccepted,
                                     };
                                     context.read<FoodSwapBloc>().add(
-                                      AcceptedFoodSwapRequestEvent(
-                                        swapId: item.swapedItemId ?? "",
-                                        acceptedSwapItemId:
-                                            item.acceptedSwapItemId ?? '',
-                                        reciverUid: item.uid ?? "",
-                                        fcmToken: fcmToken,
-                                        communityBloc:
-                                            context.read<CommunityBloc>(),
-                                        context: context,
-                                        localizedMessages: localizedMessages,
-                                      ),
-                                    );
+                                          AcceptedFoodSwapRequestEvent(
+                                            swapId: item.swapedItemId ?? "",
+                                            acceptedSwapItemId:
+                                                item.acceptedSwapItemId ?? '',
+                                            reciverUid: item.uid ?? "",
+                                            fcmToken: fcmToken,
+                                            communityBloc:
+                                                context.read<CommunityBloc>(),
+                                            context: context,
+                                            localizedMessages:
+                                                localizedMessages,
+                                          ),
+                                        );
                                   },
                                   borderColor: AppColor.primaryColor,
                                   textColor: AppColor.primaryColor,
@@ -786,17 +784,16 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                               child: SizedBox(
                                 width: double.infinity,
                                 child: SaverOutlineButton(
-                                  isLoading:
-                                      state
-                                          is FoodSwapRequestDeclinedLoadingState,
+                                  isLoading: state
+                                      is FoodSwapRequestDeclinedLoadingState,
                                   text: AppLocalizations.of(context)!.decline,
-                                  onPressed:
-                                      () => context.read<FoodSwapBloc>().add(
-                                        DeclineFoodSwapEvent(
-                                          reqId: item.reqId ?? 0,
-                                          swapId: item.swapedItemId ?? "",
-                                        ),
-                                      ),
+                                  onPressed: () =>
+                                      context.read<FoodSwapBloc>().add(
+                                            DeclineFoodSwapEvent(
+                                              reqId: item.reqId ?? 0,
+                                              swapId: item.swapedItemId ?? "",
+                                            ),
+                                          ),
                                   borderColor: AppColor.red,
                                   textColor: AppColor.red,
                                 ),
@@ -845,14 +842,14 @@ class _RequestsDetailsState extends State<RequestsDetails> {
                   children: [
                     errorMessage != null
                         ? Text(
-                          errorMessage,
-                          style: TextStyle(color: AppColor.red),
-                        )
+                            errorMessage,
+                            style: TextStyle(color: AppColor.red),
+                          )
                         : Container(
-                          height: 20,
-                          width: 150,
-                          color: Colors.grey.shade200,
-                        ),
+                            height: 20,
+                            width: 150,
+                            color: Colors.grey.shade200,
+                          ),
                     const SizedBox(height: 8),
                     Container(
                       height: 15,
