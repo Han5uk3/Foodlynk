@@ -3,6 +3,7 @@ import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/models/generated_smart_shopping_list.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/widgets/item_sheets.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class GeneratedShoppingListView extends StatelessWidget {
   final GnerateSmartShoppingList shoppingList;
@@ -17,14 +18,15 @@ class GeneratedShoppingListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (shoppingList.ingredients == null || shoppingList.ingredients!.isEmpty) {
-      return const Center(
-        child: Text('No ingredients found'),
+      return Center(
+        child: Text(AppLocalizations.of(context)!.noIngredientsFound),
       );
     }
 
     return Scaffold(
-      appBar:
-          saverAppBar("Generated Shopping Items", context, isneedtopop: true),
+      appBar: saverAppBar(
+          AppLocalizations.of(context)!.generatedShoppingItems, context,
+          isneedtopop: true),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -74,7 +76,7 @@ class GeneratedShoppingListView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Shopping List for',
+                          AppLocalizations.of(context)!.shoppingListFor,
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.9),
                             fontSize: 14,
@@ -98,7 +100,7 @@ class GeneratedShoppingListView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                'Ingredients (${shoppingList.ingredients!.length})',
+                '${AppLocalizations.of(context)!.ingredients} (${shoppingList.ingredients!.length})',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -176,14 +178,15 @@ class GeneratedShoppingListView extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green.shade500,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
                     elevation: 2,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
-                    'Add to List',
+                  child: Text(
+                    AppLocalizations.of(context)!.addToList,
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),

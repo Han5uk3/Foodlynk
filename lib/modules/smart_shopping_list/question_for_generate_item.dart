@@ -7,6 +7,7 @@ import 'package:saver_bbk_main/common_widget/text_field.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_bloc.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/generated_items.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Questionnaire extends StatefulWidget {
   const Questionnaire({super.key});
@@ -105,8 +106,8 @@ class _QuestionnaireState extends State<Questionnaire> {
           ),
         ),
         const SizedBox(height: 16),
-        const Text(
-          "Recipe Planner",
+        Text(
+          AppLocalizations.of(context)!.recipePlanner,
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -114,8 +115,8 @@ class _QuestionnaireState extends State<Questionnaire> {
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
-          "Let's create your shopping list",
+        Text(
+          AppLocalizations.of(context)!.letsCreateYourShoppinList,
           style: TextStyle(
             fontSize: 16,
             color: Colors.black54,
@@ -164,15 +165,15 @@ class _QuestionnaireState extends State<Questionnaire> {
             children: [
               _buildFormField(
                 icon: Icons.restaurant_menu,
-                label: "What Recipe are you looking for?",
-                hintText: "Enter your recipe name",
+                label: AppLocalizations.of(context)!.whatRecipeAreYouLookingFor,
+                hintText: AppLocalizations.of(context)!.pleaseEnterARecipeName,
                 controller: recipeController,
               ),
               const SizedBox(height: 24),
               _buildFormField(
                 icon: Icons.people_alt_rounded,
-                label: "How many people are you serving?",
-                hintText: "Enter number of serves",
+                label: AppLocalizations.of(context)!.howManyPeopleAreYouServing,
+                hintText: AppLocalizations.of(context)!.enterNumberOfServes,
                 controller: serveController,
                 keyboardType: TextInputType.number,
               ),
@@ -250,7 +251,7 @@ class _QuestionnaireState extends State<Questionnaire> {
             SaverOutlineButton(
               borderColor: Colors.black54,
               textColor: Colors.black54,
-              text: "Cancel",
+              text: AppLocalizations.of(context)!.cancel,
               onPressed: () => Navigator.pop(context),
             ),
             const SizedBox(width: 8),
@@ -258,7 +259,7 @@ class _QuestionnaireState extends State<Questionnaire> {
               child: SaverButton(
                 isLoading: isLoading,
                 color: AppColor.primaryColor,
-                text: "Generate List",
+                text: AppLocalizations.of(context)!.generateList,
                 onPressed: () => _validateAndSubmit(context),
               ),
             ),
@@ -271,14 +272,14 @@ class _QuestionnaireState extends State<Questionnaire> {
           SaverOutlineButton(
             borderColor: Colors.black54,
             textColor: Colors.black54,
-            text: "Cancel",
+            text: AppLocalizations.of(context)!.cancel,
             onPressed: () => Navigator.pop(context),
           ),
           const SizedBox(width: 16),
           SaverButton(
             isLoading: isLoading,
             color: AppColor.primaryColor,
-            text: "Generate List",
+            text: AppLocalizations.of(context)!.generateList,
             onPressed: () => _validateAndSubmit(context),
           ),
         ],
@@ -290,7 +291,7 @@ class _QuestionnaireState extends State<Questionnaire> {
     if (recipeController.text.isEmpty) {
       SaverSnackBar.show(
           context: context,
-          message: "Please enter a recipe name",
+          message: AppLocalizations.of(context)!.pleaseEnterARecipeName,
           isTrue: false);
       return;
     }
@@ -298,7 +299,7 @@ class _QuestionnaireState extends State<Questionnaire> {
     if (serveController.text.isEmpty) {
       SaverSnackBar.show(
           context: context,
-          message: "Please enter number of serves",
+          message: AppLocalizations.of(context)!.pleaseEnterNumberOfServes,
           isTrue: false);
       return;
     }
@@ -308,7 +309,8 @@ class _QuestionnaireState extends State<Questionnaire> {
       if (serves <= 0) {
         SaverSnackBar.show(
             context: context,
-            message: "Number of serves must be greater than 0",
+            message: AppLocalizations.of(context)!
+                .numberOfServesMustBeGreaterThanZero,
             isTrue: false);
         return;
       }

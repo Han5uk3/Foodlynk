@@ -418,5 +418,20 @@
     "ifYouHaveAnyQuestions":"إذا كانت لديك أي أسئلة أو مخاوف بشأن هذه الشروط والأحكام، يرجى الاتصال بنا على",
     "close":"اغلاق",
     "pleaseEnterYourPassword":"الرجاء إدخال كلمة المرور الخاصة بك",
-    "youdontHaveToSwapItems":"لا يتعين عليك تبديل العناصر"
+    "youdontHaveToSwapItems":"لا يتعين عليك تبديل العناصر",
+    "recipePlanner":"مخطط الوصفات",
+"letsCreateYourShoppinList":"لنساعدك في إنشاء قائمة التسوّق الخاصة بك",
+"whatRecipeAreYouLookingFor":"ما هي الوصفة التي تبحث عنها؟",
+"enterYourRecipeName":"أدخل اسم الوصفة",
+"howManyPeopleAreYouServing":"كم عدد الأشخاص الذين تخطط لتقديم الوجبة لهم؟",
+"enterNumberOfServes":"أدخل عدد الحصص",
+"generateList":"إنشاء القائمة",
+"pleaseEnterARecipeName":"يرجى إدخال اسم الوصفة",
+"pleaseEnterNumberOfServes":"يرجى إدخال عدد الحصص",
+"numberOfServesMustBeGreaterThanZero":"عدد الحصص يجب أن يكون أكبر من0",
+"generatedShoppingItems":"العناصر المُقترحة للتسوّق",
+"noIngredientsFound":"لا توجد مكونات",
+"shoppingListFor":"قائمة التسوّق لوصفة:",
+"ingredients":"المكونات",
+"addToList":"أضف إلى القائمة"
 }
