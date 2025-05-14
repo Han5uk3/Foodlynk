@@ -213,14 +213,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   _selectImage(ImageSource.gallery);
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.photo_camera),
-                title: const Text('Camera'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _selectImage(ImageSource.camera);
-                },
-              ),
               if (_profileImageUrl != null || _imageFile != null)
                 ListTile(
                   leading: const Icon(Icons.delete, color: Colors.red),
@@ -331,56 +323,54 @@ class _EditProfilePageState extends State<EditProfilePage> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SaverButton(
-          text:
-              widget.isEdit
-                  ? AppLocalizations.of(context)!.saveChanges
-                  : AppLocalizations.of(context)!.createProfile,
+          text: widget.isEdit
+              ? AppLocalizations.of(context)!.saveChanges
+              : AppLocalizations.of(context)!.createProfile,
           isLoading: _isLoading || _isUploadingImage,
-          onPressed:
-              _isUploadingImage
-                  ? () {}
-                  : () async {
-                    final String? imageUrl = await _uploadProfileImage();
+          onPressed: _isUploadingImage
+              ? () {}
+              : () async {
+                  final String? imageUrl = await _uploadProfileImage();
 
-                    final userModel = UserModel(
-                      uid: HiveHelper.getUID(),
-                      gender: selectedGender,
-                      title: selectedTitle ?? "",
-                      firstName: _nameController.text,
-                      lastName: _lastNameController.text,
-                      phoneNumber: widget.phoneNumber ?? "",
-                      address: _addressController.text,
-                      zipCode: _zipCodeController.text,
-                      email: _emailController.text,
-                      dob: Timestamp.fromDate(selectedDate ?? DateTime.now()),
-                      profileImage: imageUrl,
-                      createdAt: DateTime.now(),
-                    );
+                  final userModel = UserModel(
+                    uid: HiveHelper.getUID(),
+                    gender: selectedGender,
+                    title: selectedTitle ?? "",
+                    firstName: _nameController.text,
+                    lastName: _lastNameController.text,
+                    phoneNumber: widget.phoneNumber ?? "",
+                    address: _addressController.text,
+                    zipCode: _zipCodeController.text,
+                    email: _emailController.text,
+                    dob: Timestamp.fromDate(selectedDate ?? DateTime.now()),
+                    profileImage: imageUrl,
+                    createdAt: DateTime.now(),
+                  );
 
-                    if (widget.isEdit) {
-                      context.read<ProfileBloc>().add(
-                        EditProfileEvent(
-                          userModel: userModel,
-                          preserveLocale: true,
-                          locale: HiveHelper().getUserlanguage(),
-                        ),
-                      );
+                  if (widget.isEdit) {
+                    context.read<ProfileBloc>().add(
+                          EditProfileEvent(
+                            userModel: userModel,
+                            preserveLocale: true,
+                            locale: HiveHelper().getUserlanguage(),
+                          ),
+                        );
 
-                      context.read<ProfileBloc>().add(
-                        ChangeLocale(
-                          languageCode: HiveHelper().getUserlanguage(),
-                        ),
-                      );
-                    } else {
-                      context.read<ProfileBloc>().add(
-                        CreateProfileEvent(
-                          userModel: userModel,
-                          password: widget.password ?? "",
-                          isEmailLogin: widget.isFromEmailLogin,
-                        ),
-                      );
-                    }
-                  },
+                    context.read<ProfileBloc>().add(
+                          ChangeLocale(
+                            languageCode: HiveHelper().getUserlanguage(),
+                          ),
+                        );
+                  } else {
+                    context.read<ProfileBloc>().add(
+                          CreateProfileEvent(
+                            userModel: userModel,
+                            password: widget.password ?? "",
+                            isEmailLogin: widget.isFromEmailLogin,
+                          ),
+                        );
+                  }
+                },
         ),
       ),
     );
@@ -423,9 +413,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
               ),
               const SizedBox(height: 24),
-
               Label(text: AppLocalizations.of(context)!.firstName),
-
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -493,10 +481,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         TextFormField(
                           readOnly: true,
                           decoration: InputDecoration(
-                            hintText:
-                                formattedDate.isEmpty
-                                    ? 'DD/MM/YYYY'
-                                    : formattedDate,
+                            hintText: formattedDate.isEmpty
+                                ? 'DD/MM/YYYY'
+                                : formattedDate,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -531,7 +518,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ],
               ),
               const SizedBox(height: 16),
-
               Label(text: AppLocalizations.of(context)!.address),
               const SizedBox(height: 8),
               SaverTextField(
@@ -539,7 +525,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 controller: _addressController,
               ),
               const SizedBox(height: 16),
-
               Label(text: AppLocalizations.of(context)!.emailId),
               const SizedBox(height: 8),
               IgnorePointer(

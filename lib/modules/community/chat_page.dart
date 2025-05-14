@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:saver_bbk_main/common_widget/loader.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
+import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
 import 'package:saver_bbk_main/modules/home/home.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
@@ -91,6 +92,10 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  void _reportUser(String reportedUID, String reportReason) {
+    _communityBloc.add(ReportUserEvent(reportedUID, reportReason));
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -106,12 +111,26 @@ class _ChatPageState extends State<ChatPage> {
           isneedtopop: true,
           iswhite: true,
           onpop: () => _navigateToMainScreen(),
+          actions: [
+            IconButton(
+              onPressed: () {
+                _reportUser(
+                  _communityBloc.state.currentReceiverUid ?? '',
+                  'Inappropriate content',
+                );
+                SaverSnackBar.show(
+                    context: context,
+                    message: 'Report submitted successfully',
+                    isTrue: true);
+              },
+              icon: const Icon(Icons.flag_outlined),
+            ),
+          ],
         ),
         body: BlocBuilder<CommunityBloc, CommunityState>(
-          buildWhen:
-              (previous, current) =>
-                  previous.status != current.status ||
-                  previous.errorMessage != current.errorMessage,
+          buildWhen: (previous, current) =>
+              previous.status != current.status ||
+              previous.errorMessage != current.errorMessage,
           builder: (context, state) {
             if (state.status == ChatStatus.loading) {
               return const Center(child: SaverLoader());
@@ -131,10 +150,9 @@ class _ChatPageState extends State<ChatPage> {
                   controller: _messageController,
                   textNotifier: _chatTextNotifier,
                   onSend: () {
-                    final userMap =
-                        _communityBloc.state.userDetails.isNotEmpty
-                            ? _communityBloc.state.userDetails.values.first
-                            : {};
+                    final userMap = _communityBloc.state.userDetails.isNotEmpty
+                        ? _communityBloc.state.userDetails.values.first
+                        : {};
 
                     _sendMessage(
                       userMap['fcmToken'],
@@ -156,11 +174,16 @@ class _ChatHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CommunityBloc, CommunityState>(
-      buildWhen:
-          (previous, current) => previous.userDetails != current.userDetails,
+      buildWhen: (previous, current) =>
+          previous.userDetails != current.userDetails ||
+          previous.currentReceiverUid != current.currentReceiverUid,
       builder: (context, state) {
-        final userMap =
-            state.userDetails.isNotEmpty ? state.userDetails.values.first : {};
+        final Map<String, dynamic> userMap = state.currentReceiverUid != null &&
+                state.userDetails.containsKey(state.currentReceiverUid)
+            ? state.userDetails[state.currentReceiverUid]!
+            : state.userDetails.isNotEmpty
+                ? state.userDetails.values.first
+                : {};
 
         final receiverName =
             "${userMap['firstName'] ?? 'N/A'} ${userMap['lastName'] ?? ''}";
@@ -215,10 +238,9 @@ class _MessagesBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CommunityBloc, CommunityState>(
-      buildWhen:
-          (previous, current) =>
-              previous.messages != current.messages ||
-              previous.status != current.status,
+      buildWhen: (previous, current) =>
+          previous.messages != current.messages ||
+          previous.status != current.status,
       builder: (context, state) {
         if (state.status == ChatStatus.loading) {
           return const Expanded(child: Center(child: SaverLoader()));
@@ -268,10 +290,9 @@ class _MessagesBody extends StatelessWidget {
                       ),
                     ),
                     child: Column(
-                      crossAxisAlignment:
-                          isMe
-                              ? CrossAxisAlignment.end
-                              : CrossAxisAlignment.start,
+                      crossAxisAlignment: isMe
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
                       children: [
                         Text(
                           msg.message,
@@ -282,10 +303,9 @@ class _MessagesBody extends StatelessWidget {
                         const SizedBox(height: 4),
                         Row(
                           mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment:
-                              isMe
-                                  ? MainAxisAlignment.end
-                                  : MainAxisAlignment.start,
+                          mainAxisAlignment: isMe
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.start,
                           children: [
                             Text(
                               time,
@@ -355,9 +375,9 @@ class _ChatFooter extends StatelessWidget {
                 builder: (context, hasText, child) {
                   return hasText
                       ? IconButton(
-                        onPressed: onSend,
-                        icon: Icon(Icons.send, color: Colors.grey.shade800),
-                      )
+                          onPressed: onSend,
+                          icon: Icon(Icons.send, color: Colors.grey.shade800),
+                        )
                       : const SizedBox();
                 },
               ),

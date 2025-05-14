@@ -39,12 +39,12 @@ class InitializeChatRoomEvent extends CommunityEvent {
   });
   @override
   List<Object> get props => [
-    receiverUid ?? "",
-    isFoodSwapped,
-    roomId ?? '',
-    fcmToken ?? '',
-    isFromDonations,
-  ];
+        receiverUid ?? "",
+        isFoodSwapped,
+        roomId ?? '',
+        fcmToken ?? '',
+        isFromDonations,
+      ];
 }
 
 class LoadMessagesEvent extends CommunityEvent {}
@@ -76,3 +76,12 @@ class UpdateMessagesEvent extends CommunityEvent {
 class ClearCommunityStateEvent extends CommunityEvent {}
 
 class UserLeftChatEvent extends CommunityEvent {}
+
+class ReportUserEvent extends CommunityEvent {
+  final String reportedUID;
+  final String reportReason;
+  const ReportUserEvent(this.reportedUID, this.reportReason);
+
+  @override
+  List<Object> get props => [reportedUID, reportReason];
+}

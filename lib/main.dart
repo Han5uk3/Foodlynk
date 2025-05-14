@@ -83,11 +83,10 @@ class _MyAppState extends State<MyApp> {
           String chatRoomId = message.data['chatRoomId'];
           navigatorKey.currentState?.pushReplacement(
             MaterialPageRoute(
-              builder:
-                  (context) => ChatPage(
-                    isFromNotifications: true,
-                    chatRoomId: chatRoomId,
-                  ),
+              builder: (context) => ChatPage(
+                isFromNotifications: true,
+                chatRoomId: chatRoomId,
+              ),
             ),
           );
           break;
@@ -120,7 +119,7 @@ class _MyAppState extends State<MyApp> {
       child: BlocBuilder<ProfileBloc, ProfileState>(
         builder: (context, state) {
           return MaterialApp(
-            title: 'Saver App',
+            title: 'نعمة',
             theme: ThemeData(scaffoldBackgroundColor: AppColor.white),
             debugShowCheckedModeBanner: false,
             navigatorKey: navigatorKey,
