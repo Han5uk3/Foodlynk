@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class FoodExpiryTracker extends StatelessWidget {
   const FoodExpiryTracker({super.key});
@@ -19,10 +19,9 @@ class FoodExpiryTracker extends StatelessWidget {
             userData?.monthlyItemQuantityAddedCount?.toDouble() ?? 0.0;
         double itemRemovedQuantity =
             userData?.monthlyItemQuantityRemovedCount?.toDouble() ?? 0.0;
-        double percentage =
-            (itemRemovedQuantity != 0)
-                ? (itemRemovedQuantity / itemAddedQuantity) * 100
-                : 0.0;
+        double percentage = (itemRemovedQuantity != 0)
+            ? (itemRemovedQuantity / itemAddedQuantity) * 100
+            : 0.0;
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 18),
           child: CustomPaint(
@@ -94,24 +93,22 @@ class DiagonalBackgroundPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     var paint = Paint();
 
-    Path topLeftPath =
-        Path()
-          ..moveTo(0, 0)
-          ..lineTo(size.width * 0.53, 0)
-          ..lineTo(size.width * 0.76, size.height)
-          ..lineTo(0, size.height)
-          ..close();
+    Path topLeftPath = Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width * 0.53, 0)
+      ..lineTo(size.width * 0.76, size.height)
+      ..lineTo(0, size.height)
+      ..close();
 
     paint.color = Color.fromARGB(100, 246, 231, 178);
     canvas.drawPath(topLeftPath, paint);
 
-    Path bottomRightPath =
-        Path()
-          ..moveTo(size.width, 0)
-          ..lineTo(size.width * 0.53, 0)
-          ..lineTo(size.width * 0.76, size.height)
-          ..lineTo(size.width, size.height)
-          ..close();
+    Path bottomRightPath = Path()
+      ..moveTo(size.width, 0)
+      ..lineTo(size.width * 0.53, 0)
+      ..lineTo(size.width * 0.76, size.height)
+      ..lineTo(size.width, size.height)
+      ..close();
 
     paint.color = Color.fromARGB(200, 246, 231, 178);
     canvas.drawPath(bottomRightPath, paint);

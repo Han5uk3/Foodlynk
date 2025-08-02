@@ -108,7 +108,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
       emit(DeleteProfileSuccessState());
     } catch (e) {
-      print("Profile deletion error: ${e.toString()}");
+      debugPrint("Profile deletion error: ${e.toString()}");
       emit(DeleteProfileErrorState(errorMessage: e.toString()));
     }
   }

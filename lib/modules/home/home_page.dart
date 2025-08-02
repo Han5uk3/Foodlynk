@@ -6,7 +6,7 @@ import 'package:saver_bbk_main/modules/home/widgets/coins.dart';
 import 'package:saver_bbk_main/modules/home/widgets/home_banner.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class HomePage extends StatefulWidget {
   final Function(int) onGridTap;

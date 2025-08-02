@@ -7,7 +7,7 @@ import 'package:saver_bbk_main/common_widget/text_field.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_bloc.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/generated_items.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class Questionnaire extends StatefulWidget {
   const Questionnaire({super.key});

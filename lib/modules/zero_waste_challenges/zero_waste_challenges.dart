@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/modules/zero_waste_challenges/clean_plate_challenge.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 
 class ZeroWasteChallenges extends StatefulWidget {
@@ -80,7 +80,8 @@ class _ZeroWasteChallengesState extends State<ZeroWasteChallenges> {
                                 Text(
                                   AppLocalizations.of(
                                     context,
-                                  )!.cleanPlateChallenge,
+                                  )!
+                                      .cleanPlateChallenge,
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
@@ -106,13 +107,13 @@ class _ZeroWasteChallengesState extends State<ZeroWasteChallenges> {
                                 ),
                               ],
                             ),
-
                             Padding(
                               padding: const EdgeInsets.only(right: 12),
                               child: Text(
                                 AppLocalizations.of(
                                   context,
-                                )!.finishYourEntireMeal,
+                                )!
+                                    .finishYourEntireMeal,
                                 style: TextStyle(fontSize: 12),
                               ),
                             ),
@@ -136,24 +137,22 @@ class DiagonalBackgroundPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     var paint = Paint();
 
-    Path topLeftPath =
-        Path()
-          ..moveTo(0, 0)
-          ..lineTo(size.width * 0.53, 0)
-          ..lineTo(size.width * 0.76, size.height)
-          ..lineTo(0, size.height)
-          ..close();
+    Path topLeftPath = Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width * 0.53, 0)
+      ..lineTo(size.width * 0.76, size.height)
+      ..lineTo(0, size.height)
+      ..close();
 
     paint.color = Color.fromARGB(100, 246, 231, 178);
     canvas.drawPath(topLeftPath, paint);
 
-    Path bottomRightPath =
-        Path()
-          ..moveTo(size.width, 0)
-          ..lineTo(size.width * 0.53, 0)
-          ..lineTo(size.width * 0.76, size.height)
-          ..lineTo(size.width, size.height)
-          ..close();
+    Path bottomRightPath = Path()
+      ..moveTo(size.width, 0)
+      ..lineTo(size.width * 0.53, 0)
+      ..lineTo(size.width * 0.76, size.height)
+      ..lineTo(size.width, size.height)
+      ..close();
 
     paint.color = Color.fromARGB(200, 246, 231, 178);
     canvas.drawPath(bottomRightPath, paint);

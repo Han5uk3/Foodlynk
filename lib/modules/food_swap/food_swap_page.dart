@@ -11,7 +11,7 @@ import 'package:saver_bbk_main/modules/food_swap/food_swap_request.dart';
 import 'package:saver_bbk_main/modules/food_swap/my_listings_page.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class FoodSwapPage extends StatefulWidget {
   const FoodSwapPage({super.key, required this.onBack});
@@ -63,9 +63,8 @@ class _FoodSwapPageState extends State<FoodSwapPage>
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder:
-                  (context) =>
-                      MyListingsPage(isEdit: false, items: FoodSwapModel()),
+              builder: (context) =>
+                  MyListingsPage(isEdit: false, items: FoodSwapModel()),
             ),
           );
         },
@@ -236,8 +235,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
         myListings = List.from(snapshot.data!);
         if (_searchController.text.isNotEmpty) {
           myListings?.removeWhere(
-            (item) =>
-                !(item.name!.toLowerCase().contains(
+            (item) => !(item.name!.toLowerCase().contains(
                   _searchController.text.toLowerCase(),
                 )),
           );
@@ -276,8 +274,7 @@ class _FoodSwapPageState extends State<FoodSwapPage>
         final availableSwaps = snapshot.data!;
         if (_searchController.text.isNotEmpty) {
           availableSwaps.removeWhere(
-            (item) =>
-                !(item.name!.toLowerCase().contains(
+            (item) => !(item.name!.toLowerCase().contains(
                   _searchController.text.toLowerCase(),
                 )),
           );
@@ -382,7 +379,6 @@ class _FoodSwapPageState extends State<FoodSwapPage>
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,
-
                 errorWidget: (context, url, error) => Icon(Icons.image),
               ),
             ),
@@ -509,7 +505,6 @@ class _FoodSwapPageState extends State<FoodSwapPage>
                       isEdit: true,
                       items: myListings![index],
                       index: 1,
-                      
                     ),
                   ),
                 );

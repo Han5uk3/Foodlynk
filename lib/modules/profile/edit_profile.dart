@@ -21,7 +21,7 @@ import 'package:saver_bbk_main/modules/profile/bloc/profile_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:path/path.dart' as path;
 import 'package:saver_bbk_main/services/storage_services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({

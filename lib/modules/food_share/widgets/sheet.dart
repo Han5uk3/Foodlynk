@@ -6,7 +6,7 @@ import 'package:saver_bbk_main/styles/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:saver_bbk_main/modules/food_share/bloc/food_share_bloc.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class FoodShareDetailBottomSheet extends StatelessWidget {
   final DonationModel item;
@@ -108,28 +108,26 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
         child: CachedNetworkImage(
           imageUrl: item.image ?? "",
           fit: BoxFit.cover,
-          placeholder:
-              (context, url) => Container(
-                color: AppColor.greenshade.withOpacity(0.3),
-                child: Center(
-                  child: Icon(
-                    Icons.restaurant,
-                    color: AppColor.primaryColor.withOpacity(0.5),
-                    size: 48,
-                  ),
-                ),
+          placeholder: (context, url) => Container(
+            color: AppColor.greenshade.withOpacity(0.3),
+            child: Center(
+              child: Icon(
+                Icons.restaurant,
+                color: AppColor.primaryColor.withOpacity(0.5),
+                size: 48,
               ),
-          errorWidget:
-              (context, url, error) => Container(
-                color: AppColor.greenshade.withOpacity(0.3),
-                child: Center(
-                  child: Icon(
-                    Icons.restaurant,
-                    color: AppColor.primaryColor.withOpacity(0.5),
-                    size: 48,
-                  ),
-                ),
+            ),
+          ),
+          errorWidget: (context, url, error) => Container(
+            color: AppColor.greenshade.withOpacity(0.3),
+            child: Center(
+              child: Icon(
+                Icons.restaurant,
+                color: AppColor.primaryColor.withOpacity(0.5),
+                size: 48,
               ),
+            ),
+          ),
         ),
       ),
     );
@@ -157,31 +155,25 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
           ],
         ),
         SizedBox(height: 16),
-
         _buildInfoRow(
           icon: "assets/icons/expiry.svg",
           iconBgColor: AppColor.greenshade,
-          text:
-              isBenificiary
-                  ? "${AppLocalizations.of(context)!.receivedOn} ${DateFormatHelper.ddmmyyyy(item.createdAt ?? DateTime.now())}"
-                  : "${AppLocalizations.of(context)!.donatedOn} ${DateFormatHelper.ddmmyyyy(item.createdAt ?? DateTime.now())}",
+          text: isBenificiary
+              ? "${AppLocalizations.of(context)!.receivedOn} ${DateFormatHelper.ddmmyyyy(item.createdAt ?? DateTime.now())}"
+              : "${AppLocalizations.of(context)!.donatedOn} ${DateFormatHelper.ddmmyyyy(item.createdAt ?? DateTime.now())}",
         ),
         SizedBox(height: 12),
-
         _buildInfoRow(
           icon: null,
-          iconData:
-              isBenificiary
-                  ? Icons.person_outline_outlined
-                  : Icons.group_outlined,
+          iconData: isBenificiary
+              ? Icons.person_outline_outlined
+              : Icons.group_outlined,
           iconBgColor: AppColor.lightblue,
           iconColor: AppColor.blue,
-          text:
-              isBenificiary
-                  ? "${AppLocalizations.of(context)!.donatedBy} ${item.contactName ?? AppLocalizations.of(context)!.anonymous}"
-                  : "${AppLocalizations.of(context)!.serves} ${item.noOfServe ?? 0}",
+          text: isBenificiary
+              ? "${AppLocalizations.of(context)!.donatedBy} ${item.contactName ?? AppLocalizations.of(context)!.anonymous}"
+              : "${AppLocalizations.of(context)!.serves} ${item.noOfServe ?? 0}",
         ),
-
         if (item.expiredDate != null) ...[
           SizedBox(height: 12),
           _buildInfoRow(
@@ -192,7 +184,6 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
             textColor: Colors.red,
           ),
         ],
-
         if (item.contactName != null && item.contactName!.isNotEmpty) ...[
           SizedBox(height: 12),
           _buildInfoRow(
@@ -275,10 +266,9 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
         CircleAvatar(
           radius: 16,
           backgroundColor: iconBgColor,
-          child:
-              icon != null
-                  ? loadsvg(icon)
-                  : Icon(iconData, size: 16, color: iconColor),
+          child: icon != null
+              ? loadsvg(icon)
+              : Icon(iconData, size: 16, color: iconColor),
         ),
         SizedBox(width: 12),
         Expanded(
@@ -338,30 +328,29 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
         return SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed:
-                isInterested
-                    ? null
-                    : () {
-                      if (onInterestToggled != null) {
-                        onInterestToggled!(
-                          true,
-                          item.id ?? "",
-                          item.type ?? "",
-                        );
-                      } else {
-                        context.read<FoodShareBloc>().add(
-                          IntrestedFoodShareEvent(
-                            id: item.id ?? "",
-                            type: item.type ?? "",
-                            isInterested: true,
-                          ),
-                        );
-                      }
+            onPressed: isInterested
+                ? null
+                : () {
+                    if (onInterestToggled != null) {
+                      onInterestToggled!(
+                        true,
+                        item.id ?? "",
+                        item.type ?? "",
+                      );
+                    } else {
+                      context.read<FoodShareBloc>().add(
+                            IntrestedFoodShareEvent(
+                              id: item.id ?? "",
+                              type: item.type ?? "",
+                              isInterested: true,
+                            ),
+                          );
+                    }
 
-                      Future.delayed(Duration(milliseconds: 100), () {
-                        if (context.mounted) Navigator.pop(context);
-                      });
-                    },
+                    Future.delayed(Duration(milliseconds: 100), () {
+                      if (context.mounted) Navigator.pop(context);
+                    });
+                  },
             icon: Icon(
               isInterested ? Icons.favorite : Icons.favorite_border,
               color: isInterested ? Colors.white : AppColor.blue,
@@ -378,20 +367,18 @@ class FoodShareDetailBottomSheet extends StatelessWidget {
               ),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  isInterested
-                      ? AppColor.primaryColor.withOpacity(0.7)
-                      : Colors.white,
+              backgroundColor: isInterested
+                  ? AppColor.primaryColor.withOpacity(0.7)
+                  : Colors.white,
               foregroundColor: isInterested ? Colors.white : AppColor.blue,
               elevation: isInterested ? 0 : 2,
               padding: EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(
-                  color:
-                      isInterested
-                          ? Colors.transparent
-                          : AppColor.blue.withOpacity(0.5),
+                  color: isInterested
+                      ? Colors.transparent
+                      : AppColor.blue.withOpacity(0.5),
                   width: 1,
                 ),
               ),

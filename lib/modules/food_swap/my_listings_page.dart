@@ -24,14 +24,15 @@ import 'package:saver_bbk_main/modules/community/chat_page.dart';
 import 'package:saver_bbk_main/modules/food_swap/bloc/food_swap_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class MyListingsPage extends StatefulWidget {
   final bool isEdit;
   final FoodSwapModel? items;
   final int? index;
 
-  const MyListingsPage({super.key, required this.isEdit, this.items, this.index});
+  const MyListingsPage(
+      {super.key, required this.isEdit, this.items, this.index});
 
   @override
   State<MyListingsPage> createState() => _MyListingsPageState();
@@ -44,7 +45,7 @@ class _MyListingsPageState extends State<MyListingsPage>
   @override
   void initState() {
     tabController = TabController(length: 2, vsync: this);
-    if(widget.index != null) {
+    if (widget.index != null) {
       tabController.index = widget.index!;
     }
     super.initState();

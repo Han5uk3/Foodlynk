@@ -8,7 +8,7 @@ import 'package:saver_bbk_main/modules/community/chat_page.dart';
 import 'package:saver_bbk_main/modules/community/bloc/community_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class CommunityPage extends StatelessWidget {
   const CommunityPage({super.key});
@@ -77,17 +77,15 @@ class CommunityPage extends StatelessWidget {
         final bool isUnread = unreadCount > 0;
         final lastMessage = room['lastMessage'] ?? {};
         String messageText = lastMessage['text'] ?? '';
-        String time =
-            lastMessage['timestamp'] != null
-                ? DateFormat.jm().format(
-                  DateTime.fromMillisecondsSinceEpoch(lastMessage['timestamp']),
-                )
-                : '';
+        String time = lastMessage['timestamp'] != null
+            ? DateFormat.jm().format(
+                DateTime.fromMillisecondsSinceEpoch(lastMessage['timestamp']),
+              )
+            : '';
         return Padding(
           padding: const EdgeInsets.only(top: 14, left: 14, right: 14),
           child: GestureDetector(
-            onTap:
-                () => context.read<CommunityBloc>().add(
+            onTap: () => context.read<CommunityBloc>().add(
                   InitializeChatRoomEvent(
                     roomId: room['roomId'],
                     isFoodSwapped: false,
@@ -110,26 +108,23 @@ class CommunityPage extends StatelessWidget {
                       radius: 30,
                       backgroundColor: Colors.grey[200],
                       child: ClipOval(
-                        child:
-                            user["profileImage"] != null &&
-                                    user["profileImage"].toString().isNotEmpty
-                                ? CachedNetworkImage(
-                                  imageUrl: user["profileImage"],
-                                  width: 70,
-                                  height: 70,
-                                  fit: BoxFit.cover,
-                                  placeholder:
-                                      (context, url) =>
-                                          CircularProgressIndicator(),
-                                  errorWidget:
-                                      (context, url, error) =>
-                                          Icon(Icons.error),
-                                )
-                                : Icon(
-                                  Icons.person,
-                                  size: 40,
-                                  color: Colors.grey,
-                                ),
+                        child: user["profileImage"] != null &&
+                                user["profileImage"].toString().isNotEmpty
+                            ? CachedNetworkImage(
+                                imageUrl: user["profileImage"],
+                                width: 70,
+                                height: 70,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) =>
+                                    CircularProgressIndicator(),
+                                errorWidget: (context, url, error) =>
+                                    Icon(Icons.error),
+                              )
+                            : Icon(
+                                Icons.person,
+                                size: 40,
+                                color: Colors.grey,
+                              ),
                       ),
                     ),
                     Expanded(
@@ -170,14 +165,12 @@ class CommunityPage extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                     softWrap: true,
                                     style: TextStyle(
-                                      color:
-                                          isUnread
-                                              ? Colors.black87
-                                              : AppColor.lightGrey200,
-                                      fontWeight:
-                                          isUnread
-                                              ? FontWeight.w500
-                                              : FontWeight.normal,
+                                      color: isUnread
+                                          ? Colors.black87
+                                          : AppColor.lightGrey200,
+                                      fontWeight: isUnread
+                                          ? FontWeight.w500
+                                          : FontWeight.normal,
                                     ),
                                   ),
                                 ),

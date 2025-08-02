@@ -8,7 +8,7 @@ import 'package:saver_bbk_main/models/notification_model.dart';
 import 'package:saver_bbk_main/modules/notifications/bloc/notification_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -97,8 +97,8 @@ class _NotificationsPageState extends State<NotificationsPage>
 
     _fadeController.forward().then((_) {
       context.read<NotificationBloc>().add(
-        ClearAllNotificationsEvent(uid: Services.uid ?? ""),
-      );
+            ClearAllNotificationsEvent(uid: Services.uid ?? ""),
+          );
 
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) {
@@ -130,8 +130,7 @@ class _NotificationsPageState extends State<NotificationsPage>
           StreamBuilder<List<NotificationModel>>(
             stream: Services.getUserNotifications(),
             builder: (context, snapshot) {
-              final hasNotifications =
-                  snapshot.hasData &&
+              final hasNotifications = snapshot.hasData &&
                   (snapshot.data?.isNotEmpty ?? false) &&
                   !isClearing;
 
@@ -143,19 +142,18 @@ class _NotificationsPageState extends State<NotificationsPage>
                 padding: const EdgeInsets.only(right: 8.0),
                 child: TextButton.icon(
                   onPressed: isClearing ? null : _handleClearAllNotifications,
-                  icon:
-                      isClearing
-                          ? SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                AppColor.red,
-                              ),
+                  icon: isClearing
+                      ? SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AppColor.red,
                             ),
-                          )
-                          : Icon(Icons.delete_outlined, color: AppColor.red),
+                          ),
+                        )
+                      : Icon(Icons.delete_outlined, color: AppColor.red),
                   label: Text(
                     isClearing
                         ? "Clearing..."
@@ -187,7 +185,8 @@ class _NotificationsPageState extends State<NotificationsPage>
             });
             SaverSnackBar.show(
               context: context,
-              message: AppLocalizations.of(context)!.allNotificationClearedSuccessfully,
+              message: AppLocalizations.of(context)!
+                  .allNotificationClearedSuccessfully,
               isTrue: true,
             );
           }
@@ -243,49 +242,48 @@ class _NotificationsPageState extends State<NotificationsPage>
 
         if (notifications.isEmpty) {
           return Center(
-            child:
-                isClearing
-                    ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          height: 40,
-                          width: 40,
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              AppColor.blue,
-                            ),
+            child: isClearing
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height: 40,
+                        width: 40,
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColor.blue,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          "Clearing notifications...",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        "Clearing notifications...",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                         ),
-                      ],
-                    )
-                    : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.notifications_off_outlined,
-                          size: 64,
-                          color: Colors.grey[400],
+                      ),
+                    ],
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.notifications_off_outlined,
+                        size: 64,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        AppLocalizations.of(context)!.noNotificationsFound,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey,
                         ),
-                        const SizedBox(height: 16),
-                        Text(
-                          AppLocalizations.of(context)!.noNotificationsFound,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
           );
         }
 
@@ -308,10 +306,10 @@ class _NotificationsPageState extends State<NotificationsPage>
                   direction: DismissDirection.endToStart,
                   onDismissed: (direction) {
                     context.read<NotificationBloc>().add(
-                      DeleteNotificationEvent(
-                        notificationId: model.notificationId ?? "",
-                      ),
-                    );
+                          DeleteNotificationEvent(
+                            notificationId: model.notificationId ?? "",
+                          ),
+                        );
                   },
                   background: Container(
                     decoration: BoxDecoration(

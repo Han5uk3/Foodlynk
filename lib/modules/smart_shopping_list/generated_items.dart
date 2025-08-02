@@ -3,7 +3,7 @@ import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/models/generated_smart_shopping_list.dart';
 import 'package:saver_bbk_main/models/users_model.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/widgets/item_sheets.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class GeneratedShoppingListView extends StatelessWidget {
   final GnerateSmartShoppingList shoppingList;

@@ -8,7 +8,7 @@ import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/modules/zero_waste_challenges/bloc/challenge_bloc.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class CleanPlateChallenge extends StatefulWidget {
   const CleanPlateChallenge({super.key});
@@ -120,29 +120,26 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(14),
         child: SaverButton(
-          text:
-              _isSubmitting
-                  ? AppLocalizations.of(context)!.submitting
-                  : AppLocalizations.of(context)!.submitChallenge,
-          color:
-              (_beforeImageFile != null &&
-                      _afterImageFile != null &&
-                      !_isSubmitting)
-                  ? AppColor.primaryColor
-                  : AppColor.lightGrey200,
-          onPressed:
-              (_beforeImageFile != null &&
-                      _afterImageFile != null &&
-                      !_isSubmitting)
-                  ? () {
-                    context.read<ChallengeBloc>().add(
-                      SubmitChallengeEvent(
-                        beforeImageFile: _beforeImageFile!,
-                        afterImageFile: _afterImageFile!,
-                      ),
-                    );
-                  }
-                  : () {},
+          text: _isSubmitting
+              ? AppLocalizations.of(context)!.submitting
+              : AppLocalizations.of(context)!.submitChallenge,
+          color: (_beforeImageFile != null &&
+                  _afterImageFile != null &&
+                  !_isSubmitting)
+              ? AppColor.primaryColor
+              : AppColor.lightGrey200,
+          onPressed: (_beforeImageFile != null &&
+                  _afterImageFile != null &&
+                  !_isSubmitting)
+              ? () {
+                  context.read<ChallengeBloc>().add(
+                        SubmitChallengeEvent(
+                          beforeImageFile: _beforeImageFile!,
+                          afterImageFile: _afterImageFile!,
+                        ),
+                      );
+                }
+              : () {},
         ),
       ),
     );
@@ -262,23 +259,23 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
                 onImageSelected: (File image) {
                   if (isBefore) {
                     context.read<ChallengeBloc>().add(
-                      UploadBeforeImageEvent(context,imageFile: image),
-                    );
+                          UploadBeforeImageEvent(context, imageFile: image),
+                        );
                   } else if (_beforeImageFile != null) {
                     context.read<ChallengeBloc>().add(
-                      UploadAfterImageEvent(
-                        context,
-                        imageFile: image,
-                        beforeImageFile: _beforeImageFile!,
-                      ),
-                    );
+                          UploadAfterImageEvent(
+                            context,
+                            imageFile: image,
+                            beforeImageFile: _beforeImageFile!,
+                          ),
+                        );
                   } else {
                     SaverSnackBar.show(
                       context: context,
-                      message:
-                          AppLocalizations.of(
-                            context,
-                          )!.pleaseUploadTheBeforeImageFirst,
+                      message: AppLocalizations.of(
+                        context,
+                      )!
+                          .pleaseUploadTheBeforeImageFirst,
                       isTrue: false,
                     );
                   }
@@ -393,49 +390,48 @@ class _CleanPlateChallengeState extends State<CleanPlateChallenge> {
       enableDrag: false,
       useSafeArea: true,
       context: context,
-      builder:
-          (_) => Container(
-            padding: const EdgeInsets.all(16),
-            height: MediaQuery.of(context).size.height * 0.70,
-            child: Column(
+      builder: (_) => Container(
+        padding: const EdgeInsets.all(16),
+        height: MediaQuery.of(context).size.height * 0.70,
+        child: Column(
+          children: [
+            Text(
+              AppLocalizations.of(context)!.congratulations,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Divider(thickness: 2, color: Colors.grey.shade200),
+            const SizedBox(height: 18),
+            loadsvg("assets/icons/completed.svg"),
+            const SizedBox(height: 20),
+            Text(
+              AppLocalizations.of(context)!.youEarnedTenPointsOn,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 35),
+            Row(
               children: [
-                Text(
-                  AppLocalizations.of(context)!.congratulations,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                Divider(thickness: 2, color: Colors.grey.shade200),
-                const SizedBox(height: 18),
-                loadsvg("assets/icons/completed.svg"),
-                const SizedBox(height: 20),
-                Text(
-                  AppLocalizations.of(context)!.youEarnedTenPointsOn,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 35),
-                Row(
-                  children: [
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: SaverButton(
-                        text: AppLocalizations.of(context)!.back,
-                        onPressed: () {
-                          Navigator.pop(context);
-                          context.read<ChallengeBloc>().add(
+                const SizedBox(width: 10),
+                Expanded(
+                  child: SaverButton(
+                    text: AppLocalizations.of(context)!.back,
+                    onPressed: () {
+                      Navigator.pop(context);
+                      context.read<ChallengeBloc>().add(
                             RemoveBeforeImageEvent(),
                           );
-                          setState(() {
-                            _beforeImageFile = null;
-                            _afterImageFile = null;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
+                      setState(() {
+                        _beforeImageFile = null;
+                        _afterImageFile = null;
+                      });
+                    },
+                  ),
                 ),
               ],
             ),
-          ),
+          ],
+        ),
+      ),
     );
   }
 }

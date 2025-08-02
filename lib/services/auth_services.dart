@@ -7,7 +7,7 @@ import 'package:saver_bbk_main/helpers/hive_helper.dart';
 import 'package:saver_bbk_main/modules/home/home.dart';
 import 'package:saver_bbk_main/modules/login/otp/verify_otp.dart';
 import 'package:saver_bbk_main/modules/profile/edit_profile.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class AuthServices {
   static String verId = "";
@@ -83,8 +83,8 @@ class AuthServices {
         smsCode: smsCode,
       );
 
-      final UserCredential userCredential = await _firebaseAuth
-          .signInWithCredential(credential);
+      final UserCredential userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
 
       await checkUser(userCredential.user!.uid, context, smsCode, phoneNumber);
     } catch (e) {
@@ -151,13 +151,12 @@ class AuthServices {
         await HiveHelper.putisGuest(false);
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-            builder:
-                (context) => EditProfilePage(
-                  isEdit: false,
-                  phoneNumber: phoneNumber,
-                  email: "",
-                  isFromEmailLogin: false,
-                ),
+            builder: (context) => EditProfilePage(
+              isEdit: false,
+              phoneNumber: phoneNumber,
+              email: "",
+              isFromEmailLogin: false,
+            ),
           ),
           (route) => false,
         );
@@ -305,14 +304,13 @@ class AuthServices {
       } else {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-            builder:
-                (context) => EditProfilePage(
-                  isEdit: false,
-                  phoneNumber: "",
-                  email: email,
-                  isFromEmailLogin: true,
-                  password: password,
-                ),
+            builder: (context) => EditProfilePage(
+              isEdit: false,
+              phoneNumber: "",
+              email: email,
+              isFromEmailLogin: true,
+              password: password,
+            ),
           ),
           (route) => false,
         );

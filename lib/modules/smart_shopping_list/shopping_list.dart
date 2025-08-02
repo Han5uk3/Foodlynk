@@ -8,7 +8,7 @@ import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_b
 import 'package:saver_bbk_main/modules/smart_shopping_list/widgets/item_sheets.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class ShoppingList extends StatefulWidget {
   final String listId;
@@ -79,13 +79,12 @@ class _ShoppingListState extends State<ShoppingList>
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(50),
             ),
-            onPressed:
-                () => SmartListSheet().showEditBottomSheet(
-                  context,
-                  true,
-                  false,
-                  listId: widget.listId,
-                ),
+            onPressed: () => SmartListSheet().showEditBottomSheet(
+              context,
+              true,
+              false,
+              listId: widget.listId,
+            ),
             child: Icon(Icons.add, color: AppColor.white, size: 32),
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -196,26 +195,24 @@ class _ShoppingListState extends State<ShoppingList>
             ),
           );
         }
-        allItems =
-            snapshot.data!
-                .expand(
-                  (model) =>
-                      model.items
-                          ?.where((i) => i.status == "AL")
-                          .where((item) => item != null) ??
-                      [],
-                )
-                .toList();
-        purchaseItems =
-            snapshot.data!
-                .expand(
-                  (model) =>
-                      model.items
-                          ?.where((i) => i.status == "PR")
-                          .where((item) => item != null) ??
-                      [],
-                )
-                .toList();
+        allItems = snapshot.data!
+            .expand(
+              (model) =>
+                  model.items
+                      ?.where((i) => i.status == "AL")
+                      .where((item) => item != null) ??
+                  [],
+            )
+            .toList();
+        purchaseItems = snapshot.data!
+            .expand(
+              (model) =>
+                  model.items
+                      ?.where((i) => i.status == "PR")
+                      .where((item) => item != null) ??
+                  [],
+            )
+            .toList();
 
         if (allItems == null || allItems!.isEmpty) {
           return Center(
@@ -235,14 +232,13 @@ class _ShoppingListState extends State<ShoppingList>
             return Padding(
               padding: const EdgeInsets.only(bottom: 14),
               child: GestureDetector(
-                onTap:
-                    () => SmartListSheet().showEditBottomSheet(
-                      context,
-                      true,
-                      true,
-                      items: items,
-                      listId: widget.listId,
-                    ),
+                onTap: () => SmartListSheet().showEditBottomSheet(
+                  context,
+                  true,
+                  true,
+                  items: items,
+                  listId: widget.listId,
+                ),
                 child: Container(
                   height: 50,
                   decoration: BoxDecoration(

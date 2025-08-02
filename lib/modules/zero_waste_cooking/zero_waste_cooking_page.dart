@@ -10,7 +10,7 @@ import 'package:saver_bbk_main/modules/zero_waste_cooking/bloc/zero_waste_cookin
 import 'package:saver_bbk_main/modules/zero_waste_cooking/zero_waste_generated_result.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class ZeroWasteCookingPage extends StatefulWidget {
   const ZeroWasteCookingPage({super.key, required this.onBack});
