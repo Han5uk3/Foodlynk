@@ -17,7 +17,7 @@ import 'package:saver_bbk_main/modules/kitchen_management/widgets/food_expiry_tr
 import 'package:saver_bbk_main/modules/smart_shopping_list/widgets/item_sheets.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class KitchenManager extends StatefulWidget {
   final VoidCallback onBack;

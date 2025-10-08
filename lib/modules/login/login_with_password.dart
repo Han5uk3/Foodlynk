@@ -7,7 +7,7 @@ import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/text_field.dart';
 import 'package:saver_bbk_main/services/auth_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class LoginWithPassword extends StatefulWidget {
   const LoginWithPassword({super.key});
@@ -135,7 +135,8 @@ class _LoginWithPasswordState extends State<LoginWithPassword> {
                     ).hasMatch(value)) {
                       return AppLocalizations.of(
                         context,
-                      )!.pleaseEnterAValidEmailAddress;
+                      )!
+                          .pleaseEnterAValidEmailAddress;
                     }
                     return null;
                   },
@@ -146,20 +147,20 @@ class _LoginWithPasswordState extends State<LoginWithPassword> {
                   controller: _passwordController,
                   isPassword: true,
                   prefixIcon: Icons.lock,
-
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return AppLocalizations.of(context)!.pleaseEnterYourPassword;
+                      return AppLocalizations.of(context)!
+                          .pleaseEnterYourPassword;
                     }
                     if (value.length < 6) {
                       return AppLocalizations.of(
                         context,
-                      )!.passwordMustBeAtLeastSixCharacters;
+                      )!
+                          .passwordMustBeAtLeastSixCharacters;
                     }
                     return null;
                   },
                 ),
-
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
@@ -267,10 +268,9 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 8,
-      backgroundColor:
-          theme.brightness == Brightness.dark
-              ? Color.fromARGB(255, 40, 40, 50)
-              : Colors.white,
+      backgroundColor: theme.brightness == Brightness.dark
+          ? Color.fromARGB(255, 40, 40, 50)
+          : Colors.white,
       title: Row(
         children: [
           Icon(Icons.lock_reset, color: colorScheme.primary, size: 28),
@@ -287,91 +287,87 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
       ),
       content: Container(
         constraints: const BoxConstraints(maxWidth: 400),
-        child:
-            _isSuccess
-                ? _buildSuccessContent()
-                : _buildFormContent(colorScheme),
+        child: _isSuccess
+            ? _buildSuccessContent()
+            : _buildFormContent(colorScheme),
       ),
-      actions:
-          _isSuccess
-              ? [
-                TextButton.icon(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.check_circle),
-                  label:  Text(AppLocalizations.of(context)!.close),
-                  style: TextButton.styleFrom(
-                    foregroundColor: colorScheme.primary,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
+      actions: _isSuccess
+          ? [
+              TextButton.icon(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(Icons.check_circle),
+                label: Text(AppLocalizations.of(context)!.close),
+                style: TextButton.styleFrom(
+                  foregroundColor: colorScheme.primary,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
                   ),
                 ),
-              ]
-              : [
-                TextButton(
-                  onPressed:
-                      _isLoading ? null : () => Navigator.of(context).pop(),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.cancel,
-                    style: TextStyle(
-                      color: colorScheme.onSurface.withOpacity(0.8),
-                      fontWeight: FontWeight.bold,
-                    ),
+              ),
+            ]
+          : [
+              TextButton(
+                onPressed:
+                    _isLoading ? null : () => Navigator.of(context).pop(),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
                   ),
                 ),
-
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _resetPassword,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colorScheme.primary,
-                    foregroundColor: colorScheme.onPrimary,
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
+                child: Text(
+                  AppLocalizations.of(context)!.cancel,
+                  style: TextStyle(
+                    color: colorScheme.onSurface.withOpacity(0.8),
+                    fontWeight: FontWeight.bold,
                   ),
-                  child:
-                      _isLoading
-                          ? Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: colorScheme.onPrimary,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                               Text(AppLocalizations.of(context)!.processing),
-                            ],
-                          )
-                          : Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.send,
-                                size: 18,
-                                color: Colors.white,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(AppLocalizations.of(context)!.resetPassword),
-                            ],
+                ),
+              ),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _resetPassword,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                ),
+                child: _isLoading
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: colorScheme.onPrimary,
+                            ),
                           ),
-                ),
-              ],
+                          const SizedBox(width: 12),
+                          Text(AppLocalizations.of(context)!.processing),
+                        ],
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.send,
+                            size: 18,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(AppLocalizations.of(context)!.resetPassword),
+                        ],
+                      ),
+              ),
+            ],
       actionsPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
     );
   }
@@ -397,7 +393,8 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                   child: Text(
                     AppLocalizations.of(
                       context,
-                    )!.enterYourEmailAddressAndWeWill,
+                    )!
+                        .enterYourEmailAddressAndWeWill,
                     style: TextStyle(
                       fontSize: 14,
                       height: 1.5,
@@ -430,7 +427,8 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
               if (!RegExp(
                 r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
               ).hasMatch(value)) {
-                return AppLocalizations.of(context)!.pleaseEnterAValidEmailAddress;
+                return AppLocalizations.of(context)!
+                    .pleaseEnterAValidEmailAddress;
               }
               return null;
             },
@@ -492,7 +490,8 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
             ),
           ),
           Text(
-            AppLocalizations.of(context)!.pleaseCheckYourInboxAndFollowTheInstructions,
+            AppLocalizations.of(context)!
+                .pleaseCheckYourInboxAndFollowTheInstructions,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,

@@ -9,7 +9,7 @@ import 'package:saver_bbk_main/modules/home/home.dart';
 import 'package:saver_bbk_main/modules/login/login_with_password.dart';
 import 'package:saver_bbk_main/services/auth_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -90,7 +90,6 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
       padding: const EdgeInsets.only(left: 25, right: 25, top: 30, bottom: 16),
-
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,9 +102,7 @@ class _LoginPageState extends State<LoginPage> {
               color: Colors.black87,
             ),
           ),
-
           const SizedBox(height: 16),
-
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -135,7 +132,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
           const SizedBox(height: 16),
-
           Row(
             children: [
               SizedBox(
@@ -166,18 +162,16 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
           const SizedBox(height: 30),
-
           Row(
             children: [
               Expanded(
                 child: SaverOutlineButton(
-                  onPressed:
-                      () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LoginWithPassword(),
-                        ),
-                      ),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginWithPassword(),
+                    ),
+                  ),
                   text: AppLocalizations.of(context)!.loginWithPassword,
                   style: TextStyle(fontSize: 13, color: AppColor.primaryColor),
                 ),
@@ -189,17 +183,17 @@ class _LoginPageState extends State<LoginPage> {
                     if (_phoneController.text.length == 8) {
                       _isChecked
                           ? AuthServices.verifyPhoneNumber(
-                            context,
-                            _phoneController.text,
-                          )
+                              context,
+                              _phoneController.text,
+                            )
                           : SaverSnackBar.show(
-                            context: context,
-                            message:
-                                AppLocalizations.of(
-                                  context,
-                                )!.pleaseAcceptOurTermsAndConditions,
-                            isTrue: false,
-                          );
+                              context: context,
+                              message: AppLocalizations.of(
+                                context,
+                              )!
+                                  .pleaseAcceptOurTermsAndConditions,
+                              isTrue: false,
+                            );
                     } else {
                       SaverSnackBar.show(
                         context: context,
@@ -229,7 +223,6 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
           const SizedBox(height: 16),
-
           Center(
             child: GestureDetector(
               onTap: _continueAsGuest,

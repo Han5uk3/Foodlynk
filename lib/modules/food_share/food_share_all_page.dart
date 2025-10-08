@@ -10,7 +10,7 @@ import 'package:saver_bbk_main/modules/food_share/widgets/donnation_cards.dart';
 import 'package:saver_bbk_main/modules/food_share/widgets/role_section_dialog.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class FoodShareAllPage extends StatefulWidget {
   const FoodShareAllPage({super.key, required this.onBack});

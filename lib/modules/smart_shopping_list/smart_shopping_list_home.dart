@@ -13,7 +13,7 @@ import 'package:saver_bbk_main/modules/smart_shopping_list/shopping_list.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
 import 'dart:async';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class SmartShoppingHome extends StatefulWidget {
   const SmartShoppingHome({super.key, required this.onBack});

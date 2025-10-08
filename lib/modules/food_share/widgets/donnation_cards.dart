@@ -9,7 +9,7 @@ import 'package:saver_bbk_main/modules/food_share/bloc/food_share_bloc.dart';
 import 'package:saver_bbk_main/modules/food_share/donation_details.dart';
 import 'package:saver_bbk_main/modules/food_share/widgets/sheet.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class DonnationCards extends StatefulWidget {
   final DonationModel item;

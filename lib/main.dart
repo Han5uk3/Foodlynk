@@ -19,7 +19,7 @@ import 'package:saver_bbk_main/modules/splash_screen/splash_screen.dart';
 import 'package:saver_bbk_main/modules/zero_waste_challenges/bloc/challenge_bloc.dart';
 import 'package:saver_bbk_main/modules/zero_waste_cooking/bloc/zero_waste_cooking_bloc.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 const boxName = 'myBox';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

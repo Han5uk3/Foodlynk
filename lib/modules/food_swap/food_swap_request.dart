@@ -15,7 +15,7 @@ import 'package:saver_bbk_main/models/food_swap_model.dart';
 import 'package:saver_bbk_main/modules/food_swap/bloc/food_swap_bloc.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class FoodSwapRequest extends StatefulWidget {
   const FoodSwapRequest({super.key, required this.items});
@@ -78,10 +78,10 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
           if (state is RequestFoodSwapError) {
             SaverSnackBar.show(
               context: context,
-              message:
-                  AppLocalizations.of(
-                    context,
-                  )!.failedToSentRequestPleaseTryAgainLater,
+              message: AppLocalizations.of(
+                context,
+              )!
+                  .failedToSentRequestPleaseTryAgainLater,
               isTrue: false,
             );
           }
@@ -164,11 +164,10 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                     selectedTime == null ||
                     selectedItem ==
                         AppLocalizations.of(context)!.noItemAvailable) {
-                  String message =
-                      selectedItem ==
-                              AppLocalizations.of(context)!.noItemAvailable
-                          ? AppLocalizations.of(context)!.youdontHaveToSwapItems
-                          : AppLocalizations.of(context)!.pleaseFillInAllFields;
+                  String message = selectedItem ==
+                          AppLocalizations.of(context)!.noItemAvailable
+                      ? AppLocalizations.of(context)!.youdontHaveToSwapItems
+                      : AppLocalizations.of(context)!.pleaseFillInAllFields;
                   SaverSnackBar.show(
                     context: context,
                     message: message,
@@ -177,16 +176,16 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                   return;
                 } else {
                   context.read<FoodSwapBloc>().add(
-                    RequestFoodSwapEvent(
-                      uid: Services.uid,
-                      acceptedSwapItem: selectedItem,
-                      acceptedSwapItemId: selectedItemId,
-                      pickupDate: selectedDate,
-                      pickupLocation: locationController.text,
-                      pickupTime: selectedTime,
-                      swapId: widget.items.id,
-                    ),
-                  );
+                        RequestFoodSwapEvent(
+                          uid: Services.uid,
+                          acceptedSwapItem: selectedItem,
+                          acceptedSwapItemId: selectedItemId,
+                          pickupDate: selectedDate,
+                          pickupLocation: locationController.text,
+                          pickupTime: selectedTime,
+                          swapId: widget.items.id,
+                        ),
+                      );
                 }
               },
             ),
@@ -209,15 +208,13 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
 
         List<FoodSwapModel> items = snapshot.data ?? [];
 
-        List<String> dropdownItems =
-            items.isNotEmpty
-                ? items.map((item) => item.name ?? "No Name").toList()
-                : [AppLocalizations.of(context)!.noItemAvailable];
+        List<String> dropdownItems = items.isNotEmpty
+            ? items.map((item) => item.name ?? "No Name").toList()
+            : [AppLocalizations.of(context)!.noItemAvailable];
 
-        String defaultValue =
-            dropdownItems.contains(selectedItem)
-                ? selectedItem!
-                : dropdownItems.first;
+        String defaultValue = dropdownItems.contains(selectedItem)
+            ? selectedItem!
+            : dropdownItems.first;
 
         return SaverDropdown(
           hint: AppLocalizations.of(context)!.chooseFromMyListing,
@@ -269,7 +266,6 @@ class _FoodSwapRequestState extends State<FoodSwapRequest> {
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,
-
                 errorWidget: (context, url, error) => Icon(Icons.image),
               ),
             ),

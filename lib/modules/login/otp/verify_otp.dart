@@ -5,7 +5,7 @@ import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/services/auth_services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String phoneNumber;
@@ -82,7 +82,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: saverAppBar(AppLocalizations.of(context)!.verifyPhoneNumber, context, isneedtopop: true),
+      appBar: saverAppBar(
+          AppLocalizations.of(context)!.verifyPhoneNumber, context,
+          isneedtopop: true),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -170,7 +172,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               const SizedBox(height: 30),
               SizedBox(
                 width: double.infinity,
-                child: SaverButton(text: AppLocalizations.of(context)!.verify, onPressed: verifyOTP),
+                child: SaverButton(
+                    text: AppLocalizations.of(context)!.verify,
+                    onPressed: verifyOTP),
               ),
             ],
           ),

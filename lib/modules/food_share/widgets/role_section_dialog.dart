@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class RoleSelectionDialog extends StatefulWidget {
   final Function(bool isDonor) onRoleSelected;
@@ -143,16 +143,15 @@ class _RoleSelectionDialogState extends State<RoleSelectionDialog>
             color: isSelected ? AppColor.primaryColor : Colors.transparent,
             width: 2,
           ),
-          boxShadow:
-              isSelected
-                  ? [
-                    BoxShadow(
-                      color: AppColor.primaryColor.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: Offset(0, 3),
-                    ),
-                  ]
-                  : [],
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppColor.primaryColor.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: Offset(0, 3),
+                  ),
+                ]
+              : [],
         ),
         child: Column(
           children: [

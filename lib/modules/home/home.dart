@@ -18,7 +18,7 @@ import 'package:saver_bbk_main/modules/zero_waste_cooking/zero_waste_cooking_pag
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/services/initilize_notification.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 class MainScreen extends StatefulWidget {
   final int currentIndex;
