@@ -24,6 +24,9 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     on<UpdateMessagesEvent>(_onUpdateMessages);
     on<ReportUserEvent>(_onReportUserEvent);
     on<ClearCommunityStateEvent>(_onClearCommunityStateEvent);
+    on<BlockUserEvent>(_onBlockUser);
+    on<UnblockUserEvent>(_onUnblockUser);
+    on<CheckBlockStatusEvent>(_onCheckBlockStatus);
     add(LoadChatRoomsEvent());
   }
 
@@ -159,6 +162,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       emit(state.copyWith(status: ChatStatus.loading));
       String? chatRoomId;
       String currentUID = Services.uid ?? '';
+
       if (event.receiverUid != null) {
         chatRoomId = await ChatServices.getOrCreateChatRoom(
           event.receiverUid ?? "",
@@ -166,6 +170,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
       } else if (event.roomId != null) {
         chatRoomId = event.roomId;
       }
+
       if (chatRoomId != null) {
         // Extract receiver UID from chat room ID if not provided
         final String receiverUid = event.receiverUid ??
@@ -179,13 +184,22 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
               return "";
             })();
 
+        // ✅ CHECK BLOCK STATUS IMMEDIATELY
+        final isBlocked = await ChatServices.isUserBlocked(
+          chatRoomId,
+          receiverUid,
+        );
+
         emit(
           state.copyWith(
             currentChatRoomId: chatRoomId,
             currentReceiverUid: receiverUid,
             status: ChatStatus.goToChatPage,
+            isBlockedByMe: isBlocked, // ✅ Set block status immediately
+            blockedUserId: isBlocked ? receiverUid : null,
           ),
         );
+
         if (event.isFoodSwapped ||
             event.isFromDonations ||
             event.isFromBeneficiary) {
@@ -200,6 +214,7 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
             event.localizedMessages!,
           );
         }
+
         Future.delayed(
           const Duration(milliseconds: 500),
         ).then((value) => add(LoadMessagesEvent()));
@@ -374,7 +389,18 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
     await _chatRoomsSubscription?.cancel();
     await _messagesSubscription?.cancel();
 
-    emit(const CommunityState());
+    emit(const CommunityState(
+      chatRooms: [],
+      userDetails: {},
+      currentChatRoomId: null,
+      currentReceiverUid: null,
+      messages: [],
+      status: ChatStatus.initial,
+      errorMessage: null,
+      isBlockedByMe: false,
+      isBlockedByOther: false,
+      blockedUserId: null,
+    ));
   }
 
   void _onReportUserEvent(
@@ -522,6 +548,66 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
         type: 'message',
         reciversUid: receiverUID,
       );
+    }
+  }
+
+  Future<void> _onBlockUser(
+    BlockUserEvent event,
+    Emitter<CommunityState> emit,
+  ) async {
+    try {
+      await ChatServices.blockUser(event.chatRoomId, event.blockedUserId);
+
+      emit(state.copyWith(
+        isBlockedByMe: true,
+        blockedUserId: event.blockedUserId,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        status: ChatStatus.error,
+        errorMessage: 'Failed to block user: ${e.toString()}',
+      ));
+    }
+  }
+
+  Future<void> _onUnblockUser(
+    UnblockUserEvent event,
+    Emitter<CommunityState> emit,
+  ) async {
+    try {
+      await ChatServices.unblockUser(event.chatRoomId, event.blockedUserId);
+
+      emit(state.copyWith(
+        isBlockedByMe: false,
+        blockedUserId: null, // This will now properly set to null
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        status: ChatStatus.error,
+        errorMessage: 'Failed to unblock user: ${e.toString()}',
+      ));
+    }
+  }
+
+  Future<void> _onCheckBlockStatus(
+    CheckBlockStatusEvent event,
+    Emitter<CommunityState> emit,
+  ) async {
+    try {
+      final isBlocked = await ChatServices.isUserBlocked(
+        event.chatRoomId,
+        event.otherUserId,
+      );
+
+      emit(state.copyWith(
+        isBlockedByMe: isBlocked,
+        blockedUserId: isBlocked ? event.otherUserId : null,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        status: ChatStatus.error,
+        errorMessage: 'Failed to check block status: ${e.toString()}',
+      ));
     }
   }
 }

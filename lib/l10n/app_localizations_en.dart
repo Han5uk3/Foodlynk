@@ -103,6 +103,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseSelectADateOfBirth => 'Please select a date of birth';
 
   @override
+  String get pleaseSelectFoodTypeAndLocation =>
+      'Please select food type and location';
+
+  @override
+  String get selectFoodType => 'Select Food Type';
+
+  @override
   String get saveFoodSaveMoneySaveThePlanet =>
       'Save Food, Save Money, Save the Planet!';
 
@@ -265,9 +272,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterItemName => 'Enter Item Name';
 
   @override
-  String get quantity => 'Quantity';
-
-  @override
   String get category => 'Category';
 
   @override
@@ -328,7 +332,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseSelectAList => 'please selecct a list';
 
   @override
-  String get addToList => 'Add to List';
+  String get addToList => 'Add to list';
 
   @override
   String get shoppingLists => 'Shopping Lists';
@@ -488,13 +492,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get seafood => 'Seafood';
 
   @override
-  String get selectFoodType => 'Select food type';
-
-  @override
   String get numberOfServes => 'Number of Serves';
-
-  @override
-  String get enterNumberOfServes => 'Enter number of serves';
 
   @override
   String get descriptionAndExpiry => 'Description & Expiry';
@@ -511,9 +509,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get foodImage => 'Food Image';
-
-  @override
-  String get termsAndConditions => 'Terms & Conditions';
 
   @override
   String get iCertifyThatTheFood =>
@@ -597,10 +592,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterMobileNumber => 'EnterMobileNumber';
 
   @override
-  String get pleaseSelectFoodTypeAndLocation =>
-      'Please Select food type and location';
-
-  @override
   String get receivedOn => 'Recevied On,available';
 
   @override
@@ -628,6 +619,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get requestSwap => 'Request Swap';
+
+  @override
+  String get quantity => 'Quantity';
 
   @override
   String get foodSwapRequest => 'Food Swap Request';
@@ -690,9 +684,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get areYouSureWantToDeletThisItem =>
       'Are you sure you want to delete this item? This action cannot be undone.';
-
-  @override
-  String get delete => 'delete';
 
   @override
   String get generateNewRecipe => 'Generate New Recepie';
@@ -787,6 +778,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get password => 'Password';
+
+  @override
+  String get termsAndConditions => 'Terms & Conditions';
 
   @override
   String get deleteProfile => 'Delete Profile';
@@ -1180,6 +1174,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chooseFromMyListing => 'Choose from my listing';
 
   @override
+  String get delete => 'delete';
+
+  @override
   String get checkingAccount => 'Checking account...';
 
   @override
@@ -1337,6 +1334,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get howManyPeopleAreYouServing => 'How many people are you serving?';
 
   @override
+  String get enterNumberOfServes => 'Enter number of serves';
+
+  @override
   String get generateList => 'Generate List';
 
   @override
@@ -1360,4 +1360,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ingredients => 'Ingredients';
+
+  @override
+  String get unblockToSendMessages => 'Unblock to send messages';
+
+  @override
+  String get youBlockedThisUser => 'You blocked this user';
+
+  @override
+  String get unblockUser => 'Unblock User';
+
+  @override
+  String get block => 'Block';
+
+  @override
+  String get unblock => 'Unblock';
+
+  @override
+  String get report => 'Report';
+
+  @override
+  String get blockUser => 'Block User';
+
+  @override
+  String get blockUserConfirmation =>
+      'Are you sure you want to block this user? You won\'t be able to send or receive messages.';
+
+  @override
+  String get unblockUserConfirmation =>
+      'Are you sure you want to unblock this user? You will be able to send and receive messages again.';
+
+  @override
+  String get userBlockedSuccessfully => 'User blocked successfully';
+
+  @override
+  String get userUnblockedSuccessfully => 'User unblocked successfully';
+
+  @override
+  String get reportSubmittedSuccessfully => 'Report submitted successfully';
 }

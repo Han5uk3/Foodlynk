@@ -102,6 +102,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pleaseSelectADateOfBirth => 'يرجى تحديد تاريخ الميلاد';
 
   @override
+  String get pleaseSelectFoodTypeAndLocation => 'يرجى تحديد نوع الطعام والموقع';
+
+  @override
+  String get selectFoodType => 'حدد نوع الطعام';
+
+  @override
   String get saveFoodSaveMoneySaveThePlanet =>
       ' وفر الطعام، وفر الفلوس,واحفظ كوكبنا!';
 
@@ -178,7 +184,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get uploading => 'جارٍ الرفع';
 
   @override
-  String get processing => 'Processing';
+  String get processing => 'جاري التحقق';
 
   @override
   String get uploadBeforeImage => ' “ قم بتحميل صورة قبل الاكل';
@@ -190,7 +196,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get submitChallenge => 'قدّم التحدي';
 
   @override
-  String get submitting => 'Submitting...';
+  String get submitting => 'جاري الاحتساب';
 
   @override
   String get beforeImageUploadedSuccessfully => 'تم رفع صورة قبل الاكل بنجاح!';
@@ -260,9 +266,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get enterItemName => 'أدخل اسم العنصر';
 
   @override
-  String get quantity => 'كمية';
-
-  @override
   String get category => 'فئة';
 
   @override
@@ -293,7 +296,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get moveToShopping => 'اذهب إلى التسوق';
 
   @override
-  String get removeFromList => 'Remove from list';
+  String get removeFromList => 'حذف من القائمة';
 
   @override
   String get itemRemoved => 'تم الغاء العنصر';
@@ -483,13 +486,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get seafood => 'المأكولات البحرية';
 
   @override
-  String get selectFoodType => 'حدد نوع الطعام';
-
-  @override
   String get numberOfServes => 'الكمية تكفي لـ ';
-
-  @override
-  String get enterNumberOfServes => 'أدخل عدد الحصص';
 
   @override
   String get descriptionAndExpiry => 'الوصف و تاريخ الانتهاء';
@@ -506,9 +503,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get foodImage => 'صورة الطعام';
-
-  @override
-  String get termsAndConditions => 'الشروط والأحكام';
 
   @override
   String get iCertifyThatTheFood =>
@@ -553,7 +547,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get youHaveZeroPendingRequest => 'لديك 0 طلبات معلقة';
 
   @override
-  String get pending => 'Pending';
+  String get pending => 'قيد الانتظار';
 
   @override
   String get addBeneficairy => 'إضافة المستفيد';
@@ -590,9 +584,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get enterMobileNumber => 'أدخل رقم الجوال';
 
   @override
-  String get pleaseSelectFoodTypeAndLocation => 'يرجى تحديد نوع الطعام والموقع';
-
-  @override
   String get receivedOn => 'تم الاستلام على';
 
   @override
@@ -622,6 +613,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get requestSwap => 'طلب المبادلة';
 
   @override
+  String get quantity => 'كمية';
+
+  @override
   String get foodSwapRequest => 'طلب تبديل الطعام';
 
   @override
@@ -637,7 +631,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get selectDate => 'اختر التاريخ';
 
   @override
-  String get cancel => 'الغاء';
+  String get cancel => 'إلغاء';
 
   @override
   String get ok => 'نعم';
@@ -682,9 +676,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get areYouSureWantToDeletThisItem =>
       'هل أنت متأكد من رغبتك في حذف هذا العنصر؟ هذا الإجراء لا يمكن التراجع عنه.';
-
-  @override
-  String get delete => 'مسح';
 
   @override
   String get generateNewRecipe => 'إنشاء وصفة جديدة';
@@ -782,6 +773,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get password => 'كلمة المرور';
 
   @override
+  String get termsAndConditions => 'الشروط والأحكام';
+
+  @override
   String get deleteProfile => 'حذف الملف الشخصي';
 
   @override
@@ -868,7 +862,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'يرجى قبول الشروط والأحكام الخاصة بنا';
 
   @override
-  String get requestedOn => 'Requested on';
+  String get requestedOn => 'تم الطلب في';
 
   @override
   String get accept => 'قبول';
@@ -931,13 +925,13 @@ class AppLocalizationsAr extends AppLocalizations {
       'يرجى إدخال عنوان بريد إلكتروني صالح';
 
   @override
-  String get sendingResetLink => 'Sending reset link..';
+  String get sendingResetLink => 'جاري ارسال رابط استعادة كلمة المرور';
 
   @override
   String get learnAndSave => 'تعلم وحفظ';
 
   @override
-  String get languageChangedToArabic => 'Language changed to arabic';
+  String get languageChangedToArabic => 'تم تغيير اللغة الى العربية';
 
   @override
   String get youveConsumed => 'لقد استهلكت';
@@ -1175,6 +1169,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chooseFromMyListing => 'اختر من قائمتي';
 
   @override
+  String get delete => 'مسح';
+
+  @override
   String get checkingAccount => 'جارٍ التحقق من الحساب...';
 
   @override
@@ -1334,6 +1331,9 @@ class AppLocalizationsAr extends AppLocalizations {
       'كم عدد الأشخاص الذين تخطط لتقديم الوجبة لهم؟';
 
   @override
+  String get enterNumberOfServes => 'أدخل عدد الحصص';
+
+  @override
   String get generateList => 'إنشاء القائمة';
 
   @override
@@ -1357,4 +1357,42 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get ingredients => 'المكونات';
+
+  @override
+  String get unblockToSendMessages => 'قم بإلغاء الحظر لإرسال الرسائل';
+
+  @override
+  String get youBlockedThisUser => 'لقد قمت بحظر هذا المستخدم';
+
+  @override
+  String get unblockUser => 'إلغاء حظر المستخدم';
+
+  @override
+  String get block => 'حظر';
+
+  @override
+  String get unblock => 'اظهار';
+
+  @override
+  String get report => 'إبلاغ';
+
+  @override
+  String get blockUser => 'حظر المستخدم';
+
+  @override
+  String get blockUserConfirmation =>
+      'هل أنت متأكد من حظر هذا المستخدم؟ لن تتمكن من إرسال أو استقبال الرسائل.';
+
+  @override
+  String get unblockUserConfirmation =>
+      'هل أنت متأكد من إلغاء حظر هذا المستخدم؟ ستتمكن من إرسال واستقبال الرسائل مرة أخرى.';
+
+  @override
+  String get userBlockedSuccessfully => 'تم حظر المستخدم بنجاح';
+
+  @override
+  String get userUnblockedSuccessfully => 'تم إلغاء حظر المستخدم بنجاح';
+
+  @override
+  String get reportSubmittedSuccessfully => 'تم إرسال البلاغ بنجاح';
 }

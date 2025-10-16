@@ -64,4 +64,127 @@ class ChatServices {
       'unread_count/$currentUserUid': 0,
     });
   }
+
+  static Future<void> blockUser(
+    String chatRoomId,
+    String blockedUserId,
+  ) async {
+    try {
+      final String currentUserUID = auth.currentUser!.uid;
+      final chatRef = database.ref().child('chats').child(chatRoomId);
+      
+      // Add blocked user to the blockedUsers map
+      await chatRef.child('blockedUsers').child(currentUserUID).set({
+        'blockedUserId': blockedUserId,
+        'blockedAt': ServerValue.timestamp,
+      });
+
+      if (kDebugMode) {
+        print('User $blockedUserId blocked successfully in chat $chatRoomId');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error blocking user: $e');
+      }
+      rethrow;
+    }
+  }
+
+  /// Unblock a user in a specific chat room
+  static Future<void> unblockUser(
+    String chatRoomId,
+    String blockedUserId,
+  ) async {
+    try {
+      final String currentUserUID = auth.currentUser!.uid;
+      final chatRef = database.ref().child('chats').child(chatRoomId);
+      
+      // Remove blocked user from the blockedUsers map
+      await chatRef.child('blockedUsers').child(currentUserUID).remove();
+
+      if (kDebugMode) {
+        print('User $blockedUserId unblocked successfully in chat $chatRoomId');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error unblocking user: $e');
+      }
+      rethrow;
+    }
+  }
+
+  /// Check if current user has blocked another user in a chat room
+  static Future<bool> isUserBlocked(
+    String chatRoomId,
+    String otherUserId,
+  ) async {
+    try {
+      final String currentUserUID = auth.currentUser!.uid;
+      final chatRef = database.ref().child('chats').child(chatRoomId);
+      
+      final snapshot = await chatRef
+          .child('blockedUsers')
+          .child(currentUserUID)
+          .get();
+
+      if (snapshot.exists) {
+        final data = snapshot.value as Map?;
+        return data?['blockedUserId'] == otherUserId;
+      }
+      return false;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error checking block status: $e');
+      }
+      return false;
+    }
+  }
+
+  /// Stream to listen for block status changes
+  static Stream<bool> watchBlockStatus(
+    String chatRoomId,
+    String otherUserId,
+  ) {
+    final String currentUserUID = auth.currentUser!.uid;
+    final chatRef = database.ref().child('chats').child(chatRoomId);
+    
+    return chatRef
+        .child('blockedUsers')
+        .child(currentUserUID)
+        .onValue
+        .map((event) {
+      if (event.snapshot.exists) {
+        final data = event.snapshot.value as Map?;
+        return data?['blockedUserId'] == otherUserId;
+      }
+      return false;
+    });
+  }
+
+  /// Check if current user is blocked by another user
+  static Future<bool> isBlockedByOtherUser(
+    String chatRoomId,
+    String otherUserId,
+  ) async {
+    try {
+      final chatRef = database.ref().child('chats').child(chatRoomId);
+      
+      final snapshot = await chatRef
+          .child('blockedUsers')
+          .child(otherUserId)
+          .get();
+
+      if (snapshot.exists) {
+        final String currentUserUID = auth.currentUser!.uid;
+        final data = snapshot.value as Map?;
+        return data?['blockedUserId'] == currentUserUID;
+      }
+      return false;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error checking if blocked by other user: $e');
+      }
+      return false;
+    }
+  }
 }

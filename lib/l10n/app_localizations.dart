@@ -284,6 +284,18 @@ abstract class AppLocalizations {
   /// **'Please select a date of birth'**
   String get pleaseSelectADateOfBirth;
 
+  /// No description provided for @pleaseSelectFoodTypeAndLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select food type and location'**
+  String get pleaseSelectFoodTypeAndLocation;
+
+  /// No description provided for @selectFoodType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Food Type'**
+  String get selectFoodType;
+
   /// No description provided for @saveFoodSaveMoneySaveThePlanet.
   ///
   /// In en, this message translates to:
@@ -584,12 +596,6 @@ abstract class AppLocalizations {
   /// **'Enter Item Name'**
   String get enterItemName;
 
-  /// No description provided for @quantity.
-  ///
-  /// In en, this message translates to:
-  /// **'Quantity'**
-  String get quantity;
-
   /// No description provided for @category.
   ///
   /// In en, this message translates to:
@@ -713,7 +719,7 @@ abstract class AppLocalizations {
   /// No description provided for @addToList.
   ///
   /// In en, this message translates to:
-  /// **'Add to List'**
+  /// **'Add to list'**
   String get addToList;
 
   /// No description provided for @shoppingLists.
@@ -1028,23 +1034,11 @@ abstract class AppLocalizations {
   /// **'Seafood'**
   String get seafood;
 
-  /// No description provided for @selectFoodType.
-  ///
-  /// In en, this message translates to:
-  /// **'Select food type'**
-  String get selectFoodType;
-
   /// No description provided for @numberOfServes.
   ///
   /// In en, this message translates to:
   /// **'Number of Serves'**
   String get numberOfServes;
-
-  /// No description provided for @enterNumberOfServes.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter number of serves'**
-  String get enterNumberOfServes;
 
   /// No description provided for @descriptionAndExpiry.
   ///
@@ -1075,12 +1069,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Food Image'**
   String get foodImage;
-
-  /// No description provided for @termsAndConditions.
-  ///
-  /// In en, this message translates to:
-  /// **'Terms & Conditions'**
-  String get termsAndConditions;
 
   /// No description provided for @iCertifyThatTheFood.
   ///
@@ -1232,12 +1220,6 @@ abstract class AppLocalizations {
   /// **'EnterMobileNumber'**
   String get enterMobileNumber;
 
-  /// No description provided for @pleaseSelectFoodTypeAndLocation.
-  ///
-  /// In en, this message translates to:
-  /// **'Please Select food type and location'**
-  String get pleaseSelectFoodTypeAndLocation;
-
   /// No description provided for @receivedOn.
   ///
   /// In en, this message translates to:
@@ -1291,6 +1273,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Request Swap'**
   String get requestSwap;
+
+  /// No description provided for @quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get quantity;
 
   /// No description provided for @foodSwapRequest.
   ///
@@ -1411,12 +1399,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to delete this item? This action cannot be undone.'**
   String get areYouSureWantToDeletThisItem;
-
-  /// No description provided for @delete.
-  ///
-  /// In en, this message translates to:
-  /// **'delete'**
-  String get delete;
 
   /// No description provided for @generateNewRecipe.
   ///
@@ -1597,6 +1579,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Password'**
   String get password;
+
+  /// No description provided for @termsAndConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms & Conditions'**
+  String get termsAndConditions;
 
   /// No description provided for @deleteProfile.
   ///
@@ -2348,6 +2336,12 @@ abstract class AppLocalizations {
   /// **'Choose from my listing'**
   String get chooseFromMyListing;
 
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'delete'**
+  String get delete;
+
   /// No description provided for @checkingAccount.
   ///
   /// In en, this message translates to:
@@ -2630,6 +2624,12 @@ abstract class AppLocalizations {
   /// **'How many people are you serving?'**
   String get howManyPeopleAreYouServing;
 
+  /// No description provided for @enterNumberOfServes.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter number of serves'**
+  String get enterNumberOfServes;
+
   /// No description provided for @generateList.
   ///
   /// In en, this message translates to:
@@ -2677,6 +2677,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ingredients'**
   String get ingredients;
+
+  /// No description provided for @unblockToSendMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock to send messages'**
+  String get unblockToSendMessages;
+
+  /// No description provided for @youBlockedThisUser.
+  ///
+  /// In en, this message translates to:
+  /// **'You blocked this user'**
+  String get youBlockedThisUser;
+
+  /// No description provided for @unblockUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock User'**
+  String get unblockUser;
+
+  /// No description provided for @block.
+  ///
+  /// In en, this message translates to:
+  /// **'Block'**
+  String get block;
+
+  /// No description provided for @unblock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock'**
+  String get unblock;
+
+  /// No description provided for @report.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get report;
+
+  /// No description provided for @blockUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Block User'**
+  String get blockUser;
+
+  /// No description provided for @blockUserConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to block this user? You won\'t be able to send or receive messages.'**
+  String get blockUserConfirmation;
+
+  /// No description provided for @unblockUserConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to unblock this user? You will be able to send and receive messages again.'**
+  String get unblockUserConfirmation;
+
+  /// No description provided for @userBlockedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'User blocked successfully'**
+  String get userBlockedSuccessfully;
+
+  /// No description provided for @userUnblockedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'User unblocked successfully'**
+  String get userUnblockedSuccessfully;
+
+  /// No description provided for @reportSubmittedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Report submitted successfully'**
+  String get reportSubmittedSuccessfully;
 }
 
 class _AppLocalizationsDelegate

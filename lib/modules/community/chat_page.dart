@@ -41,7 +41,17 @@ class _ChatPageState extends State<ChatPage> {
           roomId: widget.chatRoomId,
         ),
       );
+    } else {
+      // Check block status immediately if not initializing
+      final roomId =
+          widget.chatRoomId ?? _communityBloc.state.currentChatRoomId;
+      final receiverUid = _communityBloc.state.currentReceiverUid;
+
+      if (roomId != null && receiverUid != null) {
+        _communityBloc.add(CheckBlockStatusEvent(roomId, receiverUid));
+      }
     }
+
     _messageController.addListener(_handleTextChange);
   }
 
@@ -78,6 +88,16 @@ class _ChatPageState extends State<ChatPage> {
     String? receiverName,
     String? receiverUid,
   ) {
+    // Check if user is blocked
+    if (_communityBloc.state.isBlockedByMe) {
+      SaverSnackBar.show(
+        context: context,
+        message: 'Cannot send messages. You have blocked this user.',
+        isTrue: false,
+      );
+      return;
+    }
+
     final message = _messageController.text.trim();
     if (message.isNotEmpty) {
       _communityBloc.add(
@@ -92,8 +112,243 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _reportUser(String reportedUID, String reportReason) {
-    _communityBloc.add(ReportUserEvent(reportedUID, reportReason));
+  // Show block confirmation dialog
+  // Show block confirmation dialog with modern UI
+  Future<void> _showBlockConfirmationDialog(
+      String userId, String roomId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          contentPadding: const EdgeInsets.all(24),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.block,
+                  size: 48,
+                  color: Colors.red.shade400,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Title
+              Text(
+                AppLocalizations.of(context)!.blockUser,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+
+              // Description
+              Text(
+                AppLocalizations.of(context)!.blockUserConfirmation,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey.shade600,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        side: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.cancel,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.block,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      _blockUser(userId, roomId);
+    }
+  }
+
+// Show unblock confirmation dialog with modern UI
+  Future<void> _showUnblockConfirmationDialog(
+      String userId, String roomId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          contentPadding: const EdgeInsets.all(24),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.check_circle_outline,
+                  size: 48,
+                  color: Colors.green.shade400,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Title
+              Text(
+                AppLocalizations.of(context)!.unblockUser,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+
+              // Description
+              Text(
+                AppLocalizations.of(context)!.unblockUserConfirmation,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey.shade600,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        side: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.cancel,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.unblock,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      _unblockUser(userId, roomId);
+    }
+  }
+
+  void _blockUser(String userId, String roomId) {
+    _communityBloc.add(BlockUserEvent(userId, roomId));
+    SaverSnackBar.show(
+      context: context,
+      message: AppLocalizations.of(context)!.userBlockedSuccessfully,
+      isTrue: true,
+    );
+  }
+
+  void _unblockUser(String userId, String roomId) {
+    _communityBloc.add(UnblockUserEvent(userId, roomId));
+    SaverSnackBar.show(
+      context: context,
+      message: AppLocalizations.of(context)!.userUnblockedSuccessfully,
+      isTrue: true,
+    );
   }
 
   @override
@@ -112,25 +367,39 @@ class _ChatPageState extends State<ChatPage> {
           iswhite: true,
           onpop: () => _navigateToMainScreen(),
           actions: [
-            IconButton(
-              onPressed: () {
-                _reportUser(
-                  _communityBloc.state.currentReceiverUid ?? '',
-                  'Inappropriate content',
+            BlocBuilder<CommunityBloc, CommunityState>(
+              buildWhen: (previous, current) =>
+                  previous.isBlockedByMe != current.isBlockedByMe,
+              builder: (context, state) {
+                if (state.isBlockedByMe) {
+                  return const SizedBox.shrink();
+                }
+                return IconButton(
+                  icon: Icon(
+                    state.isBlockedByMe
+                        ? Icons.check_circle_outline
+                        : Icons.block,
+                    color: state.isBlockedByMe ? Colors.white : Colors.red,
+                  ),
+                  onPressed: () {
+                    final roomId = widget.chatRoomId ?? state.currentChatRoomId;
+                    final receiverUid = state.currentReceiverUid ?? '';
+
+                    if (state.isBlockedByMe) {
+                    } else {
+                      _showBlockConfirmationDialog(receiverUid, roomId ?? '');
+                    }
+                  },
                 );
-                SaverSnackBar.show(
-                    context: context,
-                    message: 'Report submitted successfully',
-                    isTrue: true);
               },
-              icon: const Icon(Icons.flag_outlined),
             ),
           ],
         ),
         body: BlocBuilder<CommunityBloc, CommunityState>(
           buildWhen: (previous, current) =>
               previous.status != current.status ||
-              previous.errorMessage != current.errorMessage,
+              previous.errorMessage != current.errorMessage ||
+              previous.isBlockedByMe != current.isBlockedByMe,
           builder: (context, state) {
             if (state.status == ChatStatus.loading) {
               return const Center(child: SaverLoader());
@@ -142,6 +411,18 @@ class _ChatPageState extends State<ChatPage> {
                 ),
               );
             }
+
+            // Show blocked state UI
+            if (state.isBlockedByMe) {
+              return _BlockedUserView(
+                onUnblock: () {
+                  final roomId = widget.chatRoomId ?? state.currentChatRoomId;
+                  final receiverUid = state.currentReceiverUid ?? '';
+                  _showUnblockConfirmationDialog(receiverUid, roomId ?? '');
+                },
+              );
+            }
+
             return Column(
               children: [
                 _ChatHeader(),
@@ -164,6 +445,70 @@ class _ChatPageState extends State<ChatPage> {
               ],
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+// Blocked User View Widget
+class _BlockedUserView extends StatelessWidget {
+  final VoidCallback onUnblock;
+
+  const _BlockedUserView({required this.onUnblock});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.block,
+              size: 80,
+              color: Colors.grey.shade400,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              AppLocalizations.of(context)!.youBlockedThisUser,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              AppLocalizations.of(context)!.unblockToSendMessages,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: onUnblock,
+              icon: const Icon(Icons.check_circle_outline),
+              label: Text(
+                AppLocalizations.of(context)!.unblockUser,
+                style: const TextStyle(fontSize: 16),
+              ),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 12,
+                ),
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

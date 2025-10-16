@@ -1,7 +1,7 @@
 name: saver_bbk_main
 description: "A new Flutter project."
 publish_to: "none"
-version: 1.0.5+5
+version: 1.0.7+7
 
 environment:
   sdk: ">=3.6.0 <4.0.0"

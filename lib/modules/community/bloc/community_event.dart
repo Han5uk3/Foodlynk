@@ -85,3 +85,34 @@ class ReportUserEvent extends CommunityEvent {
   @override
   List<Object> get props => [reportedUID, reportReason];
 }
+
+class BlockUserEvent extends CommunityEvent {
+  final String blockedUserId;
+  final String chatRoomId;
+  
+  const BlockUserEvent(this.blockedUserId, this.chatRoomId);
+  
+  @override
+  List<Object> get props => [blockedUserId, chatRoomId];
+}
+
+class UnblockUserEvent extends CommunityEvent {
+  final String blockedUserId;
+  final String chatRoomId;
+  
+  const UnblockUserEvent(this.blockedUserId, this.chatRoomId);
+  
+  @override
+  List<Object> get props => [blockedUserId, chatRoomId];
+}
+
+class CheckBlockStatusEvent extends CommunityEvent {
+  final String chatRoomId;
+  final String otherUserId;
+  
+  const CheckBlockStatusEvent(this.chatRoomId, this.otherUserId);
+  
+  @override
+  List<Object> get props => [chatRoomId, otherUserId];
+}
+
