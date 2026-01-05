@@ -8,7 +8,8 @@ import 'package:saver_bbk_main/models/smart_recipe_model.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 
 class AppApis {
-  static final String apiUrl = "https://saver-app-2ae53.uc.r.appspot.com";
+  static final String apiUrl =
+      "https://us-central1-saver-app-2ae53.cloudfunctions.net/api";
   Future<GenaratedProteinPlanModel> generateProteinPlan(
     String whatareyoucooking,
     String towhomareyoucooking,
@@ -18,8 +19,7 @@ class AppApis {
     String weight,
     bool isDieting,
   ) async {
-    final url =
-        Uri.parse("$apiUrl/api-features/generate-protein-plan");
+    final url = Uri.parse("$apiUrl/api-features/generate-protein-plan");
     try {
       final response = await http.post(
         url,
@@ -111,33 +111,35 @@ class AppApis {
   }
 
   Future<bool> comapreOnePlate(String beforeImage) async {
-    final url = Uri.parse("$apiUrl/api-features/compareOnePlate");
+    final url = Uri.parse(
+        "https://food-detection-api-292560943319.us-central1.run.app/classify");
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'imageUrl': beforeImage}),
+      body: jsonEncode({'image_url': beforeImage}),
     );
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
-      return json['status'];
+      return json['status'] ?? false;
     } else {
       throw Exception('Failed to compare one plate: ${response.statusCode}');
     }
   }
 
   Future<bool> compareTwoPlates(String beforeImage, String afterImage) async {
-    final url = Uri.parse("$apiUrl/api-features/comparePlate");
+    final url = Uri.parse(
+        "https://food-detection-api-292560943319.us-central1.run.app/compare");
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'firstImageUrl': beforeImage,
-        'secondImageUrl': afterImage,
+        'image_url1': beforeImage,
+        'image_url2': afterImage,
       }),
     );
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
-      return json['status'];
+      return json['status'] ?? false;
     } else {
       throw Exception('Failed to compare two plates: ${response.statusCode}');
     }

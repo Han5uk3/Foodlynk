@@ -1,0 +1,7 @@
+Flask
+opencv-python-headless
+numpy
+requests
+gunicorn
+waitress
+opencv-python

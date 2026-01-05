@@ -1,10 +1,6 @@
 var admin = require("firebase-admin");
 const functions = require("firebase-functions/v1");
-const path = require("path");
-var serviceAccountProduction = require(path.join(
-  __dirname,
-  "saver-app-2ae53-firebase-adminsdk-fbsvc-411d629523.json"
-));
+
 admin.initializeApp();
 
 exports.checkExpired = functions.pubsub

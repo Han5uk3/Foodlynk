@@ -1,0 +1,72 @@
+{
+  "status": "success",
+  "result": [
+    {
+      "platform": "gcfv2",
+      "id": "api",
+      "project": "saver-app-2ae53",
+      "region": "us-central1",
+      "httpsTrigger": {},
+      "entryPoint": "api",
+      "runtime": "nodejs22",
+      "source": {
+        "storageSource": {
+          "bucket": "gcf-v2-sources-97691650237-us-central1",
+          "object": "api/function-source.zip",
+          "generation": "1767612854336804"
+        }
+      },
+      "ingressSettings": "ALLOW_ALL",
+      "environmentVariables": {
+        "FIREBASE_CONFIG": "{\"projectId\":\"saver-app-2ae53\",\"databaseURL\":\"https://saver-app-2ae53-default-rtdb.firebaseio.com\",\"storageBucket\":\"saver-app-2ae53.firebasestorage.app\"}",
+        "GCLOUD_PROJECT": "saver-app-2ae53",
+        "EVENTARC_CLOUD_EVENT_SOURCE": "projects/saver-app-2ae53/locations/us-central1/services/api",
+        "FUNCTION_TARGET": "api",
+        "LOG_EXECUTION_ID": "true"
+      },
+      "timeoutSeconds": 300,
+      "uri": "https://us-central1-saver-app-2ae53.cloudfunctions.net/api",
+      "serviceAccount": "97691650237-compute@developer.gserviceaccount.com",
+      "availableMemoryMb": 256,
+      "cpu": 1,
+      "concurrency": 80,
+      "labels": {
+        "deployment-tool": "cli-firebase",
+        "firebase-functions-codebase": "api",
+        "firebase-functions-hash": "951575d4ec6559ab5b43ff6324b9218279e9c9c3"
+      },
+      "runServiceId": "api",
+      "codebase": "api",
+      "hash": "951575d4ec6559ab5b43ff6324b9218279e9c9c3",
+      "state": "ACTIVE"
+    },
+    {
+      "platform": "gcfv1",
+      "id": "checkExpired",
+      "project": "saver-app-2ae53",
+      "region": "us-central1",
+      "scheduleTrigger": {},
+      "entryPoint": "checkExpired",
+      "runtime": "nodejs22",
+      "maxInstances": 3000,
+      "ingressSettings": "ALLOW_ALL",
+      "labels": {
+        "deployment-tool": "cli-firebase",
+        "deployment-scheduled": "true",
+        "firebase-functions-hash": "706a76fcad241ce14ba0046ef94b074a2e78f68b"
+      },
+      "environmentVariables": {
+        "FIREBASE_CONFIG": "{\"projectId\":\"saver-app-2ae53\",\"databaseURL\":\"https://saver-app-2ae53-default-rtdb.firebaseio.com\",\"storageBucket\":\"saver-app-2ae53.firebasestorage.app\"}",
+        "GCLOUD_PROJECT": "saver-app-2ae53",
+        "EVENTARC_CLOUD_EVENT_SOURCE": "projects/saver-app-2ae53/locations/us-central1/functions/checkExpired"
+      },
+      "sourceUploadUrl": "https://storage.googleapis.com/uploads-884445841532.us-central1.cloudfunctions.appspot.com/28fcdf78-728a-4e27-b9ce-d8cf5ff0609e.zip",
+      "serviceAccount": "saver-app-2ae53@appspot.gserviceaccount.com",
+      "availableMemoryMb": 256,
+      "timeoutSeconds": 60,
+      "codebase": "default",
+      "hash": "706a76fcad241ce14ba0046ef94b074a2e78f68b",
+      "state": "ACTIVE"
+    }
+  ]
+}
