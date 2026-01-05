@@ -69,7 +69,7 @@ class TermsAndConditionsPage extends StatelessWidget {
               ),
               SizedBox(height: 12),
               Text(
-                "${AppLocalizations.of(context)!.email}: niema.kw@gmail.com",
+                "${AppLocalizations.of(context)!.email}: kpshakir@gmail.com",
                 style: TextStyle(color: AppColor.lightGrey200, fontSize: 14),
               ),
               SizedBox(height: 80),

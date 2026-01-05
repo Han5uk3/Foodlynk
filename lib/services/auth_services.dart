@@ -15,14 +15,14 @@ class AuthServices {
   static void verifyPhoneNumber(BuildContext context, String number) async {
     showLoadingDialog(context, AppLocalizations.of(context)!.sendingOtp);
     await _firebaseAuth.verifyPhoneNumber(
-      phoneNumber: '+965 $number',
+      phoneNumber: '+91 $number',
       verificationCompleted: (PhoneAuthCredential credential) {
         Navigator.pop(context);
         signInWithPhoneNumber(
           context,
           credential.verificationId!,
           credential.smsCode!,
-          '+965 $number',
+          '+91 $number',
         );
       },
       verificationFailed: (FirebaseAuthException e) {

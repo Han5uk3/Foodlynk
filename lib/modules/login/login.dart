@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:saver_bbk_main/common_widget/button.dart';
-import 'package:saver_bbk_main/common_widget/localization.dart';
+// import 'package:saver_bbk_main/common_widget/localization.dart';
 import 'package:saver_bbk_main/common_widget/outline_button.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/helpers/hive_helper.dart';
@@ -58,14 +58,14 @@ class _LoginPageState extends State<LoginPage> {
         width: double.infinity,
         child: Stack(
           children: [
-            Positioned(
-              top: 0,
-              right: 0,
-              child: IconButton(
-                onPressed: () => Localization.showLanguageDialog(context),
-                icon: Icon(Icons.language, color: Colors.black),
-              ),
-            ),
+            // Positioned(
+            //   top: 0,
+            //   right: 0,
+            //   child: IconButton(
+            //     onPressed: () => Localization.showLanguageDialog(context),
+            //     icon: Icon(Icons.language, color: Colors.black),
+            //   ),
+            // ),
             Center(
               child: Image.asset(
                 'assets/images/login.png',
@@ -111,17 +111,17 @@ class _LoginPageState extends State<LoginPage> {
             ),
             child: TextField(
               controller: _phoneController,
-              maxLength: 8,
+              maxLength: 10,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(8),
+                LengthLimitingTextInputFormatter(10),
               ],
               keyboardType: TextInputType.phone,
               decoration: InputDecoration(
                 counterText: "",
                 hintText:
-                    AppLocalizations.of(context)!.enterEightDigitMobileNumber,
-                prefixText: '+965 - ',
+                    AppLocalizations.of(context)!.enterTenDigitMobileNumber,
+                prefixText: '+91 - ',
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 10,
@@ -180,7 +180,7 @@ class _LoginPageState extends State<LoginPage> {
               Expanded(
                 child: SaverButton(
                   onPressed: () {
-                    if (_phoneController.text.length == 8) {
+                    if (_phoneController.text.length == 10) {
                       _isChecked
                           ? AuthServices.verifyPhoneNumber(
                               context,

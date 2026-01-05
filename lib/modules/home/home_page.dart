@@ -136,10 +136,10 @@ class _HomePageState extends State<HomePage> {
           loadsvg("assets/brandlogo/brand_white.svg"),
           Row(
             children: [
-              IconButton(
-                onPressed: () => Localization.showLanguageDialog(context),
-                icon: Icon(Icons.language, color: AppColor.white),
-              ),
+              // IconButton(
+              //   onPressed: () => Localization.showLanguageDialog(context),
+              //   icon: Icon(Icons.language, color: AppColor.white),
+              // ),
               StreamBuilder<int>(
                 stream: Services.getUserPointsStream(),
                 builder: (context, snapshot) {

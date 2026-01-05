@@ -119,7 +119,7 @@ class _MyAppState extends State<MyApp> {
       child: BlocBuilder<ProfileBloc, ProfileState>(
         builder: (context, state) {
           return MaterialApp(
-            title: 'نعمة',
+            title: 'FoodLynk',
             theme: ThemeData(scaffoldBackgroundColor: AppColor.white),
             debugShowCheckedModeBanner: false,
             navigatorKey: navigatorKey,
