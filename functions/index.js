@@ -3,7 +3,7 @@ const functions = require("firebase-functions/v1");
 const path = require("path");
 var serviceAccountProduction = require(path.join(
   __dirname,
-  "saver-app-2ae53-firebase-adminsdk-fbsvc-411d629523.json"
+  "saver-app-2ae53-c14671a2c80e.json"
 ));
 admin.initializeApp();
 
