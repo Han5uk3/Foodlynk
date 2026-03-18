@@ -1,3 +1,8 @@
 node_modules/
 *.local
+.env
+.env.local
+env
+# Firebase Admin SDK keys
 saver-app-2ae53-firebase-adminsdk-fbsvc-411d629523.json
+saver-app-2ae53-c14671a2c80e.json

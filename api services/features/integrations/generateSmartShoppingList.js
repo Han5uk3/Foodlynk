@@ -1,11 +1,12 @@
 const GeminiAIService = require("../Ai/Gemini_Ai");
+require("dotenv").config();
 
 exports.generateSmartShoppingList = async (req, res) => {
   const { recipeName, noServings } = req.body;
-  const apiKey = req.headers["x-api-key"];
+  const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    return res.status(401).json({ error: "API key missing" });
+    return res.status(401).json({ error: "Gemini API key not configured" });
   }
 
   if (!recipeName || !noServings) {
