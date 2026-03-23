@@ -2,17 +2,14 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:saver_bbk_main/api/app_apis.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
-import 'package:saver_bbk_main/services/storage_services.dart';
+import 'package:saver_bbk_main/services/food_detection_service.dart';
 import 'package:saver_bbk_main/l10n/app_localizations.dart';
 
 part 'challenge_event.dart';
 part 'challenge_state.dart';
 
 class ChallengeBloc extends Bloc<ChallengeEvent, ChallengeState> {
-  final AppApis _appApis = AppApis();
-
   ChallengeBloc() : super(ChallengeInitial()) {
     on<UploadBeforeImageEvent>(_uploadBeforeImage);
     on<RemoveBeforeImageEvent>(_removeBeforeImage);
@@ -27,16 +24,12 @@ class ChallengeBloc extends Bloc<ChallengeEvent, ChallengeState> {
   ) async {
     emit(BeforeUploadImageLoadingState());
     try {
-      String? beforeImagePath = await StorageService.uploadFile(
-        mainPath: "Challenges",
-        fileName: Services.uid ?? "",
-        filePath: event.imageFile.path,
-        isDeleted: true,
-      );
-
-      if (beforeImagePath != null) {
-        bool isValid = await _appApis.comapreOnePlate(beforeImagePath);
+      // Validate image locally without uploading to Firebase
+      try {
+        bool isValid =
+            await FoodDetectionService.classifyFoodImage(event.imageFile.path);
         if (isValid) {
+          // Just store the local file reference, don't upload yet
           emit(BeforeUploadImageSuccessState(image: event.imageFile));
         } else {
           emit(
@@ -46,11 +39,11 @@ class ChallengeBloc extends Bloc<ChallengeEvent, ChallengeState> {
             ),
           );
         }
-      } else {
+      } catch (detectionError) {
         emit(
           BeforeUploadImageErrorState(
             errorMessage:
-                "Failed to upload image. Please check your connection.",
+                "Food detection error. Please try a clearer image. Error: ${detectionError.toString()}",
           ),
         );
       }
@@ -76,52 +69,33 @@ class ChallengeBloc extends Bloc<ChallengeEvent, ChallengeState> {
   ) async {
     emit(AfterUploadImageLoadingState());
     try {
-      String? afterImagePath = await StorageService.uploadFile(
-        mainPath: "Challenges",
-        fileName: "${Services.uid}_after",
-        filePath: event.imageFile.path,
-        isDeleted: true,
-      );
-
-      if (afterImagePath != null) {
-        String? beforeImagePath = await StorageService.getFileUrl(
-          mainPath: "Challenges",
-          fileName: Services.uid ?? "",
+      // Validate both images locally without uploading to Firebase
+      try {
+        bool isValid = await FoodDetectionService.compareTwoPlates(
+          event.beforeImageFile.path,
+          event.imageFile.path,
         );
-
-        if (beforeImagePath != null) {
-          bool isValid = await _appApis.compareTwoPlates(
-            beforeImagePath,
-            afterImagePath,
+        if (isValid) {
+          // Just store the local file references, don't upload yet
+          emit(
+            AfterUploadImageSuccessState(
+              beforeImage: event.beforeImageFile,
+              afterImage: event.imageFile,
+            ),
           );
-          if (isValid) {
-            emit(
-              AfterUploadImageSuccessState(
-                beforeImage: event.beforeImageFile,
-                afterImage: event.imageFile,
-              ),
-            );
-          } else {
-            emit(
-              AfterUploadImageErrorState(
-                errorMessage:
-                    AppLocalizations.of(event.context)!.theAfterimageDoesntShow,
-              ),
-            );
-          }
         } else {
           emit(
             AfterUploadImageErrorState(
               errorMessage:
-                  "Failed to retrieve before image. Please upload it again.",
+                  AppLocalizations.of(event.context)!.theAfterimageDoesntShow,
             ),
           );
         }
-      } else {
+      } catch (detectionError) {
         emit(
           AfterUploadImageErrorState(
             errorMessage:
-                "Failed to upload after image. Please check your connection.",
+                "Comparison error. Please try clearer images. Error: ${detectionError.toString()}",
           ),
         );
       }
@@ -148,42 +122,25 @@ class ChallengeBloc extends Bloc<ChallengeEvent, ChallengeState> {
     SubmitChallengeEvent event,
     Emitter<ChallengeState> emit,
   ) async {
+    // Capture current state BEFORE emitting loading (which overwrites state)
+    final currentState = state;
+    
     emit(ChallengeSubmissionLoadingState());
     try {
-      String? beforeImagePath = await StorageService.getFileUrl(
-        mainPath: "Challenges",
-        fileName: Services.uid ?? "",
-      );
-      String? afterImagePath = await StorageService.getFileUrl(
-        mainPath: "Challenges",
-        fileName: "${Services.uid}_after",
-      );
-
-      if (beforeImagePath != null && afterImagePath != null) {
-        bool isSuccessful = await _appApis.compareTwoPlates(
-          beforeImagePath,
-          afterImagePath,
-        );
-        if (isSuccessful) {
-          int pointsEarned = 10;
-          await Services.updateUserPoints(pointsEarned);
-          emit(ChallengeSubmissionSuccessState(points: pointsEarned));
-        } else {
-          emit(
-            ChallengeSubmissionErrorState(
-              errorMessage:
-                  "Challenge verification failed. The before and after images don't match the criteria.",
-            ),
-          );
-        }
-      } else {
+      // Get the current state to access the validated image files
+      if (currentState is! AfterUploadImageSuccessState) {
         emit(
           ChallengeSubmissionErrorState(
-            errorMessage:
-                "Failed to retrieve images. Please upload them again.",
+            errorMessage: "Please upload both before and after images.",
           ),
         );
+        return;
       }
+
+      // Already validated locally, just award points
+      int pointsEarned = 10;
+      await Services.updateUserPoints(pointsEarned);
+      emit(ChallengeSubmissionSuccessState(points: pointsEarned));
     } catch (e) {
       emit(
         ChallengeSubmissionErrorState(

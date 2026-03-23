@@ -63,7 +63,10 @@ class _SplashScreenState extends State<SplashScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(height: 300),
-          Image.asset('assets/brandlogo/Logo.png'),
+          Image.asset(
+            'assets/brandlogo/logo_nobg.PNG',
+            height: 280,
+          ),
           Image.asset('assets/images/splash_screen.png'),
         ],
       ),

@@ -44,6 +44,10 @@ Please provide the following details in JSON format with **this exact structure*
       { "item": "Ingredient Name", "quantity": "Quantity" },
       { "item": "Ingredient Name", "quantity": "Quantity" }
     ],
+    "steps": [
+      "Step 1 description",
+      "Step 2 description"
+    ],
     "nutrition_per_serving": {
       "calories": "Calories",
       "protein": "Protein",
@@ -110,6 +114,7 @@ Only return the JSON response without any other text or explanation.
         noOfServings: numberOfServings,
         itemsFromKitchen: ingredients,
         ingredients: formattedIngredients,
+        steps: recipeData.steps || [],
         nutritionalInfo: cleanNutritionalInfo,
       },
     });

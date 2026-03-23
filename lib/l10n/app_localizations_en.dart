@@ -229,7 +229,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'You earned 10 points on completiing your challenge!';
 
   @override
-  String get back => 'back';
+  String get back => 'Back';
 
   @override
   String get youveConsumedZeroOfYourFood =>

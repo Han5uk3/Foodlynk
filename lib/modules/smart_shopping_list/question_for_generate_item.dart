@@ -31,37 +31,40 @@ class _QuestionnaireState extends State<Questionnaire> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Stack(
-          children: [
-            Container(
-              height: MediaQuery.of(context).size.height,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFFF9FFFA),
-                    Color(0xFFE1F5E6),
-                    Color(0xFF6FCF97),
-                  ],
-                  stops: [0.2, 0.6, 1.0],
+        child: SizedBox.expand(
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color(0xFFF9FFFA),
+                        Color(0xFFE1F5E6),
+                        Color(0xFF6FCF97),
+                      ],
+                      stops: [0.2, 0.6, 1.0],
+                    ),
+                  ),
                 ),
               ),
-            ),
-            Positioned(
-              top: 16,
-              left: 16,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_rounded,
-                    color: Colors.black87),
-                onPressed: () => Navigator.pop(context),
+              Positioned(
+                top: 16,
+                left: 16,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_rounded,
+                      color: Colors.black87),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 70),
-              child: _buildContent(),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.only(top: 70),
+                child: _buildContent(),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -248,11 +251,13 @@ class _QuestionnaireState extends State<Questionnaire> {
       if (constraints.maxWidth < 320) {
         return Row(
           children: [
-            SaverOutlineButton(
-              borderColor: Colors.black54,
-              textColor: Colors.black54,
-              text: AppLocalizations.of(context)!.cancel,
-              onPressed: () => Navigator.pop(context),
+            Flexible(
+              child: SaverOutlineButton(
+                borderColor: Colors.black54,
+                textColor: Colors.black54,
+                text: AppLocalizations.of(context)!.cancel,
+                onPressed: () => Navigator.pop(context),
+              ),
             ),
             const SizedBox(width: 8),
             Flexible(
@@ -269,18 +274,22 @@ class _QuestionnaireState extends State<Questionnaire> {
 
       return Row(
         children: [
-          SaverOutlineButton(
-            borderColor: Colors.black54,
-            textColor: Colors.black54,
-            text: AppLocalizations.of(context)!.cancel,
-            onPressed: () => Navigator.pop(context),
+          Expanded(
+            child: SaverOutlineButton(
+              borderColor: Colors.black54,
+              textColor: Colors.black54,
+              text: AppLocalizations.of(context)!.cancel,
+              onPressed: () => Navigator.pop(context),
+            ),
           ),
           const SizedBox(width: 16),
-          SaverButton(
-            isLoading: isLoading,
-            color: AppColor.primaryColor,
-            text: AppLocalizations.of(context)!.generateList,
-            onPressed: () => _validateAndSubmit(context),
+          Expanded(
+            child: SaverButton(
+              isLoading: isLoading,
+              color: AppColor.primaryColor,
+              text: AppLocalizations.of(context)!.generateList,
+              onPressed: () => _validateAndSubmit(context),
+            ),
           ),
         ],
       );

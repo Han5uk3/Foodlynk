@@ -34,8 +34,7 @@ void main() async {
   await dotenv.load(fileName: "lib/.env");
   await Hive.initFlutter();
   await Hive.openBox(boxName);
-  final savedLocale = ProfileBloc.getSavedLocale();
-  runApp(MyApp(initialLocale: savedLocale));
+  runApp(MyApp(initialLocale: const Locale('en')));
 }
 
 class MyApp extends StatefulWidget {
@@ -123,14 +122,14 @@ class _MyAppState extends State<MyApp> {
             theme: ThemeData(scaffoldBackgroundColor: AppColor.white),
             debugShowCheckedModeBanner: false,
             navigatorKey: navigatorKey,
-            locale: state.locale,
+            locale: const Locale('en'),
             localizationsDelegates: const [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            supportedLocales: const [Locale('en'), Locale('ar')],
+            supportedLocales: const [Locale('en')],
             home: SplashScreen(),
           );
         },

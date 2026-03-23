@@ -23,9 +23,9 @@ class GeminiAIService {
 
       const generationConfig = {
         temperature: 0.7,
-        maxOutputTokens: 1024,
         topK: 40,
         topP: 0.9,
+        responseMimeType: "application/json",
       };
 
       const request = {

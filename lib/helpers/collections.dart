@@ -12,6 +12,9 @@ class Collections {
   );
   static CollectionReference donations = firestore.collection(Paths.donations);
   static CollectionReference reports = firestore.collection(Paths.reports);
+  static CollectionReference zeroWasteSavedPlans = firestore.collection(
+    Paths.zeroWasteSavedPlans,
+  );
 }
 
 class Paths {
@@ -21,4 +24,5 @@ class Paths {
   static String notifications = "notifications";
   static String donations = "donations";
   static String reports = "reports";
+  static String zeroWasteSavedPlans = "zero-waste-saved-plans";
 }

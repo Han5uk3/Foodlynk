@@ -5,6 +5,7 @@ import 'package:saver_bbk_main/common_widget/loader.dart';
 import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/text_field.dart';
+import 'package:saver_bbk_main/helpers/collections.dart';
 import 'package:saver_bbk_main/helpers/date_format.dart';
 import 'package:saver_bbk_main/models/smart_shopping_model.dart';
 import 'package:saver_bbk_main/modules/smart_shopping_list/bloc/smart_shopping_bloc.dart';
@@ -327,12 +328,54 @@ class _SmartShoppingHomeState extends State<SmartShoppingHome> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      item.listName ?? "",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            item.listName ?? "",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            bool? confirm = await showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text(AppLocalizations.of(context)!.delete),
+                                content: Text("Are you sure you want to permanently delete this shopping list?"),
+                                actions: [
+                                  TextButton(onPressed: () => Navigator.pop(context, false), child: Text("Cancel", style: TextStyle(color: Colors.grey))),
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, true), 
+                                    child: Text("Delete", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirm == true) {
+                              try {
+                                await Collections.smartShopping.doc(item.listId).delete();
+                                if (mounted) {
+                                  SaverSnackBar.show(context: context, message: "List deleted permanently.", isTrue: true);
+                                }
+                              } catch (e) {
+                                if (mounted) {
+                                  SaverSnackBar.show(context: context, message: "Failed to delete list.", isTrue: false);
+                                }
+                              }
+                            }
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Icon(Icons.delete_outline, color: Colors.red.shade400, size: 24),
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 6),
                     Row(

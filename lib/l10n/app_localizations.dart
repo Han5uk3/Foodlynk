@@ -515,7 +515,7 @@ abstract class AppLocalizations {
   /// No description provided for @back.
   ///
   /// In en, this message translates to:
-  /// **'back'**
+  /// **'Back'**
   String get back;
 
   /// No description provided for @youveConsumedZeroOfYourFood.

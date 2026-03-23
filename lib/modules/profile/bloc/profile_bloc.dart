@@ -23,8 +23,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }
 
   static Locale getSavedLocale() {
-    String languageCode = HiveHelper().getUserlanguage();
-    return Locale(languageCode);
+    return const Locale('en');
   }
 
   void _onChangeLocale(ChangeLocale event, Emitter<ProfileState> emit) {
