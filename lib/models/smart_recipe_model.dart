@@ -91,10 +91,10 @@ class Recipe {
     String toRawJson() => json.encode(toJson());
 
     factory Recipe.fromJson(Map<String, dynamic> json) => Recipe(
-        foodName: json["food_name"],
-        cookingTime: json["cooking_time"],
+        foodName: json["food_name"] ?? json["foodName"],
+        cookingTime: json["cooking_time"] ?? json["cookingTime"],
         steps: json["steps"] == null ? [] : List<Step>.from(json["steps"]!.map((x) => Step.fromJson(x))),
-        imageUrl: json["image_url"],
+        imageUrl: json["image_url"] ?? json["imageUrl"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -129,7 +129,7 @@ class Step {
 
     factory Step.fromJson(Map<String, dynamic> json) => Step(
         step: json["step"],
-        whatToDo: json["whatToDo"],
+        whatToDo: json["whatToDo"] ?? json["instruction"],
     );
 
     Map<String, dynamic> toJson() => {

@@ -7,6 +7,7 @@ import 'package:saver_bbk_main/common_widget/saver_appbar.dart';
 import 'package:saver_bbk_main/common_widget/snakbar.dart';
 import 'package:saver_bbk_main/common_widget/text_field.dart';
 import 'package:saver_bbk_main/modules/zero_waste_cooking/bloc/zero_waste_cooking_bloc.dart';
+import 'package:saver_bbk_main/modules/zero_waste_cooking/saved_zero_waste_plans.dart';
 import 'package:saver_bbk_main/modules/zero_waste_cooking/zero_waste_generated_result.dart';
 import 'package:saver_bbk_main/services/app_services.dart';
 import 'package:saver_bbk_main/styles/colors.dart';
@@ -60,6 +61,17 @@ class _ZeroWasteCookingPageState extends State<ZeroWasteCookingPage> {
         textColor: AppColor.white,
         iswhite: false,
         onpop: widget.onBack,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.bookmarks_sharp, color: AppColor.white),
+            onPressed: () {
+              Navigator.push(
+                context, 
+                MaterialPageRoute(builder: (context) => SavedZeroWastePlansPage())
+              );
+            },
+          )
+        ],
       ),
       body: BlocListener<ZeroWasteCookingBloc, ZeroWasteCookingState>(
         listener: (context, state) {

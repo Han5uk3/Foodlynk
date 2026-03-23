@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:saver_bbk_main/common_widget/label.dart';
-import 'package:saver_bbk_main/common_widget/localization.dart';
 import 'package:saver_bbk_main/common_widget/svgicon.dart';
 import 'package:saver_bbk_main/modules/home/widgets/coins.dart';
 import 'package:saver_bbk_main/modules/home/widgets/home_banner.dart';
@@ -61,12 +60,6 @@ class _HomePageState extends State<HomePage> {
         "name": AppLocalizations.of(context)!.zeroWasteCooking,
         "image": "waste free cooking.svg",
         "color": 0xFFFAF0FA,
-      },
-      {
-        "id": 8,
-        "name": AppLocalizations.of(context)!.learnAndSave,
-        "image": "Learn & Save.svg",
-        "color": 0xFFfad7ee,
       },
     ];
     return Scaffold(
@@ -129,11 +122,11 @@ class _HomePageState extends State<HomePage> {
           bottomRight: Radius.circular(0),
         ),
       ),
-      padding: const EdgeInsets.only(left: 25, right: 25, top: 50, bottom: 16),
+      padding: const EdgeInsets.only(left: 0, right: 25, top: 20, bottom: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          loadsvg("assets/brandlogo/brand_white.svg"),
+          Image.asset('assets/brandlogo/logo_nobg.PNG', height: 60),
           Row(
             children: [
               // IconButton(

@@ -21,11 +21,12 @@ class AppApis {
   ) async {
     final url = Uri.parse("$apiUrl/api-features/generate-protein-plan");
     try {
+      print('🚀 [API] Sending generateProteinPlan request to \$url');
       final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': dotenv.env['GOOGLE_GEMINI_API_KEY'] ?? "",
+          'x-api-key': dotenv.env['GEMINI_API_KEY'] ?? "",
         },
         body: jsonEncode({
           "whatAreYouCooking": whatareyoucooking,
@@ -37,15 +38,20 @@ class AppApis {
           "isDieting": isDieting,
         }),
       );
+      
+      print('📥 [API] generateProteinPlan response. Status: \${response.statusCode}');
+      print('📥 [API] generateProteinPlan Body: \${response.body}');
+
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
         return GenaratedProteinPlanModel.fromJson(json);
       } else {
         throw Exception(
-          'Failed to generate protein plan: ${response.statusCode}',
+          'Failed to generate protein plan: \${response.statusCode} - \${response.body}',
         );
       }
     } catch (e) {
+      print('🚨 [API ERROR] generateProteinPlan: \$e');
       rethrow;
     }
   }
@@ -55,23 +61,33 @@ class AppApis {
   ) async {
     final url = Uri.parse("$apiUrl/api-features/generate-smart-recipe");
     try {
+      print('🚀 [API] Sending generateSmartRecipe request to $url');
       final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': dotenv.env['GOOGLE_GEMINI_API_KEY'] ?? "",
+          'x-api-key': dotenv.env['GEMINI_API_KEY'] ?? "",
+          'x-unsplash-key': dotenv.env['UNSPLASH_ACCESS_KEY'] ?? "",
         },
         body: jsonEncode({"ingredients": ingredients}),
       );
+      
+      print('📥 [API] Received response. Status: ${response.statusCode}');
+      print('📥 [API] Body length: ${response.body.length}, Body: ${response.body}');
+      
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
+        print('✅ [API] JSON decoded successfully.');
         return GenerateSmartRecipe.fromJson(json);
       } else {
+        print('❌ [API] Non-200 Status Detected. Throwing Exception!');
         throw Exception(
-          'Failed to generate smart recipe: ${response.statusCode}',
+          'Failed to generate smart recipe: ${response.statusCode} - ${response.body}',
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('🚨 [API ERROR] Error in generateSmartRecipe: $e');
+      print('🚨 [STACK TRACE] $stackTrace');
       rethrow;
     }
   }
@@ -153,14 +169,20 @@ class AppApis {
         url,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': dotenv.env['GOOGLE_GEMINI_API_KEY'] ?? "",
+          'x-api-key': dotenv.env['GEMINI_API_KEY'] ?? "",
         },
         body: jsonEncode(
             {"recipeName": recipeName, "noServings": numberOfServings}),
       );
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
-        return GnerateSmartShoppingList.fromJson(json);
+        // Backend returns { success: true, data: { ingredients: [...] } }
+        // We only want the content inside "data"
+        if (json["data"] != null) {
+          return GnerateSmartShoppingList.fromJson(json["data"]);
+        } else {
+          return GnerateSmartShoppingList.fromJson(json);
+        }
       } else {
         throw Exception(
           'Failed to generate smart shopping list: ${response.statusCode}',
@@ -168,6 +190,54 @@ class AppApis {
       }
     } catch (e) {
       rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> normalizeShoppingListItems(List<String> items) async {
+    final apiKey = dotenv.env['GEMINI_API_KEY'] ?? "";
+    final url = Uri.parse("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=\$apiKey");
+    
+    final prompt = """
+Take this list of missing ingredients and normalize them for a shopping app database.
+Rules:
+1. 'quantity' MUST be a purely numerical integer.
+2. 'unit' MUST be strictly 'Nos'.
+3. 'category' MUST be strictly one of exactly: ["Dairy", "Meat", "Oils", "Poultry", "Fruits", "Vegetables", "Seafood"]. If it doesn't fit perfectly, default to "Vegetables".
+4. 'name' should be exactly the localized human readable item name including its intended pack/size wrapper.
+
+Example: "1/4 cup of shredded cheese" -> {"name": "pack shredded cheese", "quantity": 1, "category": "Dairy"}
+
+Input Ingredients: \${items.join(", ")}
+
+Return ONLY a perfectly formatted JSON array with the exact keys: 'name' (String), 'quantity' (Integer), and 'category' (String). Do not return extra text.
+""";
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "contents": [
+            {
+              "parts": [{"text": prompt}]
+            }
+          ],
+          "generationConfig": {
+            "responseMimeType": "application/json"
+          }
+        }),
+      );
+      
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        final rawText = jsonResponse['candidates'][0]['content']['parts'][0]['text'];
+        final List<dynamic> parsedList = jsonDecode(rawText);
+        return parsedList.map((e) => e as Map<String, dynamic>).toList();
+      } else {
+        throw Exception("Failed to normalize items: \${response.statusCode} - \${response.body}");
+      }
+    } catch (e) {
+      throw Exception("Error formatting with Gemini: \$e");
     }
   }
 }

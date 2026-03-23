@@ -32,6 +32,7 @@ class Data {
   final int? numberOfServings;
   final List<String>? itemsFromKitchen;
   final NutritionalInfo? nutritionalInfo;
+  final List<String>? steps;
 
   Data({
     this.recipeName,
@@ -39,6 +40,7 @@ class Data {
     this.numberOfServings,
     this.itemsFromKitchen,
     this.nutritionalInfo,
+    this.steps,
   });
 
   Data copyWith({
@@ -47,12 +49,14 @@ class Data {
     int? numberOfServings,
     List<String>? itemsFromKitchen,
     NutritionalInfo? nutritionalInfo,
+    List<String>? steps,
   }) => Data(
     recipeName: recipeName ?? this.recipeName,
     ingredients: ingredients ?? this.ingredients,
     numberOfServings: numberOfServings ?? this.numberOfServings,
     itemsFromKitchen: itemsFromKitchen ?? this.itemsFromKitchen,
     nutritionalInfo: nutritionalInfo ?? this.nutritionalInfo,
+    steps: steps ?? this.steps,
   );
 
   factory Data.fromRawJson(String str) => Data.fromJson(json.decode(str));
@@ -76,6 +80,10 @@ class Data {
         json["nutritionalInfo"] == null
             ? null
             : NutritionalInfo.fromJson(json["nutritionalInfo"]),
+    steps:
+        json["steps"] == null
+            ? []
+            : List<String>.from(json["steps"]!.map((x) => x.toString())),
   );
 
   Map<String, dynamic> toJson() => {
@@ -90,6 +98,10 @@ class Data {
             ? []
             : List<dynamic>.from(itemsFromKitchen!.map((x) => x)),
     "nutritionalInfo": nutritionalInfo?.toJson(),
+    "steps":
+        steps == null
+            ? []
+            : List<dynamic>.from(steps!.map((x) => x)),
   };
 }
 
